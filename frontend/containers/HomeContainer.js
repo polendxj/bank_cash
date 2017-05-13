@@ -101,13 +101,13 @@ export default class HomeContainer extends Component {
                                             <div className="showcase showcase-chart-knob">
                                                 <div className="clearfix">
                                                     <span>
-                                                        <i className="fa fa-desktop"
+                                                        <i className="fa fa-credit-card"
                                                            style={{color: "rgb(255, 140, 0)"}}></i>
                                                         <a href="#">已绑卡用户<small
                                                             style={{color: "rgb(255, 140, 0)"}}>75</small></a>
                                                     </span>
                                                     <span>
-                                                        <i className="fa fa-mobile-phone"
+                                                        <i className="fa fa-question"
                                                            style={{color: "rgb(204, 204, 204)"}}></i>
                                                         <a href="#">未绑卡用户<small
                                                             style={{color: "rgb(204, 204, 204)"}}>25</small></a>
@@ -115,7 +115,7 @@ export default class HomeContainer extends Component {
                                                 </div>
                                                 <div style={{display: "inline", width: "140px", height: "140px"}}>
                                                     <canvas width="175" height="175"
-                                                            style={{width: "140px", height: "140px",marginLeft:"-140px"}}></canvas>
+                                                            style={{width: "140px", height: "140px",marginLeft:"-127px"}}></canvas>
                                                     <input className="knob" data-animate="true"
                                                            data-displayinput="false"
                                                            data-thickness="0.2" data-width="140" data-height="140"
@@ -123,7 +123,7 @@ export default class HomeContainer extends Component {
                                                            data-color="darkorange" value="75" readOnly="readonly"
                                                            style={{display: "none", width: "0", visibility: "hidden"}}/>
                                                 </div>
-                                                <h5><i className="fa fa-globe" style={{marginLeft: "-19px"}}></i>
+                                                <h5><i className="fa fa-users" style={{marginLeft: "-19px"}}></i>
                                                     平台用户绑卡状态
                                                 </h5>
                                             </div>
