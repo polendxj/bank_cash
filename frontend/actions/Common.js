@@ -6,7 +6,7 @@ import {
 } from '../constants/index'
 import fetch from 'isomorphic-fetch'
 import {browserHistory} from 'react-router'
-import {ErrorModal, SuccessModal} from '../components/Tool/Tool'
+import {} from '../frameworkHelper/FrameWorkUtils'
 
 
 export function commonRefresh() {

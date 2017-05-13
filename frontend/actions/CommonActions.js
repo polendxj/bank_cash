@@ -3,7 +3,7 @@
  */
 import fetch from 'isomorphic-fetch'
 import {browserHistory} from 'react-router'
-import {ErrorModal, SuccessModal, ConfirmModalSuccess} from '../components/Tool/Tool'
+import {} from '../frameworkHelper/FrameWorkUtils'
 
 /*
  * Function  This function can use multiple condition to search list

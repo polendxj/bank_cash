@@ -10,7 +10,7 @@ var CatchUncaughtException = function (func, resp) {
         }
         logger.error(e.stack)
     }
-}
+};
 
 var CatchNot200Exception = function (res, data, resp) {
     if (res.status == 200) {
@@ -24,7 +24,7 @@ var CatchNot200Exception = function (res, data, resp) {
         logger.error(res.url + ',' + res.status + ',' + res.statusText + ',data:' + data)
         return false;
     }
-}
+};
 
 var CatchNotFalseException = function (json, resp, callback) {
     if (!json) {
@@ -34,7 +34,7 @@ var CatchNotFalseException = function (json, resp, callback) {
     } else {
         resp.send(json)
     }
-}
+};
 
 var ObjArrSort = function (name) {
     return function (o, p) {
@@ -56,7 +56,7 @@ var ObjArrSort = function (name) {
 
     }
 
-}
+};
 
 var DecodeBase64 = function (data) {
     var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -110,9 +110,9 @@ var DecodeBase64 = function (data) {
         }
         return string;
     }
-}
+};
 
-var formatDate = function (now) {
+var FormatDate = function (now) {
     var year = now.getFullYear();
     var month = now.getMonth() + 1;
     var date = now.getDate();
@@ -120,11 +120,43 @@ var formatDate = function (now) {
     var minute = now.getMinutes();
     var second = now.getSeconds();
     return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
-}
+};
 
-module.exports.uncaughtException = CatchUncaughtException
-module.exports.not200Exception = CatchNot200Exception
-module.exports.notFalseException = CatchNotFalseException
-module.exports.ObjArrSort = ObjArrSort
-module.exports.DecodeBase64 = DecodeBase64
-module.exports.FormatDate = formatDate
+var Request = function (url, method, data, req, resp, callback) {
+    var resTemp = "";
+    CatchUncaughtException(function () {
+        fetch(url,
+            {
+                method: method,
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    'Cookie': "JSESSIONID=" + req.cookies.JSESSIONID
+                },
+                body: data,
+                timeout: 30000
+            })
+            .then(function (res) {
+                resTemp = res;
+                return CatchNot200Exception(res, data)
+
+            })
+            .then(function (json) {
+                if (resTemp.status == 404) {
+                    CatchNotFalseException("-10000", resp, callback)
+                } else {
+                    CatchNotFalseException(json, resp, callback)
+                }
+            })
+            .catch(function (ex) {
+                resp.sendStatus(500)
+            });
+    }, resp)
+};
+
+module.exports.uncaughtException = CatchUncaughtException;
+module.exports.not200Exception = CatchNot200Exception;
+module.exports.notFalseException = CatchNotFalseException;
+module.exports.ObjArrSort = ObjArrSort;
+module.exports.DecodeBase64 = DecodeBase64;
+module.exports.FormatDate = FormatDate;
+module.exports.Request = Request;

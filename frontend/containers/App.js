@@ -3,7 +3,7 @@ import {connect} from 'react-redux'
 import {bindActionCreators} from 'redux'
 import {browserHistory} from 'react-router'
 import {commonRefresh} from '../actions/Common'
-import {EncodeBase64, ErrorModal, deleteCookie, Loading} from '../components/Tool/Tool'
+import {EncodeBase64, deleteCookie} from '../frameworkHelper/FrameWorkUtils'
 
 
 class App extends Component {
@@ -13,8 +13,7 @@ class App extends Component {
 
     componentDidMount() {
         setTimeout(function () {
-            console.log($("body").children("div").first().removeClass("mm-page"));
-
+            $("body").children("div").first().removeClass("mm-page");
         }, 1);
     }
 
@@ -40,53 +39,21 @@ class FrameWork extends Component {
     }
 }
 
-class LeftMenu extends Component{
-    render(){
-        return(
+class LeftMenu extends Component {
+    render() {
+        return (
             <nav id="menu" data-search="close">
                 <ul>
-                    <li><span><i className="icon  fa fa-laptop"></i> Dashboard</span>
+                    <li><a href="front/index.html"><i className="icon  fa fa-rocket"></i> 会员信息 </a></li>
+                    <li><span><i className="icon  fa fa-th-list"></i> 处理任务</span>
                         <ul>
-                            <li><a href="dashboard.html"><i className="icon  fa fa-rocket"></i> First Design </a>
-                            </li>
-                            <li><a href="dashboard2.html"><i className="icon  fa fa-th"></i> Dashboard New </a></li>
+                            <li className="Label label-lg">流水提取 </li>
+                            <li><a href="alwayMenu.html"> 后台选码 </a></li>
+                            <li><a href="hideUserPanel.html"> 会员续费</a></li>
                         </ul>
                     </li>
-                    <li><a href="front/index.html"><i className="icon  fa fa-rocket"></i> Front End </a></li>
-                    <li><span><i className="icon  fa fa-th-list"></i> Layout</span>
-                        <ul>
-                            <li className="Label label-lg">Main Layout</li>
-                            <li><a href="alwayMenu.html"> Alway Left Menu </a></li>
-                            <li><a href="hideUserPanel.html"> Hide User Panel </a></li>
-                            <li><a href="hideUserPanelIn.html"> Show & Hide</a></li>
-                            <li className="Label label-lg">Other Layout</li>
-                            <li><a href="topMenu.html"> Top Menu</a></li>
-                            <li><a href="footerShow.html"> Footer Show</a></li>
-                            <li><a href="footerMenu.html"> Footer with menu</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="mailBox.html"><i className="icon  fa fa-inbox"></i> Mail</a></li>
-                    <li><span><i className="icon  fa fa-briefcase"></i> UI Element</span>
-                        <ul>
-                            <li><a href="ui.html"> UI </a></li>
-                            <li><a href="ui_button.html"> Button </a></li>
-                            <li><a href="ui_icon.html"> Fonts Icon</a></li>
-                            <li><a href="ui_slide.html"> Slide</a></li>
-                            <li><a href="ui_modal.html"> Modal</a></li>
-                            <li><a href="ui_panel.html"> Panel</a></li>
-                            <li><a href="ui_alert.html"> Alert</a></li>
-                            <li><a href="ui_typography.html"> Typography</a></li>
-                            <li><a href="ui_nestable.html"> Nestable</a></li>
-                        </ul>
-                    </li>
-                    <li><span><i className="icon  fa fa-bar-chart-o"></i> Chart </span>
-                        <ul>
-                            <li><a href="chartFlot.html"> Flot Chart</a></li>
-                            <li><a href="chartMorris.html"> Morris Chart</a></li>
-                            <li><a href="chartOther.html"> Other Chart</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="calendar.html"><i className="icon  fa fa-calendar-o"></i> Calendar </a></li>
+                    <li><a href="front/index.html"><i className="icon  fa fa-rocket"></i> 统计分析（开发中） </a></li>
+                    <li><a href="front/index.html"><i className="icon  fa fa-rocket"></i> 权限分配（开发中） </a></li>
 
                 </ul>
             </nav>
@@ -94,9 +61,329 @@ class LeftMenu extends Component{
     }
 }
 
-class TopMenu extends Component{
-    render(){
-        return(
+class RightMenu extends Component {
+    render() {
+        return (
+            <nav id="menu-right">
+                <ul>
+                    <li className="Label label-lg">Theme color</li>
+                    <li>
+							<span className="text-center">
+								<div id="style1" className="color-themes col1"></div>
+								<div id="style2" className="color-themes col2"></div>
+								<div id="style3" className="color-themes col3"></div>
+								<div id="style4" className="color-themes col4"></div>
+								<div id="none" className="color-themes col5"></div>
+							</span>
+                    </li>
+                    <li className="Label label-lg">Contact Group</li>
+                    <li data-counter-color="theme">
+                        <span><i className="icon fa fa-smile-o"></i> Friends</span>
+                        <ul>
+                            <li className="Label">A</li>
+                            <li className="img">
+                                <a href="#" className="online">
+                                    <img alt="" src="assets/photos_preview/50/people/1.jpg"/> Alexa
+                                    <small>Johnson</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#" className="busy">
+                                    <img alt="" src="assets/photos_preview/50/people/2.jpg"/> Alexander
+                                    <small>Brown</small>
+                                </a>
+                            </li>
+                            <li className="Label">F</li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/3.jpg"/> Fred
+                                    <small>Smith</small>
+                                </a>
+                            </li>
+                            <li className="Label">J</li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/4.jpg"/> James
+                                    <small>Miller</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/5.jpg"/> Jefferson
+                                    <small>Jackson</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/6.jpg"/> Jordan
+                                    <small>Lee</small>
+                                </a>
+                            </li>
+                            <li className="Label">K</li>
+                            <li className="img">
+                                <a href="#" className="online">
+                                    <img alt="" src="assets/photos_preview/50/people/7.jpg"/> Kim
+                                    <small>Adams</small>
+                                </a>
+                            </li>
+                            <li className="Label">M</li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/8.jpg"/> Meagan
+                                    <small>Miller</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#" className="busy">
+                                    <img alt="" src="assets/photos_preview/50/people/9.jpg"/> Melissa
+                                    <small>Johnson</small>
+                                </a>
+                            </li>
+                            <li className="Label">N</li>
+                            <li className="img">
+                                <a href="#" className="online">
+                                    <img alt="" src="assets/photos_preview/50/people/10.jpg"/> Nicole
+                                    <small>Smith</small>
+                                </a>
+                            </li>
+                            <li className="Label">S</li>
+                            <li className="img">
+                                <a href="#" className="online">
+                                    <img alt="" src="assets/photos_preview/50/people/1.jpg"/> Samantha
+                                    <small>Harris</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#" className="block">
+                                    <img alt="" src="assets/photos_preview/50/people/2.jpg"/> Scott
+                                    <small>Thompson</small>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <span><i className="icon  fa fa-home"></i> Family</span>
+                        <ul>
+                            <li className="Label">A</li>
+                            <li className="img">
+                                <a href="#" className="busy">
+                                    <img alt="" src="assets/photos_preview/50/people/3.jpg"/> Adam
+                                    <small>White</small>
+                                </a>
+                            </li>
+                            <li className="Label">B</li>
+                            <li className="img">
+                                <a href="#" className="busy">
+                                    <img alt="" src="assets/photos_preview/50/people/4.jpg"/> Ben
+                                    <small>Robinson</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/5.jpg"/> Bruce
+                                    <small>Lee</small>
+                                </a>
+                            </li>
+                            <li className="Label">E</li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/6.jpg"/> Eddie
+                                    <small>Williams</small>
+                                </a>
+                            </li>
+                            <li className="Label">J</li>
+                            <li className="img">
+                                <a href="#" className="online">
+                                    <img alt="" src="assets/photos_preview/50/people/7.jpg"/> Jack
+                                    <small>Johnson</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/8.jpg"/> John
+                                    <small>Jackman</small>
+                                </a>
+                            </li>
+                            <li className="Label">M</li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/9.jpg"/> Martina
+                                    <small>Thompson</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#" className="busy">
+                                    <img alt="" src="assets/photos_preview/50/people/10.jpg"/> Matthew
+                                    <small>Watson</small>
+                                </a>
+                            </li>
+                            <li className="Label">O</li>
+                            <li className="img">
+                                <a href="#" className="online">
+                                    <img alt="" src="assets/photos_preview/50/people/1.jpg"/> Olivia
+                                    <small>Taylor</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#" className="online">
+                                    <img alt="" src="assets/photos_preview/50/people/2.jpg"/> Owen
+                                    <small>Wilson</small>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li data-counter-color="theme-inverse">
+                        <span><i className="icon  fa fa-briefcase"></i> Work colleagues</span>
+                        <ul>
+                            <li className="Label">D</li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/3.jpg"/> David
+                                    <small>Harris</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/4.jpg"/> Dennis
+                                    <small>King</small>
+                                </a>
+                            </li>
+                            <li className="Label">E</li>
+                            <li className="img">
+                                <a href="#" className="online">
+                                    <img alt="" src="assets/photos_preview/50/people/5.jpg"/> Eliza
+                                    <small>Walker</small>
+                                </a>
+                            </li>
+                            <li className="Label">L</li>
+                            <li className="img">
+                                <a href="#" className="busy">
+                                    <img alt="" src="assets/photos_preview/50/people/6.jpg"/> Larry
+                                    <small>Turner</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#" className="online">
+                                    <img alt="" src="assets/photos_preview/50/people/7.jpg"/> Lisa<br />
+                                    <small>Wilson</small>
+                                </a>
+                            </li>
+                            <li className="Label">M</li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/8.jpg"/> Michael
+                                    <small>Jordan</small>
+                                </a>
+                            </li>
+                            <li className="Label">R</li>
+                            <li className="img">
+                                <a href="#">
+                                    <img alt="" src="assets/photos_preview/50/people/9.jpg"/> Rachelle
+                                    <small>Cooper</small>
+                                </a>
+                            </li>
+                            <li className="img">
+                                <a href="#" className="online">
+                                    <img alt="" src="assets/photos_preview/50/people/10.jpg"/> Rick
+                                    <small>James</small>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li className="Label label-lg">Total week Earnings</li>
+                    <li>
+                        <span><i className="icon  fa fa-bar-chart-o"></i> See This week</span>
+                        <ul>
+                            <li className="Label">themeforest</li>
+                            <li><span><i className="label label-warning pull-right">HTML</i> Earnings $395 </span></li>
+                            <li><span> Earnings $485 </span></li>
+                            <li><span><i className="label label-info pull-right">Wordpress</i> Earnings $1,589 </span>
+                            </li>
+                            <li className="Label">codecanyon</li>
+                            <li><span><i className="label label-danger pull-right">Item 6537086</i> Earnings $897</span>
+                            </li>
+                            <li><span>Sunday Earnings $395</span></li>
+                            <li className="Label">Other</li>
+                            <li><span><i
+                                className="label label-success  pull-right">up 35%</i> Total Earnings $5,025</span></li>
+                        </ul>
+                    </li>
+                    <li>
+								<span>
+									<div className="widget-mini-chart align-xs-right">
+											<div className="pull-left">
+													<div className="sparkline mini-chart" data-type="bar"
+                                                         data-color="warning" data-bar-width="10" data-height="45">2,3,7,5,4,6,6,3</div>
+											</div>
+											<p>This week Earnings</p>
+											<h4>$11,987</h4>
+									</div>
+								</span>
+                    </li>
+                    <li className="Label label-lg">Processing</li>
+                    <li>
+								<span>
+									<p>Server Processing</p>
+									<div className="progress progress-dark progress-stripes progress-xs">
+											<div className="progress-bar bg-danger" ></div>
+									</div>
+									<label className="progress-label">Today , CPU 37%</label>
+                                    <div className="progress progress-dark progress-xs">
+											<div className="progress-bar bg-warning"></div>
+									</div>
+									<label className="progress-label lasted">Today , Server load  22.85%</label>
+								</span>
+                    </li>
+                    <li className="Label label-lg">Quick Friends Chat</li>
+                    <li className="img">
+                        <a href="#" className="online">
+                            <img alt="" src="assets/photos_preview/50/people/1.jpg"/> Olivia
+                            <small>Taylor</small>
+                        </a>
+                    </li>
+                    <li className="img">
+                        <a href="#" className="online">
+                            <img alt="" src="assets/photos_preview/50/people/2.jpg"/> Owen
+                            <small>Wilson</small>
+                        </a>
+                    </li>
+                    <li className="img">
+                        <a href="#">
+                            <img alt="" src="assets/photos_preview/50/people/8.jpg"/> Meagan
+                            <small>Miller</small>
+                        </a>
+                    </li>
+                    <li className="img">
+                        <a href="#" className="busy">
+                            <img alt="" src="assets/photos_preview/50/people/9.jpg"/> Melissa
+                            <small>Johnson</small>
+                        </a>
+                    </li>
+                    <li className="img">
+                        <a href="#" className="online">
+                            <img alt="" src="assets/photos_preview/50/people/5.jpg"/> Samantha
+                            <small>Harris</small>
+                        </a>
+                    </li>
+                    <li className="Label label-lg">visitors Real Time</li>
+                    <li>
+								<span>
+									<div className="widget-chart">
+											<div id="realtimeChart" className="demo-placeholder"
+                                                 style={{height:"150px"}}></div>
+											<div id="realtimeChartCount" className="align-lg-center"><span>0</span> visitors on site </div>
+									</div>
+								</span>
+                    </li>
+                </ul>
+            </nav>
+        )
+    }
+}
+
+class TopMenu extends Component {
+    render() {
+        return (
             <div>
                 <div id="header">
 
@@ -110,35 +397,20 @@ class TopMenu extends Component{
                         </ul>
                         <ul className="nav navbar-nav nav-top-xs hidden-xs tooltip-area">
                             <li className="h-seperate"></li>
+                            <li><a href="#" data-toggle="tooltip" title="系统主面板" data-container="body"
+                                   data-placement="bottom"><i className="fa fa-th-large"></i></a></li>
+                            <li className="h-seperate"></li>
                             <li className="dropdown">
-                                <a href="#" className="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"><i
-                                    className="fa fa-th-large"></i></a>
-                                <ul className="dropdown-menu arrow animated fadeInDown fast">
-                                    <li><a href="#"> Profile</a></li>
-                                    <li><a href="#"> Setting </a></li>
-                                    <li><a href="#"> Bookmarks</a></li>
-                                    <li><a href="#"> Make a Deposit</a></li>
-                                    <li className="divider"></li>
-                                    <li className="dropdown-submenu"><a tabIndex="-1" href="#">multi level
-                                        options &nbsp; <i className="fa fa-angle-right"></i></a>
-                                        <ul className="dropdown-menu  animated fadeInRight fast">
-                                            <li><a tabIndex="-1" href="#">Second level</a></li>
-                                            <li><a href="#">Second level</a></li>
-                                            <li><a href="#">Second level</a></li>
-                                        </ul>
-                                    </li>
+                                <a href="#" className="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown">今日总任务数 ： <span className="badge bg-danger" style={{position:"relative",top:"-2px"}}>41</span></a>
+                                <ul className="dropdown-menu arrow animated fadeInDown fast" style={{fontSize:"12px"}}>
+                                    <li><a href="#"> 流水提取任务 <span className="badge bg-info pull-right">12</span></a></li>
+                                    <li><a href="#"> 后台选码任务 </a></li>
+                                    <li><a href="#"> 会员续费任务 <span className="badge bg-info pull-right">29</span></a></li>
                                 </ul>
                             </li>
                             <li className="h-seperate"></li>
-                            <li><a href="#" data-toggle="tooltip" title="View front end" data-container="body"
-                                   data-placement="bottom"><i className="fa fa-laptop"></i></a></li>
-                            <li className="h-seperate"></li>
-                            <li><a href="#"> Online Store </a></li>
                         </ul>
                         <ul className="nav navbar-nav navbar-right tooltip-area">
-                            <li><a href="#menu-right" data-toggle="tooltip" title="Right Menu" data-container="body"
-                                   data-placement="left"><i className="fa fa-align-right"></i></a></li>
-                            <li className="hidden-xs hidden-sm"><a href="#" className="h-seperate">Help</a></li>
                             <li>
                                 <button className="btn btn-circle btn-header-search"><i className="fa fa-search"></i>
                                 </button>
@@ -218,7 +490,7 @@ class TopMenu extends Component{
                                     className="collapse-caret fa fa-angle-up"></i> Summary Order </a>
                             </header>
                             <section className="collapse in" id="collapseSummary">
-                                <div className="collapse-boby" style={{padding:"0"}}>
+                                <div className="collapse-boby" style={{padding: "0"}}>
 
                                     <div className="widget-mini-chart align-xs-left">
                                         <div className="pull-right">
@@ -283,7 +555,7 @@ class TopMenu extends Component{
                                     className="collapse-caret fa fa-angle-up"></i> Setting Option </a>
                             </header>
                             <section className="collapse in" id="collapseSetting">
-                                <div className="collapse-boby" style={{padding:"0"}}>
+                                <div className="collapse-boby" style={{padding: "0"}}>
 
                                     <ul className="widget-slide-setting">
                                         <li>
@@ -295,7 +567,7 @@ class TopMenu extends Component{
                                         </li>
                                         <li>
                                             <div className="ios-switch theme-inverse pull-right">
-                                                <div className="switch"><input type="checkbox" name="option_1" />
+                                                <div className="switch"><input type="checkbox" name="option_1"/>
                                                 </div>
                                             </div>
                                             <label>Switch <span>ON</span></label>
@@ -334,29 +606,26 @@ class TopMenu extends Component{
     }
 }
 
-class Main extends Component{
-    render(){
-        return(
+class Main extends Component {
+    componentDidMount(){
+    }
+    render() {
+        return (
             <div id="main">
-
-                <ol className="breadcrumb">
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">Library</a></li>
-                    <li className="active">Data</li>
-                </ol>
 
                 <div id="content">
 
                     <div className="row">
 
-                        <div className="col-lg-8"></div>
+                        <div className="col-lg-8">
+
+                        </div>
 
                         <div className="col-lg-4"></div>
 
                     </div>
 
                 </div>
-
 
             </div>
         )

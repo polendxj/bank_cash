@@ -6,11 +6,7 @@ var config = {
     consul_url: 'http://172.20.225.207:8500',
     node_port: '80',
     time_out: 5000,
-    //mongodb info
-    mongodb_ip: '',
-    mongodb_port: '',
-    mongodb_user: '',
-    mongodb_pwd: '',
+    log4j_dir: ""
 };
 
 module.exports = config

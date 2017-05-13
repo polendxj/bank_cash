@@ -2,7 +2,7 @@
  * Created by Administrator on 2016/8/19.
  */
 import {combineReducers} from 'redux'
-import {audioCodes, videoCodes} from '../components/Tool/Tool'
+import {} from '../frameworkHelper/FrameWorkUtils'
 import {
     END_REFRESH
 } from '../constants/index'
