@@ -35,7 +35,7 @@ logger = log4js.getLogger('main');
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(cookieParser())
+app.use(cookieParser());
 // app.use(SysManagerCSR)                                   此处使用router
 app.use(express.static(path.join(__dirname, 'build')));
 app.set('port', require('./config/config').node_port);

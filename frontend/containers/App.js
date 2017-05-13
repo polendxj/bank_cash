@@ -6,6 +6,7 @@ import {commonRefresh} from '../actions/Common'
 import {EncodeBase64, deleteCookie} from '../frameworkHelper/FrameWorkUtils'
 
 
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -19,7 +20,7 @@ class App extends Component {
 
     render() {
         return (
-            <FrameWork />
+            <FrameWork children={this.props.children} />
         )
     }
 }
@@ -31,7 +32,7 @@ class FrameWork extends Component {
                 <LeftMenu />
                 <div id="wrapper" className="mm-page">
                     <TopMenu />
-                    <Main />
+                    {this.props.children}
                 </div>
 
             </div>
@@ -47,9 +48,9 @@ class LeftMenu extends Component {
                     <li><a href="front/index.html"><i className="icon fa fa-users"></i> 会员信息 </a></li>
                     <li><span><i className="icon  fa  fa-tasks"></i> 处理任务</span>
                         <ul>
-                            <li className="Label label-lg">流水提取 </li>
+                            <li className="Label label-lg">流水提取</li>
                             <li><a href="alwayMenu.html"> 后台选码 </a></li>
-                            <li><a href="hideUserPanel.html"> 会员续费</a></li>
+                            <li><a href="hideUserPanel.html"> 账号续费</a></li>
                         </ul>
                     </li>
                     <li><a href="front/index.html"><i className="icon  fa fa-bar-chart-o"></i> 统计分析（开发中） </a></li>
@@ -325,7 +326,7 @@ class RightMenu extends Component {
 								<span>
 									<p>Server Processing</p>
 									<div className="progress progress-dark progress-stripes progress-xs">
-											<div className="progress-bar bg-danger" ></div>
+											<div className="progress-bar bg-danger"></div>
 									</div>
 									<label className="progress-label">Today , CPU 37%</label>
                                     <div className="progress progress-dark progress-xs">
@@ -370,7 +371,7 @@ class RightMenu extends Component {
 								<span>
 									<div className="widget-chart">
 											<div id="realtimeChart" className="demo-placeholder"
-                                                 style={{height:"150px"}}></div>
+                                                 style={{height: "150px"}}></div>
 											<div id="realtimeChartCount" className="align-lg-center"><span>0</span> visitors on site </div>
 									</div>
 								</span>
@@ -401,11 +402,19 @@ class TopMenu extends Component {
                                    data-placement="bottom"><i className="fa fa-home"></i></a></li>
                             <li className="h-seperate"></li>
                             <li className="dropdown">
-                                <a href="#" className="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown">今日总任务数 ： <span className="badge bg-danger" style={{position:"relative",top:"-2px"}}>41</span></a>
-                                <ul className="dropdown-menu arrow animated fadeInDown fast" style={{fontSize:"12px"}}>
-                                    <li><a href="#"> 流水提取任务 <span className="badge bg-info pull-right" style={{position:"relative",marginTop:"3px"}}>12</span></a></li>
+                                <a href="#" className="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown">待处理任务数
+                                    ： <span className="badge bg-danger"
+                                            style={{position: "relative", top: "-2px"}}>41</span></a>
+                                <ul className="dropdown-menu arrow animated fadeInDown fast" style={{fontSize: "12px"}}>
+                                    <li><a href="#"> 流水提取任务 <span className="badge bg-info pull-right" style={{
+                                        position: "relative",
+                                        marginTop: "3px"
+                                    }}>12</span></a></li>
                                     <li><a href="#"> 后台选码任务 </a></li>
-                                    <li><a href="#"> 会员续费任务 <span className="badge bg-info pull-right" style={{position:"relative",marginTop:"3px"}}>29</span></a></li>
+                                    <li><a href="#"> 会员续费任务 <span className="badge bg-info pull-right" style={{
+                                        position: "relative",
+                                        marginTop: "3px"
+                                    }}>29</span></a></li>
                                 </ul>
                             </li>
                             <li className="h-seperate"></li>
@@ -607,12 +616,10 @@ class TopMenu extends Component {
 }
 
 class Main extends Component {
-    componentDidMount(){
-    }
     render() {
         return (
             <div id="main">
-
+                <BreadCrumb titles={["aa", "bb"]}/>
                 <div id="content">
 
                     <div className="row">
