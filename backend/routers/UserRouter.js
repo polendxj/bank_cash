@@ -17,6 +17,14 @@ router.post('/users', function (req, resp) {
     BaseService._findAndCountAll(resp,User,data);
 });
 
+router.post('/usersByManagerId', function (req, resp) {
+    var data = req.body;
+    console.log(data);
+    data.page = parseInt(data.page);
+    data.pageSize = parseInt(data.pageSize);
+    UserService._findByManagerId(resp,User,data);
+});
+
 router.post('/user/register', function (req, resp) {
     var data = req.body;
     data.register_date = new Date();
