@@ -39,7 +39,7 @@ var CurrentTaskRouter = require('./backend/routers/CurrentTaskRouter');
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(cookieParser())
+app.use(cookieParser());
 // app.use(SysManagerCSR)                                   此处使用router
 app.use(AdminRouter)
 app.use(UserRouter)

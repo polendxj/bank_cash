@@ -437,9 +437,11 @@ a.logo {
 }
 
 body.leftMenu {
-  background: url(../img/logo_white_icon.png) no-repeat;
+  background: url(../images/logo_icon_light.png) no-repeat;
   background-position: 11px 10px;
   background-color: #262a33;
+  background-size: 105px 30px;
+  background-position: 8px 12px;
 }
 body.leftMenu:after {
   content: "";

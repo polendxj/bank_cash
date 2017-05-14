@@ -8,6 +8,7 @@ import {Provider} from 'react-redux'
 import {Router, Route, browserHistory, IndexRoute, Redirect} from 'react-router'
 import {syncHistoryWithStore, routerReducer} from 'react-router-redux'
 import App from './containers/App'
+import HomeContainer from './containers/HomeContainer'
 import configureStore from './store/configureStore'
 
 let store = configureStore()
@@ -17,8 +18,8 @@ render(
     <Provider store={store}>
         <Router history={history}>
             <Route path="/" component={App}>
-                {/*<IndexRoute component={Dashboard}/>
-                <Route path="dashboard" component={Dashboard}/>*/}
+                <IndexRoute component={HomeContainer}/>
+                <Route path="home" component={HomeContainer}/>
             </Route>
         </Router>
     </Provider>,
