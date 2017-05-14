@@ -17,6 +17,7 @@ var exec = require('child_process').exec;
 var querystring = require('querystring');
 var config = require('./config/config');
 var log4js = require('log4js');
+
 log4js.configure({
     appenders: [
         {type: 'console'}, //控制台输出
@@ -31,12 +32,18 @@ log4js.configure({
 });
 logger = log4js.getLogger('main');
 // var SysManagerCSR = require('./routes/SysManagerCSR')    此处导入router
+var AdminRouter = require('./backend/routers/AdminRouter');
+var UserRouter = require('./backend/routers/UserRouter');
+var CurrentTaskRouter = require('./backend/routers/CurrentTaskRouter');
 
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser())
 // app.use(SysManagerCSR)                                   此处使用router
+app.use(AdminRouter)
+app.use(UserRouter)
+app.use(CurrentTaskRouter)
 app.use(express.static(path.join(__dirname, 'build')));
 app.set('port', require('./config/config').node_port);
 app.get('*', function (request, response, next) {
