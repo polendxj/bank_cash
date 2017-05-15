@@ -4,8 +4,10 @@
 var _findAndCountAll = function(resp,object,params,callback){
     var page = params.page;
     var pageSize = params.pageSize;
+    delete params.page;
+    delete params.pageSize;
     object.findAndCountAll({
-        where:[],
+        where:params,
         offset:(page - 1) * pageSize,
         limit:pageSize
     }).then(function(result){

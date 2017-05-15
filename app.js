@@ -17,6 +17,7 @@ var exec = require('child_process').exec;
 var querystring = require('querystring');
 var config = require('./config/config');
 var log4js = require('log4js');
+var schedule = require('node-schedule');
 
 log4js.configure({
     appenders: [
@@ -58,4 +59,12 @@ process.on('uncaughtException', function (err) {
 process.on('exit', function () {
     console.log('Bye.');
 });
+
+function scheduleTask(){
+    schedule.scheduleJob('10 * * * * *', function(){
+        console.log('scheduleCronstyle:' + new Date());
+    });
+}
+
+scheduleTask();
 module.exports = app;

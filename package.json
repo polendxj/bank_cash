@@ -34,6 +34,7 @@
     "morgan": "~1.7.0",
     "mysql": "^2.13.0",
     "node-fetch": "^1.6.0",
+    "node-schedule": "^1.2.1",
     "orm": "^3.2.3",
     "orm-paging": "0.0.1",
     "os": "^0.1.1",
