@@ -8,6 +8,77 @@ import {browserHistory} from 'react-router'
 import BreadCrumb from '../components/BreadCrumb'
 
 export default class HomeContainer extends Component {
+    componentDidMount(){
+        var cepletColor=({
+            "primary":"#0090d9",
+            "info":"#B5D1D8",
+            "success":"#2ECC71",
+            "warning":"#FFCC33",
+            "danger":"#E15258",
+            "inverse":"#62707D",
+            "theme":"#f35958",
+            "theme-inverse":"#0aa699",
+            "palevioletred":"#372b32" ,
+            "green":"#99CC00",
+            "lightseagreen":"#1ABC9B",
+            "purple":"#736086",
+            "darkorange":"#f9ba46",
+            "pink":"#d13a7a"
+        });
+        $.inColor= function(value, obj) {
+            var foundVal;
+            $.each(obj, function(key, val) {
+                if (value === key) {
+                    foundVal =  val;
+                    return;
+                }
+            });
+            return foundVal;
+        };
+        $.fillColor= function(obj) {
+            var inColor=$.inColor(obj.data("color") || obj.data("toolscolor") || obj.data("counter-color") , cepletColor);
+            var codeColor= inColor || obj.data("color") || obj.data("toolscolor") || obj.data("counter-color") ;
+            return codeColor;
+        };
+        $('.easy-chart').each(function () {
+            var thisEasy=$(this) , $data = $(this).data();
+            $data.barColor = $.fillColor( thisEasy ) || "#6CC3A0";
+            $data.size = $data.size || 119;
+            $data.trackColor = $data.trackColor  || "#EEE";
+            $data.lineCap = $data.lineCap  || "butt";
+            $data.lineWidth = $data.lineWidth  || 20;
+            $data.scaleColor = $data.scaleColor || false,
+                $data.onStep = function(from, to, percent) {
+                    $(this.el).find('.percent').text(Math.round(percent));
+                }
+            thisEasy.find('.percent').css({"line-height": $data.size+"px"});
+            thisEasy.easyPieChart($data);
+        });
+        $('.knob').each(function () {
+            var thisKnob = $(this) , $data = $(this).data();
+            $data.fgColor=$.fillColor( thisKnob ) || "#F37864";
+            thisKnob.knob($data);
+            if ( $data.animate ) {
+                $({  value: 0 }).animate({   value: this.value }, {
+                    duration: 1000, easing: 'swing',
+                    step: function () { thisKnob.val(Math.ceil(this.value)).trigger('change'); }
+                });
+            }
+        });
+        $(".showcase-chart-knob").each(function () {
+            var color='', ico=$(this).find("h5 i"),  $label=$(this).find("span"), $knob=$(this).find("input");
+            $label.each(function (i) {
+                if (i == 0) {
+                    color = $knob.attr("data-color")  || '#87CEEB' ;
+                }else{
+                    color=$knob.attr("data-bgColor")  || '#CCC';
+                }
+                $(this).find("i").css("color", color );
+                $(this).find("a small").css("color", color );
+            });
+            ico.css("margin-left",Math.ceil(-1*(ico.width()/2)));
+        });
+    }
     render() {
         return (
             <div id="main">
@@ -115,7 +186,7 @@ export default class HomeContainer extends Component {
                                                 </div>
                                                 <div style={{display: "inline", width: "140px", height: "140px"}}>
                                                     <canvas width="175" height="175"
-                                                            style={{width: "140px", height: "140px",marginLeft:"-127px"}}></canvas>
+                                                            style={{width: "140px", height: "140px",marginLeft:"-126px"}}></canvas>
                                                     <input className="knob" data-animate="true"
                                                            data-displayinput="false"
                                                            data-thickness="0.2" data-width="140" data-height="140"

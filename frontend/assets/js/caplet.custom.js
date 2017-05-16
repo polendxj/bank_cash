@@ -124,7 +124,7 @@
 
 
 		//////////     TOP SEARCH     //////////
-		$(".btn-header-search , .close-header-search").on('click',function(){
+		/*$(".btn-header-search , .close-header-search").on('click',function(){
 				var navSearch=$(".widget-top-search");
 				navSearch.toggleClass("nav-top-search");
 				if($(this).hasClass("close-header-search")){
@@ -133,7 +133,7 @@
 				}
 				navSearch.find("input").focus();
 				$.overlay(0.4);
-		});
+		});*/
 
 
 		//////////     NAV AND MAIN  COLLAPSE     //////////
@@ -656,32 +656,8 @@
 				panelBody.find(overlay).fadeOut("slow",function(){ $(this).remove() });
 			}, 5000);
 		});
-		$(".panel-tools").on('click',".btn-close",function(){
-				var panel=$(this).closest('.panel'), tools=$(this).closest('.panel-tools');
-				console.log(tools)
-				var confirmGroup=$('<div class="pt-confirm-group">'+'<div class=" btn-group btn-group-justified">'+'<a class="btn btn-inverse close-confirm" href="javascript:void(0)" data-confirm="accept">Yes</a>'+'<a class="btn btn-theme btn-close" href="javascript:void(0)">No.</a>'+'</div>'+'</div>');
-				var blockClose=$('<div class="blockerClose">');
-				tools.toggleClass( "push-in");
-				if(tools.hasClass("push-in")){
-					tools.append(confirmGroup);
-					panel.toggleClass( "push-in");
-					blockClose.appendTo("#content");
-					blockClose.css({ "height":$("#content").outerHeight() }).fadeTo(400,0.5);
-					console.log($("#content").outerHeight())
-				}else{
-					$(".blockerClose").fadeOut(200,function(){ $(this).remove() });
-					setTimeout(function () {
-						 tools.find(".pt-confirm-group").remove();
-						 panel.toggleClass( "push-in") ;
-					}, 500);
-				}
-		});
-		$(".panel-tools").on('click','.close-confirm',function(){
-			$(this).closest('.panel').fadeOut(500,function(){
-					$(this).remove();
-					$(".blockerClose").fadeOut(200,function(){ $(this).remove() });
-			});
-		});
+
+
 		 $('#content').on('click' ,'.blockerClose', function() {
 			var el=$(this);
 			el.fadeOut(200,function(){ $(this).remove() });
@@ -762,33 +738,11 @@
 
 
 		//////////     KNOB  CHART     //////////
-		$('.knob').each(function () {
-			var thisKnob = $(this) , $data = $(this).data();
-			$data.fgColor=$.fillColor( thisKnob ) || "#F37864";
-			thisKnob.knob($data);
-			if ( $data.animate ) {
-				$({  value: 0 }).animate({   value: this.value }, {
-					duration: 1000, easing: 'swing',
-					step: function () { thisKnob.val(Math.ceil(this.value)).trigger('change'); }
-				});
-			}
-		});
+
 		$('.knob_save').on('click', function() {
 			alert("Save  "+$("#add_item").val()+" Item");
 		});
-		$(".showcase-chart-knob").each(function () {
-			var color='', ico=$(this).find("h5 i"),  $label=$(this).find("span"), $knob=$(this).find("input");
-			$label.each(function (i) {
-				if (i == 0) {
-					color = $knob.attr("data-color")  || '#87CEEB' ;
-				}else{
-					color=$knob.attr("data-bgColor")  || '#CCC';
-				}
-				$(this).find("i").css("color", color );
-				$(this).find("a small").css("color", color );
-			});
-			ico.css("margin-left",Math.ceil(-1*(ico.width()/2)));
-		});
+
 
 
 

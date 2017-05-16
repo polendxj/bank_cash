@@ -2,9 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {bindActionCreators} from 'redux'
 import {browserHistory} from 'react-router'
-import {commonRefresh} from '../actions/Common'
-import {EncodeBase64, deleteCookie} from '../frameworkHelper/FrameWorkUtils'
-
+import {EncodeBase64, deleteCookie, routeTo} from '../frameworkHelper/FrameWorkUtils'
 
 
 class App extends Component {
@@ -18,9 +16,10 @@ class App extends Component {
         }, 1);
     }
 
+
     render() {
         return (
-            <FrameWork children={this.props.children} />
+            <FrameWork children={this.props.children} _startRefresh={this._startRefresh}/>
         )
     }
 }
@@ -33,7 +32,9 @@ class FrameWork extends Component {
                 <div id="wrapper" className="mm-page">
                     <TopMenu />
                     {this.props.children}
+                    <Footer />
                 </div>
+                <confirm_modal />
 
             </div>
         )
@@ -41,11 +42,16 @@ class FrameWork extends Component {
 }
 
 class LeftMenu extends Component {
+    locationTo(path) {
+        routeTo(path);
+    }
+
     render() {
         return (
             <nav id="menu" data-search="close">
                 <ul>
-                    <li><a href="front/index.html"><i className="icon fa fa-users"></i> 会员信息 </a></li>
+                    <li onClick={this.locationTo.bind(this, "/membership")}><a href="javascript:void(0)"><i
+                        className="icon fa fa-users"></i> 会员信息 </a></li>
                     <li><span><i className="icon  fa  fa-tasks"></i> 处理任务</span>
                         <ul>
                             <li className="Label label-lg">流水提取</li>
@@ -383,6 +389,10 @@ class RightMenu extends Component {
 }
 
 class TopMenu extends Component {
+    locationTo(path) {
+        routeTo(path);
+    }
+
     render() {
         return (
             <div>
@@ -398,8 +408,10 @@ class TopMenu extends Component {
                         </ul>
                         <ul className="nav navbar-nav nav-top-xs hidden-xs tooltip-area">
                             <li className="h-seperate"></li>
-                            <li><a href="#" data-toggle="tooltip" title="系统主面板" data-container="body"
-                                   data-placement="bottom"><i className="fa fa-home"></i></a></li>
+                            <li onClick={this.locationTo.bind(this, "/home")}><a href="#" data-toggle="tooltip"
+                                                                                 title="系统主面板" data-container="body"
+                                                                                 data-placement="bottom"><i
+                                className="fa fa-home"></i></a></li>
                             <li className="h-seperate"></li>
                             <li className="dropdown">
                                 <a href="#" className="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown">待处理任务数
@@ -420,10 +432,6 @@ class TopMenu extends Component {
                             <li className="h-seperate"></li>
                         </ul>
                         <ul className="nav navbar-nav navbar-right tooltip-area">
-                            <li>
-                                <button className="btn btn-circle btn-header-search"><i className="fa fa-search"></i>
-                                </button>
-                            </li>
                             <li><a href="#" className="nav-collapse avatar-header">
                                 <img alt="" src="assets/img/avatar.png" className="circle"/>
                                 <span className="badge">3</span>
@@ -592,24 +600,7 @@ class TopMenu extends Component {
 
                     </div>
                 </div>
-                <div className="widget-top-search">
-                    <span className="icon"><a href="#" className="close-header-search"><i
-                        className="fa fa-times"></i></a></span>
-                    <form id="top-search">
-                        <h2><strong>Quick</strong> Search</h2>
-                        <div className="input-group">
-                            <input type="text" name="q" placeholder="Find something..." className="form-control"/>
-                            <span className="input-group-btn">
-							<button className="btn" type="button" title="With Sound"><i
-                                className="fa fa-microphone"></i></button>
-							<button className="btn" type="button" title="Visual Keyboard"><i
-                                className="fa fa-keyboard-o"></i></button>
-							<button className="btn" type="button" title="Advance Search"><i
-                                className="fa fa-th"></i></button>
-							</span>
-                        </div>
-                    </form>
-                </div>
+
             </div>
         )
     }
@@ -639,11 +630,28 @@ class Main extends Component {
     }
 }
 
-function mapStateToProps(state) {
-    const {commonReducer}=state
-    return {
-        refresh: commonReducer.refresh,
+class Footer extends Component {
+    render() {
+        return (
+            <footer id="site-footer" className="fixed hidden-xs"
+                    style={{backgroundColor: "#F8F9FA", height: "30px", padding: "0"}}>
+                <section>
+                    <div id="copyright">
+                        <p>© Copyright 2017 // <a href="#" className="link-1">SevenPark工作室</a></p>
+                        <div className="social-bar">
+                            <a href="#" className="icon tip" style={{width: "62px"}}><i>Saivian</i>
+                                <span>Saivian-管理后台</span></a>
+                        </div>
+                    </div>
+                </section>
+            </footer>
+        )
     }
+}
+
+function mapStateToProps(state) {
+    const {}=state
+    return {}
 }
 
 export default connect(mapStateToProps)(App)

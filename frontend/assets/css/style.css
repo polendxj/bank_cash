@@ -296,21 +296,21 @@ body.nav-collapse #nav {
   opacity: 0;
 }
 body.nav-collapse.nav-collapse-in #header {
-  -webkit-transform: translate3d(250px, 0, 0);
-  -moz-transform: translate3d(250px, 0, 0);
-  -ms-transform: translate3d(250px, 0, 0);
-  -o-transform: translate3d(250px, 0, 0);
-  transform: translate3d(250px, 0, 0);
-  right: 250px;
-  left: 0;
+  /*-webkit-transform: translate3d(250px, 0, 0);*/
+  /*-moz-transform: translate3d(250px, 0, 0);*/
+  /*-ms-transform: translate3d(250px, 0, 0);*/
+  /*-o-transform: translate3d(250px, 0, 0);*/
+  /*transform: translate3d(250px, 0, 0);*/
+  /*right: 250px;*/
+  /*left: 0;*/
 }
 body.nav-collapse.nav-collapse-in #main {
-  -webkit-transform: translate3d(0, 0, 0);
-  -moz-transform: translate3d(0, 0, 0);
-  -ms-transform: translate3d(0, 0, 0);
-  -o-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  right: 0;
+  /*-webkit-transform: translate3d(0, 0, 0);*/
+  /*-moz-transform: translate3d(0, 0, 0);*/
+  /*-ms-transform: translate3d(0, 0, 0);*/
+  /*-o-transform: translate3d(0, 0, 0);*/
+  /*transform: translate3d(0, 0, 0);*/
+  /*right: 0;*/
 }
 body.nav-collapse.nav-collapse-in #nav {
   -webkit-transform: translate3d(0, 0, 0);
@@ -323,21 +323,21 @@ body.nav-collapse.nav-collapse-in #nav {
 }
 
 body.nav-collapse-in #header {
-  -webkit-transform: translate3d(-250px, 0, 0);
-  -moz-transform: translate3d(-250px, 0, 0);
-  -ms-transform: translate3d(-250px, 0, 0);
-  -o-transform: translate3d(-250px, 0, 0);
-  transform: translate3d(-250px, 0, 0);
-  right: -250px;
-  left: 0;
+  /*-webkit-transform: translate3d(-250px, 0, 0);*/
+  /*-moz-transform: translate3d(-250px, 0, 0);*/
+  /*-ms-transform: translate3d(-250px, 0, 0);*/
+  /*-o-transform: translate3d(-250px, 0, 0);*/
+  /*transform: translate3d(-250px, 0, 0);*/
+  /*right: -250px;*/
+  /*left: 0;*/
 }
 body.nav-collapse-in #main {
-  -webkit-transform: translate3d(-250px, 0, 0);
-  -moz-transform: translate3d(-250px, 0, 0);
-  -ms-transform: translate3d(-250px, 0, 0);
-  -o-transform: translate3d(-250px, 0, 0);
-  transform: translate3d(-250px, 0, 0);
-  right: -250px;
+  /*-webkit-transform: translate3d(-250px, 0, 0);*/
+  /*-moz-transform: translate3d(-250px, 0, 0);*/
+  /*-ms-transform: translate3d(-250px, 0, 0);*/
+  /*-o-transform: translate3d(-250px, 0, 0);*/
+  /*transform: translate3d(-250px, 0, 0);*/
+  /*right: -250px;*/
 }
 body.nav-collapse-in #nav {
   -webkit-transform: translate3d(-100%, 0, 0);
@@ -2773,7 +2773,7 @@ body.leftMenu #nav-scroll, body.leftMenu #mailbox #nav-scroll, #mailbox body.lef
   top: -1px;
   right: 0px;
   position: absolute;
-  border-top: 20px solid #99CC00;
+  border-top: 20px solid red;
   border-left: 20px solid transparent;
 }
 .mail-list ul.mlist li .mail-attach {

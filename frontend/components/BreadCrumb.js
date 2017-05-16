@@ -14,7 +14,7 @@ export default class BreadCrumb extends Component {
             results.push(<li key={key}><a href="javascript:void(0)">{val}</a></li>);
         });
         return (
-            <ol className="breadcrumb">
+            <ol className="breadcrumb" style={{marginBottom:"-5px"}}>
                 {results}
             </ol>
         )

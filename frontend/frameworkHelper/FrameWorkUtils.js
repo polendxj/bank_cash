@@ -1,15 +1,16 @@
 /**
  * Created by Administrator on 2017/5/9.
  */
+import {browserHistory} from 'react-router'
 
 /*
-* @author    Jabriel
-* @see       对数据进行Base64解码
-* @param     data
-*            需要解码的数据
-* @return
-* @exception
-* */
+ * @author    Jabriel
+ * @see       对数据进行Base64解码
+ * @param     data
+ *            需要解码的数据
+ * @return
+ * @exception
+ * */
 export function DecodeBase64(data) {
     var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
     return decode(data);
@@ -216,6 +217,10 @@ export function hashCode(strKey) {
         }
     }
     return hash;
+}
+
+export function routeTo(path) {
+    browserHistory.push(path);
 }
 
 function isNull(str) {
