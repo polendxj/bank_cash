@@ -10,7 +10,18 @@ import Operations from '../components/Operations'
 import Search from '../components/Search'
 import Pagenation from '../components/Pagenation'
 import {commonRefresh} from '../actions/Common'
-import {operation_notification, ConfirmModal} from '../businessHelper/BusinessUtils'
+import {operation_notification, ConfirmModal, renderList, formatDate} from '../businessHelper/BusinessUtils'
+import {protectInputTooFast} from '../frameworkHelper/FrameWorkUtils'
+import {getListByMutilpCondition, deleteObject, getDetail, saveObject} from '../actions/CommonActions'
+import Loading from '../components/Loading'
+import NoData from '../components/NoData'
+import {
+    USER_DELETE_END, USER_DELETE_START,
+    USER_DETAIL_END, USER_DETAIL_START,
+    USER_LIST_END, USER_LIST_START,
+    USER_SAVE_END, USER_SAVE_START,
+    USER_MANAGER_LIST_END, USER_MANAGER_LIST_START
+} from '../constants/index'
 
 
 export default class MembershipContainer extends Component {
@@ -28,9 +39,14 @@ export default class MembershipContainer extends Component {
         this._prePage = this._prePage.bind(this);
         this._nextPage = this._nextPage.bind(this);
         this._doAction = this._doAction.bind(this);
+        this._changeManager = this._changeManager.bind(this);
+        this._searchManagerByName = this._searchManagerByName.bind(this);
+        this._getAllManager = this._getAllManager.bind(this);
     }
 
     componentDidMount() {
+        var self = this;
+        /*jQuery Operation*/
         $("#mailbox .opt").find("a").on("click", function () {
             $("#mailbox .opt").find("a").removeClass("active");
             $(this).addClass("active");
@@ -59,10 +75,22 @@ export default class MembershipContainer extends Component {
             }
         });
 
-        $(".teamResult li").click(function () {
-            $(".teamResult li").css({backgroundColor: "transparent"});
-            $(this).animate({backgroundColor: "#F1F3F5"}, "fast");
-        });
+
+        /*Init Load Data*/
+        this.props.dispatch(getListByMutilpCondition({
+            "page": 0,
+            "pageSize": page_size,
+            "is_manager": 1
+        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list, function (json) {
+            if (json.count > 0) {
+                self.props.dispatch(getListByMutilpCondition({
+                    "page": 0,
+                    "pageSize": page_size,
+                    "manager_id": json.rows[0].id
+                }, USER_LIST_START, USER_LIST_END, user_list));
+            }
+        }));
+
     }
 
     _startRefresh() {
@@ -114,27 +142,52 @@ export default class MembershipContainer extends Component {
         this._startRefresh();
     }
 
+    _changeManager(id) {
+        this.props.dispatch(getListByMutilpCondition({
+            "page": 0,
+            "pageSize": page_size,
+            "manager_id": id
+        }, USER_LIST_START, USER_LIST_END, user_list));
+    }
+
+    _searchManagerByName(name) {
+        this.props.dispatch(getListByMutilpCondition({
+            "page": 0,
+            "pageSize": page_size,
+            "is_manager": 1,
+            "name": name
+        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list));
+    }
+
+    _getAllManager() {
+        this.props.dispatch(getListByMutilpCondition({
+            "page": 0,
+            "pageSize": page_size,
+            "is_manager": 1
+        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list));
+    }
+
     render() {
-        const {}=this.props;
+        const {userManagerList, userListByManager}=this.props;
         var component = "";
         switch (this.optPage) {
-            case "LIST":
+            case business_operation_action.LIST:
                 component =
                     <div className="row">
                         <Pagenation counts={10}
                                     page={this.page}
                                     _changePage={this._changePage} _prePage={this._prePage}
                                     _nextPage={this._nextPage}/>
-                        <MembershipList/>
+                        <MembershipList userListByManager={userListByManager}/>
                     </div>;
                 break;
-            case "ADD":
+            case business_operation_action.ADD:
                 component =
                     <div className="row">
                         <AddUser />
                     </div>
                 break;
-            case "EDIT":
+            case business_operation_action.EDIT:
                 break;
             default:
                 component = this.oldComponent;
@@ -147,75 +200,11 @@ export default class MembershipContainer extends Component {
                 <div id="main">
                     <BreadCrumb titles={["会员信息"]}/>
                     <div id="mailbox" style={{top: "35px"}}>
-                        <div id="nav-scroll">
-                            <div className="mail-list">
-                                <header style={{padding: "4px 0"}}>
-                                    <h2 className="header-text">团队 </h2>
-                                    <div className="btn-group btn-group-justified opt">
-                                        <a href="javascript:void(0)" className="btn btn-inverse btn-transparent "><i
-                                            className="fa fa-users"></i></a>
-                                        <a href="javascript:void(0)" className="btn btn-inverse btn-transparent  "><i
-                                            className="fa fa-edit"></i></a>
-                                        <a href="javascript:void(0)" className="btn btn-inverse btn-transparent"><i
-                                            className="fa fa-search"></i></a>
-                                    </div>
-                                    <div >
-                                        <div id="teamSearch" style={{display: "none", marginTop: "5px"}}>
-                                            <input type="text" placeholder="请输入团队负责人进行搜索..." className="form-control"/>
-                                        </div>
-                                        <div id="teamEdit"
-                                             style={{display: "none", marginTop: "5px", textAlign: "right"}}>
-                                            <button type="button" className="btn btn-default btn-xs"
-                                                    style={{marginRight: "2px"}}>取 消
-                                            </button>
-                                            <button type="button" className="btn btn-danger btn-xs"><i
-                                                className="fa fa-trash-o"></i> 删除 0 项
-                                            </button>
-                                        </div>
-                                    </div>
-                                </header>
-                                <ul className="mlist teamResult">
-                                    <li>
-                                        <div style={{width: "5%", float: "left"}}><input type="checkbox"
-                                                                                         className="form-control teamInput"
-                                                                                         style={{
-                                                                                             marginTop: "-5px",
-                                                                                             display: "none"
-                                                                                         }}/></div>
-                                        <div style={{width: "85%", paddingLeft: "30px"}}>
-                                            <h5><a href="#">景鹏</a></h5>
-                                            <time className="timeago" dateTime="2017-6-5" title="2017-6-5">2017-6-5
-                                            </time>
-                                            <label data-color="red"></label>
-                                        </div>
-                                        <div style={{float: "right", marginTop: "-37px"}}></div>
-                                    </li>
-                                    <li>
-                                        <div style={{width: "5%", float: "left"}}><input type="checkbox"
-                                                                                         className="form-control teamInput"
-                                                                                         style={{
-                                                                                             marginTop: "-5px",
-                                                                                             display: "none"
-                                                                                         }}/></div>
-                                        <div style={{width: "85%", paddingLeft: "30px"}}>
-                                            <h5><a href="#">郑杰</a></h5>
-                                            <time className="timeago" dateTime="2017-6-5" title="2017-6-5">2017-6-5
-                                            </time>
-                                        </div>
-                                        <div style={{float: "right", marginTop: "-37px"}}></div>
-                                    </li>
-                                </ul>
-                                <footer>
-                                    <div className="pull-right">
-                                        <span className="mail-pagination">1-50 of 685</span>
-                                        <ul className="pagination">
-                                            <li><a href="#"><i className="fa fa-angle-left"></i></a></li>
-                                            <li><a href="#"><i className="fa fa-angle-right"></i></a></li>
-                                        </ul>
-                                    </div>
-                                </footer>
-                            </div>
-                        </div>
+                        <ManagersList userManagerList={userManagerList} _startRefresh={this._startRefresh}
+                                      _changeManager={this._changeManager}
+                                      _searchManagerByName={this._searchManagerByName}
+                                      _getAllManager={this._getAllManager}
+                        />
                     </div>
                     <div id="content" className="after-mail-box" style={{top: "75px", padding: "15px 18px 0"}}>
                         <Operations title="景鹏" smallTitle="团队" operationStatus={this.operationStatus}
@@ -237,10 +226,106 @@ export default class MembershipContainer extends Component {
     }
 }
 
+class ManagersList extends Component {
+    constructor(props) {
+        super(props);
+        /*attribute*/
+        this.selectedItem = 0;
+        /*event*/
+        this._changeManager = this._changeManager.bind(this);
+        this._searchManagerByName = this._searchManagerByName.bind(this);
+    }
+
+    _changeManager(key, id) {
+        this.selectedItem = key;
+        this.props._changeManager(id);
+        this.props._startRefresh();
+    }
+
+    _searchManagerByName() {
+        var self = this;
+        protectInputTooFast(function () {
+            self.props._searchManagerByName($("#searchManager").val());
+        })
+    }
+
+    _getAllManager() {
+        this.props._getAllManager($("#searchManager").val());
+    }
+
+    render() {
+        const {userManagerList}=this.props;
+        var self = this;
+        return (
+            <div id="nav-scroll">
+                <div className="mail-list">
+                    <header style={{padding: "4px 0"}}>
+                        <h2 className="header-text">团队 </h2>
+                        <div className="btn-group btn-group-justified opt">
+                            <a onClick={this._getAllManager.bind(this)} href="javascript:void(0)"
+                               className="btn btn-inverse btn-transparent"><i
+                                className="fa fa-plus-square"></i></a>
+                            <a href="javascript:void(0)" className="btn btn-inverse btn-transparent  "><i
+                                className="fa fa-edit"></i></a>
+                            <a href="javascript:void(0)"
+                               className="btn btn-inverse btn-transparent active"><i
+                                className="fa fa-search"></i></a>
+                        </div>
+                        <div >
+                            <div id="teamSearch" style={{display: "none", marginTop: "5px"}}>
+                                <input id="searchManager" onChange={this._searchManagerByName.bind(this)} type="text"
+                                       placeholder="请输入团队负责人进行搜索..."
+                                       className="form-control"/>
+                            </div>
+                            <div id="teamEdit"
+                                 style={{display: "none", marginTop: "5px", textAlign: "right"}}>
+                                <button type="button" className="btn btn-default btn-xs"
+                                        style={{marginRight: "2px"}}>取 消
+                                </button>
+                                <button type="button" className="btn btn-danger btn-xs"><i
+                                    className="fa fa-trash-o"></i> 删除 0 项
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+                    <ul className="mlist teamResult">
+                        {renderList(userManagerList, function (rows) {
+                            return rows.map(function (val, key) {
+                                return <li key={key}
+                                           style={{
+                                               backgroundColor: self.selectedItem == key ? "#F1F3F5" : "transparent",
+                                               cursor: "pointer"
+                                           }}>
+                                    <div style={{width: "5%", float: "left"}}>
+                                        <input type="checkbox"
+                                               className="form-control teamInput"
+                                               style={{marginTop: "-5px", display: "none"}} value={val.id}/>
+                                    </div>
+                                    <div onClick={self._changeManager.bind(self, key, val.id)}
+                                         style={{width: "85%", paddingLeft: "30px"}}>
+                                        <h5><a href="#">{val.name}</a></h5>
+                                        <time className="timeago" dateTime={val.register_date}
+                                              title={val.register_date}>
+                                            {val.register_date}
+                                        </time>
+                                        <label data-color="red"></label>
+                                    </div>
+                                    <div style={{float: "right", marginTop: "-37px"}}></div>
+                                </li>
+                            })
+                        })}
+                    </ul>
+                </div>
+            </div>
+        );
+    }
+}
+
 class MembershipList extends Component {
     render() {
+        const {userListByManager}=this.props;
         return (
-            <section className="panel" style={{marginBottom: "-1px"}}>
+            <section className="panel" style={{marginBottom: "-1px", minHeight: "600px"}}>
                 <div className="panel-body" style={{padding: "1px"}}>
                     <table className="table table-hover">
                         <thead>
@@ -258,18 +343,25 @@ class MembershipList extends Component {
                         </tr>
                         </thead>
                         <tbody className="text-center">
-                        <tr>
-                            <td><input type="checkbox" value={true}/></td>
-                            <td>陈乃永</td>
-                            <td>11227942</td>
-                            <td>chny158</td>
-                            <td>m678cny000.com</td>
-                            <td>2017-3-12</td>
-                            <td>2017-5-5</td>
-                            <td><span className="label bg-primary">已办卡</span></td>
-                            <td><span className="label bg-danger">未上传</span></td>
-                            <td>2017-5-5</td>
-                        </tr>
+                        {renderList(userListByManager, function (rows) {
+                            return rows.map(function (val, key) {
+                                return <tr key={key}>
+                                    <td><input type="checkbox" value={true}/></td>
+                                    <td>{val.name}</td>
+                                    <td>{val.idcard}</td>
+                                    <td>{val.account}</td>
+                                    <td>{val.email}</td>
+                                    <td>{formatDate(val.register_date, "yyyy-mm-dd")}</td>
+                                    <td>{formatDate(val.bind_card_date, "yyyy-mm-dd")}</td>
+                                    <td>{val.virtual_card == 0 ? <span className="label bg-danger">未办卡</span> :
+                                        <span className="label bg-primary">已办卡</span>}</td>
+                                    <td>{val.bind_card_status ? <span className="label bg-danger">未上传</span> :
+                                        <span className="label bg-primary">已上传</span>}</td>
+                                    <td>{formatDate(val.renew_fee_date, "yyyy-mm-dd")}</td>
+                                </tr>
+                            });
+                        })}
+
                         </tbody>
                     </table>
                 </div>
@@ -281,7 +373,7 @@ class MembershipList extends Component {
 class AddUser extends Component {
     render() {
         return (
-            <section className="panel">
+            <section className="panel" style={{minHeight: "600px"}}>
                 <div className="panel-body" style={{padding: "1px"}}>
                     <div className="row">
                         <div className="col-md-12" style={{padding: "5px 25px"}}>
@@ -289,20 +381,69 @@ class AddUser extends Component {
                             <h3><strong>基本</strong> 信息</h3>
                             <hr />
                             <form>
-                                <div className="form-group">
-                                    <label className="control-label">User name</label>
-                                    <input type="text" className="form-control" placeholder="8-15 Characters"/>
+                                <div className="form-group row">
+                                    <div className="col-md-4">
+                                        <label className="control-label">姓名</label>
+                                        <input type="text" className="form-control" id="fullname"
+                                               placeholder="报单人员的真实姓名"/>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <label className="control-label">ID</label>
+                                        <input type="text" className="form-control" placeholder="报单人员的ID会员号"/>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <label className="control-label">职位</label>
+                                        <select className="form-control">
+                                            <option value={0}>普通会员</option>
+                                            <option value={1}>团队负责人</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div className="form-group row">
                                     <div className="col-md-6">
-                                        <label className="control-label">Full Name</label>
+                                        <label className="control-label">账号名称</label>
                                         <input type="text" className="form-control" id="fullname"
-                                               placeholder="Your full name"/>
+                                               placeholder="后台登录账号"/>
                                     </div>
                                     <div className="col-md-6">
-                                        <label className="control-label">Last Name</label>
-                                        <input type="text" className="form-control" placeholder="Your last name"/>
+                                        <label className="control-label">账号密码</label>
+                                        <input type="text" className="form-control" placeholder="后台登录密码"/>
                                     </div>
+                                </div>
+                                <div className="form-group row">
+                                    <div className="col-md-6">
+                                        <label className="control-label">邮箱</label>
+                                        <input type="text" className="form-control" id="fullname"
+                                               placeholder="个人提交的私人邮箱"/>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="control-label">邮箱密码</label>
+                                        <input type="text" className="form-control" placeholder="邮箱密码"/>
+                                    </div>
+                                </div>
+                                <div className="form-group row">
+                                    <div className="col-md-6">
+                                        <label className="control-label">绑卡日期</label>
+                                        <input type="text" className="form-control" id="fullname"
+                                               placeholder="绑卡日期"/>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="control-label">续费日期</label>
+                                        <input type="text" className="form-control" placeholder="最近一次会员续费日期"/>
+                                    </div>
+                                </div>
+                                <div className="form-group row">
+                                    <div className="col-md-6">
+                                        <label className="control-label">虚拟卡</label>
+                                        <select className="form-control">
+                                            <option value={0}>未绑定</option>
+                                            <option value={1}>已绑定</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="form-group ">
+                                    <label className="control-label">银行卡图片</label>
+
                                 </div>
                             </form>
                         </div>
@@ -313,11 +454,12 @@ class AddUser extends Component {
     }
 }
 
-
 function mapStateToProps(state) {
-    const {commonReducer}=state
+    const {commonReducer, userManagerListReducer, userListByManagerReducer}=state
     return {
         refresh: commonReducer.refresh,
+        userManagerList: userManagerListReducer,
+        userListByManager: userListByManagerReducer
     }
 }
 

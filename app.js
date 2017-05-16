@@ -66,5 +66,5 @@ function scheduleTask(){
     });
 }
 
-scheduleTask();
+// scheduleTask();
 module.exports = app;

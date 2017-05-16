@@ -27,6 +27,9 @@ var business_operation_status = {
     ERROR: "ERROR"
 };
 
+/*后端接口*/
+
+var user_list = "/Users";
 
 
 
