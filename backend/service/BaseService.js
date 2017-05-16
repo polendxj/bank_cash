@@ -2,14 +2,10 @@
  * Created by Captain on 2017/5/14.
  */
 var _findAndCountAll = function(resp,object,params,callback){
-    var page = 0;
-    var pageSize = 1000;
-    if(params.page&&params.pageSize) {
-        page = params.page;
-        pageSize = params.pageSize;
-        delete params.page;
-        delete params.pageSize;
-    }
+    var page = params.page;
+    var pageSize = params.pageSize;
+    delete params.page;
+    delete params.pageSize;
     object.findAndCountAll({
         where:params,
         offset:(page + 1) * pageSize,
