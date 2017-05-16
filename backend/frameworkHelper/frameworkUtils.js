@@ -157,6 +157,15 @@ var JSONStrToObj = function (content) {
     return JSON.parse(JSON.stringify(content));
 };
 
+var deleteNullKey = function(json){
+    for(var key in json){
+        if(json[key]==""){
+            delete json[key];
+        }
+    }
+    return json;
+}
+
 module.exports.uncaughtException = CatchUncaughtException;
 module.exports.not200Exception = CatchNot200Exception;
 module.exports.notFalseException = CatchNotFalseException;
@@ -165,3 +174,4 @@ module.exports.DecodeBase64 = DecodeBase64;
 module.exports.FormatDate = FormatDate;
 module.exports.Request = Request;
 module.exports.JSONStrToObj = JSONStrToObj;
+module.exports.deleteNullKey = deleteNullKey;

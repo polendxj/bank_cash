@@ -1,14 +1,16 @@
 /**
  * Created by Captain on 2017/5/14.
  */
+var frameworkUtils = require('../frameworkHelper/frameworkUtils');
 var _findAndCountAll = function(resp,object,params,callback){
     var page = params.page;
     var pageSize = params.pageSize;
     delete params.page;
     delete params.pageSize;
+    params = frameworkUtils.deleteNullKey(params);
     object.findAndCountAll({
         where:params,
-        offset:(page + 1) * pageSize,
+        offset:page * pageSize,
         limit:pageSize
     }).then(function(result){
         if(callback){
@@ -17,9 +19,12 @@ var _findAndCountAll = function(resp,object,params,callback){
             resp.send(result);
         }
     }).catch(function (err) {
-        resp.send(err.message);
+        if(callback){
+            callback({result:"SUCCESS",message:err.message});
+        }else {
+            resp.send({result:"SUCCESS",message:err.message});
+        }
     });
-
 };
 var _findByIds = function(resp,object,ids,callback){
     object.findAll({
@@ -45,9 +50,9 @@ var _register = function(resp,object,data,callback){
         }
     }).catch(function(err){
         if(callback){
-            callback({result:"SUCCESS",message:err.message});
+            callback({result:"FAILURE",message:err.message});
         }else {
-            resp.send({result:"SUCCESS",message:err.message});
+            resp.send({result:"FAILURE",message:err.message});
         }
     });
 };
@@ -62,9 +67,9 @@ var _update = function(resp,object,data,id,callback){
         }
     }).catch(function (err) {
         if(callback){
-            callback({result:"SUCCESS",message:err.message});
+            callback({result:"FAILURE",message:err.message});
         }else {
-            resp.send({result:"SUCCESS",message:err.message});
+            resp.send({result:"FAILURE",message:err.message});
         }
     });
 };
@@ -81,9 +86,9 @@ var _delete = function(resp,object,ids,callback){
         }
     }).catch(function (err) {
         if(callback){
-            callback({result:"SUCCESS",message:err.message});
+            callback({result:"FAILURE",message:err.message});
         }else {
-            resp.send({result:"SUCCESS",message:err.message});
+            resp.send({result:"FAILURE",message:err.message});
         }
     });
 };

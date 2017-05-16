@@ -6,6 +6,7 @@ var sequelize = require("../interfaces/orm_mysql");
 var User = sequelize.define('user', {
     id : {type : Sequelize.INTEGER, autoIncrement : true, primaryKey : true, unique : true},
     name: Sequelize.STRING,
+    account: Sequelize.STRING,
     idcard: Sequelize.STRING,
     password: Sequelize.STRING,
     email: Sequelize.STRING,

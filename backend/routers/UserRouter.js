@@ -5,6 +5,8 @@ var express = require('express')
 var fetch = require('node-fetch')
 var querystring = require('querystring')
 var router = express();
+var multiparty = require('multiparty');
+var fs = require('fs');
 var frameworkUtils = require('../frameworkHelper/frameworkUtils');
 var User = require("../models/User");
 var UserService = require("../service/UserService");
@@ -12,9 +14,14 @@ var BaseService = require("../service/BaseService");
 
 router.post('/users', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
-    data.page = parseInt(data.page) + 1;
-    data.pageSize = parseInt(data.pageSize);
-    BaseService._findAndCountAll(resp, User, data);
+    if(data.page&&data.pageSize){
+        data.page = parseInt(data.page);
+        data.pageSize = parseInt(data.pageSize);
+    }else{
+        data.page = 0;
+        data.pageSize = 1000;
+    }
+    UserService._findAndCountAll(resp, User, data);
 });
 
 // router.post('/usersByManagerId', function (req, resp) {
@@ -51,4 +58,37 @@ router.post('/user/deleteByIds', function (req, resp) {
     BaseService._delete(resp, User, ids);
 });
 
+router.post('/file/uploading', function (req, res, next) {
+    var form = new multiparty.Form({uploadDir: './uploadImgs/'});
+    //上传完成后处理
+    form.parse(req, function (err, fields, files) {
+        var filesTmp = JSON.stringify(files, null, 2);
+
+        if (err) {
+            console.log('parse error: ' + err);
+            res.send({"result": "FAILURE"});
+        } else {
+            console.log('parse files: ' + filesTmp);
+            console.log(files);
+            var inputFile = files.inputFile[0];
+            var uploadedPath = inputFile.path;
+            var newName = (new Date).getTime() + inputFile.originalFilename.substring(inputFile.originalFilename.indexOf("."));
+            var dstPath = './uploadImgs/' + newName;
+            //重命名为真实文件名
+            fs.rename(uploadedPath, dstPath, function (err) {
+                if (err) {
+                    console.log('rename error: ' + err);
+                } else {
+                    console.log('rename ok');
+                }
+            });
+            res.send({"result": "SUCCESS", path: newName});
+        }
+
+    });
+});
+
+
+
+//fs.unlink("./uploadImgs/" + data.path); //删除图片
 module.exports = router;
