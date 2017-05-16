@@ -27,9 +27,15 @@ var _deleteByManagerIds = function(resp,object,managerIds,callback){
         }
     }).then(function(result){
         if(callback){
-            callback(result > 0);
+            callback({result:"SUCCESS"});
         }else {
-            resp.send(result > 0);
+            resp.send({result:"SUCCESS"});
+        }
+    }).catch(function(err){
+        if(callback){
+            callback({result:"SUCCESS",message:err.message});
+        }else {
+            resp.send({result:"SUCCESS",message:err.message});
         }
     });
 };
