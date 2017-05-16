@@ -153,6 +153,10 @@ var Request = function (url, method, data, req, resp, callback) {
     }, resp)
 };
 
+var JSONStrToObj = function (content) {
+    return JSON.parse(JSON.stringify(content));
+};
+
 module.exports.uncaughtException = CatchUncaughtException;
 module.exports.not200Exception = CatchNot200Exception;
 module.exports.notFalseException = CatchNotFalseException;
@@ -160,3 +164,4 @@ module.exports.ObjArrSort = ObjArrSort;
 module.exports.DecodeBase64 = DecodeBase64;
 module.exports.FormatDate = FormatDate;
 module.exports.Request = Request;
+module.exports.JSONStrToObj = JSONStrToObj;

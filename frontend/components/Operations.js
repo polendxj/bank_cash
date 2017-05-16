@@ -250,7 +250,6 @@ export default class Operations extends Component {
 
                 </div>;
         }
-        console.log(this.props.selectedItems);
         return (
             <div className="row" >
                 <div>

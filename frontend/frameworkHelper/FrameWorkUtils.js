@@ -223,6 +223,17 @@ export function routeTo(path) {
     browserHistory.push(path);
 }
 
+export function protectInputTooFast(fun) {
+    throttle(fun);
+    function throttle(fun){
+        if(window.timeoutId) {window.clearTimeout(window.timeoutId);}
+        window.timeoutId = window.setTimeout(function(){
+            fun();
+            window.timeoutId = null;
+        }, 500);
+    }
+}
+
 function isNull(str) {
     return str == null || str.value == "";
 }
