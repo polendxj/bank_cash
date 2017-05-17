@@ -1,20 +1,28 @@
 /**
  * Created by Captain on 2017/5/14.
  */
+var frameworkUtils = require('../frameworkHelper/frameworkUtils');
 var _findAndCountAll = function(resp,object,params,callback){
     var page = params.page;
     var pageSize = params.pageSize;
     delete params.page;
     delete params.pageSize;
+    params = frameworkUtils.deleteNullKey(params);
     object.findAndCountAll({
         where:params,
-        offset:(page - 1) * pageSize,
+        offset:page * pageSize,
         limit:pageSize
     }).then(function(result){
         if(callback){
             callback(result);
         }else {
             resp.send(result);
+        }
+    }).catch(function (err) {
+        if(callback){
+            callback({result:"SUCCESS",message:err.message});
+        }else {
+            resp.send({result:"SUCCESS",message:err.message});
         }
     });
 };
@@ -29,20 +37,22 @@ var _findByIds = function(resp,object,ids,callback){
         }else {
             resp.send(result);
         }
+    }).catch(function (err) {
+        resp.send(err.message);
     });
 };
 var _register = function(resp,object,data,callback){
     object.create(data).then(function(result){
         if(callback){
-            callback(result);
+            callback({result:"SUCCESS"});
         }else {
-            resp.send(result);
+            resp.send({result:"SUCCESS"});
         }
     }).catch(function(err){
         if(callback){
-            callback(err.message);
+            callback({result:"FAILURE",message:err.message});
         }else {
-            resp.send(err.message);
+            resp.send({result:"FAILURE",message:err.message});
         }
     });
 };
@@ -50,11 +60,16 @@ var _update = function(resp,object,data,id,callback){
     object.update(data,{
         where:{id:id}
     }).then(function(result){
-        console.log(result);
         if(callback){
-            callback(result);
+            callback({result:"SUCCESS"});
         }else {
-            resp.send(result);
+            resp.send({result:"SUCCESS"});
+        }
+    }).catch(function (err) {
+        if(callback){
+            callback({result:"FAILURE",message:err.message});
+        }else {
+            resp.send({result:"FAILURE",message:err.message});
         }
     });
 };
@@ -64,11 +79,16 @@ var _delete = function(resp,object,ids,callback){
             id:ids
         }
     }).then(function(result){
-        console.log(result);
         if(callback){
-            callback(result > 0);
+            callback({result:"SUCCESS"});
         }else {
-            resp.send(result > 0);
+            resp.send({result:"SUCCESS"});
+        }
+    }).catch(function (err) {
+        if(callback){
+            callback({result:"FAILURE",message:err.message});
+        }else {
+            resp.send({result:"FAILURE",message:err.message});
         }
     });
 };
