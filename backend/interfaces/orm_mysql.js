@@ -3,7 +3,7 @@
  */
 var Sequelize = require('sequelize');
 
-var sequelize = new Sequelize('bank_cash', 'root', '199133', {
+var sequelize = new Sequelize('bank_cash', 'root', '1234', {
     host: 'localhost',
     dialect: 'mysql'
 });

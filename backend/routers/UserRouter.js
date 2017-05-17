@@ -34,15 +34,15 @@ router.post('/users', function (req, resp) {
 // });
 
 router.post('/user/register', function (req, resp) {
-    var data = req.body;
-    data.register_date = new Date();
-    console.log(data);
+    var data = frameworkUtils.JSONStrToObj(req.body);
+    // data.register_date = new Date();
+    // console.log(data);
     BaseService._register(resp, User, data);
 });
 
 router.post('/user/update/:id', function (req, resp) {
     var id = req.params.id;
-    var data = req.body;
+    var data = frameworkUtils.JSONStrToObj(req.body);
     console.log(req.params);
     BaseService._update(resp, User, data, id);
 });

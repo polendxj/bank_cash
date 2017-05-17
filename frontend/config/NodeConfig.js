@@ -29,7 +29,10 @@ var business_operation_status = {
 
 /*后端接口*/
 
-var user_list = "/Users";
+var user_list = "/users";
+var user_save = "/user/register";
+var user_edit = "/user/update";
+var imagePath = node_service + "/uploadImgs";
 
 
 
