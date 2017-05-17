@@ -119,7 +119,7 @@ router.post('/user/deleteByManager', function (req, resp) {
 });
 
 router.post('/user/deleteByIds', function (req, resp) {
-    var data = req.body;
+    var data = frameworkUtils.JSONStrToObj(req.body);
     var ids = JSON.parse(data.ids);
     BaseService._delete(resp, User, ids);
 });
