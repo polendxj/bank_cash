@@ -33,6 +33,11 @@ log4js.configure({
     ]
 });
 logger = log4js.getLogger('main');
+database = config.database;
+username = config.username;
+password = config.password;
+host = config.host;
+dialect = require('./config/config').dialect
 // var SysManagerCSR = require('./routes/SysManagerCSR')    此处导入router
 var AdminRouter = require('./backend/routers/AdminRouter');
 var UserRouter = require('./backend/routers/UserRouter');
