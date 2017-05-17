@@ -18,7 +18,6 @@ var querystring = require('querystring');
 var config = require('./config/config');
 var log4js = require('log4js');
 var schedule = require('node-schedule');
-var User = require("./backend/models/User");
 
 log4js.configure({
     appenders: [
@@ -39,6 +38,7 @@ password = config.password;
 host = config.host;
 dialect = require('./config/config').dialect
 // var SysManagerCSR = require('./routes/SysManagerCSR')    此处导入router
+var User = require("./backend/models/User");
 var AdminRouter = require('./backend/routers/AdminRouter');
 var UserRouter = require('./backend/routers/UserRouter');
 var CurrentTaskRouter = require('./backend/routers/CurrentTaskRouter');
