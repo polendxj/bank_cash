@@ -27,7 +27,8 @@ var User = sequelize.define('user', {
     code_select_status: Sequelize.INTEGER,
     plan_renew_fee_date: Sequelize.DATE,
     plan_flow_record_date: Sequelize.DATE,
-    plan_code_select_date: Sequelize.DATE
+    plan_code_select_date: Sequelize.DATE,
+    delete_status: Sequelize.INTEGER
 },{
     freezeTableName: true, // 默认false修改表名为复数，true不修改表名，与数据库表名同步
     tableName: 'user',
