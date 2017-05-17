@@ -36,12 +36,16 @@ database = config.database;
 username = config.username;
 password = config.password;
 host = config.host;
+renew_fee_time = config.renew_fee_time;
+flow_record_time = config.flow_record_time;
+code_select_time = config.code_select_time;
 dialect = require('./config/config').dialect
 // var SysManagerCSR = require('./routes/SysManagerCSR')    此处导入router
 var User = require("./backend/models/User");
 var AdminRouter = require('./backend/routers/AdminRouter');
 var UserRouter = require('./backend/routers/UserRouter');
 var CurrentTaskRouter = require('./backend/routers/CurrentTaskRouter');
+var UserService = require("./backend/service/UserService");
 
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
@@ -66,55 +70,10 @@ process.on('exit', function () {
     console.log('Bye.');
 });
 
-function renewFeeStatus() {
-    User.findAll({
-        where: {}
-    }).then(function (result) {
-        for (var user of result) {
-            var diffDate = frameworkUtils.GetDateDiff(new Date(),user.register_date);
-            console.log(diffDate);
-            if(user.renew_fee_status == 0){
-                if (diffDate % 28 == 0) {
-                    var params = {renew_fee_status:1};
-                    User.update(params, {
-                        where: {id: user.id}
-                    }).then(function (result) {
-
-                    }).catch(function (err) {
-                        console.log(err.message);
-                    });
-                }
-            }
-        }
-    }).catch(function (err) {
-        console.log(err.message);
-    });
-}
-function taskStatus() {
-    User.findAll({
-        where: {}
-    }).then(function (result) {
-        for (var user of result) {
-            var diffDate = frameworkUtils.GetDateDiff(new Date(),user.register_date);
-            console.log(diffDate);
-            if (diffDate % 28 == 0) {
-                var params = {renew_fee_status:1};
-                User.update(params, {
-                    where: {id: user.id}
-                }).then(function (result) {
-
-                }).catch(function (err) {
-                    console.log(err.message);
-                });
-            }
-        }
-    }).catch(function (err) {
-        console.log(err.message);
-    });
-}
 function scheduleTask() {
     schedule.scheduleJob('1 * * * * *', function () {
-        renewFeeStatus();
+        UserService.renewFeeStatus(User);
+        UserService.taskStatus(User);
     });
 }
 
