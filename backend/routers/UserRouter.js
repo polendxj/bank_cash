@@ -37,8 +37,6 @@ router.post('/user/register', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
     var id = frameworkUtils.GenerateUUID();
     data.id = id;
-    data.register_date = new Date();
-    console.log(data);
     BaseService._register(resp, User, data);
 });
 

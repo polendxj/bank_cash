@@ -219,19 +219,51 @@ export function hashCode(strKey) {
     return hash;
 }
 
+/*
+ * @author    Jabriel
+ * @see       跳转路由
+ * @param     path
+ *            跳转的路由路径
+ * @return
+ * @exception
+ * */
 export function routeTo(path) {
     browserHistory.push(path);
 }
-
+/*
+ * @author    Jabriel
+ * @see       防止input输入过快，导致发送多个请求
+ * @param     fun
+ *            输入后执行的函数
+ * @return
+ * @exception
+ * */
 export function protectInputTooFast(fun) {
     throttle(fun);
-    function throttle(fun){
-        if(window.timeoutId) {window.clearTimeout(window.timeoutId);}
-        window.timeoutId = window.setTimeout(function(){
+    function throttle(fun) {
+        if (window.timeoutId) {
+            window.clearTimeout(window.timeoutId);
+        }
+        window.timeoutId = window.setTimeout(function () {
             fun();
             window.timeoutId = null;
         }, 500);
     }
+}
+/*
+ * @author    Jabriel
+ * @see       数组转Json
+ * @param     fun
+ *            输入后执行的函数
+ * @return
+ * @exception
+ * */
+export function array2Json(list) {
+    var params = {};
+    list.forEach(function (val) {
+        params[val.name] = val.value;
+    });
+    return params;
 }
 
 function isNull(str) {

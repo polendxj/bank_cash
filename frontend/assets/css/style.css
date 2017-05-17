@@ -9444,3 +9444,18 @@ div.col4 {
 div.col5 {
   background: #1B1E24;
 }
+
+.validation-error-label, .validation-valid-label {
+  margin-top: 7px;
+  margin-bottom: 7px;
+  display: block;
+  color: #f44336;
+  padding-left: 26px;
+  position:absolute;
+  right:20px;
+  top:0;
+}
+.validation-valid-label {
+  color: #4caf50;
+}
+

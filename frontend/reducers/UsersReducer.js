@@ -39,3 +39,17 @@ export function userListByManagerReducer(state = {fetching: false, data: ""}, ac
     }
 }
 
+/*获取团队成员负责人*/
+export function userDetailReducer(state = {fetching: false, data: ""}, action) {
+    switch (action.type) {
+        case USER_DETAIL_START:
+            state = {fetching: true};
+            return state;
+        case USER_DETAIL_END:
+            state = {fetching: false, data: action.json};
+            return state;
+        default:
+            return state;
+    }
+}
+

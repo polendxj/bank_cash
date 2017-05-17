@@ -10,7 +10,7 @@ import {operation_notification, ConfirmModal} from '../businessHelper/BusinessUt
  * Params    startRow:search page start index    searchColumns:by what columns to search(is a array)    searchValues:by what values to search(is a array)    sortColumn:sort by what column    orderType:asc or desc
  *           startDispatch:if need start loading    endDispatch:finish loading and loaded   interfaceURL:loading URL
  * */
-export function getListByMutilpCondition(params, startDispatch, endDispatch, interfaceURL,callback) {
+export function getListByMutilpCondition(params, startDispatch, endDispatch, interfaceURL, callback) {
     return dispatch=> {
         if (startDispatch) {
             dispatch(startFetch(startDispatch))
@@ -27,7 +27,7 @@ export function getListByMutilpCondition(params, startDispatch, endDispatch, int
             .then(response=>response.json())
             .then(function (json) {
                 dispatch(endFetch(endDispatch, json));
-                if(callback){
+                if (callback) {
                     callback(json);
                 }
             })
@@ -41,7 +41,7 @@ export function deleteObject(obj, searchConditions, startDispatch, endDispatch, 
                 credentials: 'include',
                 method: 'POST',
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(obj)
             })
@@ -87,7 +87,7 @@ export function getDetail(jsonObj, startDispatch, endDispatch, interfaceURL, cal
                 credentials: 'include',
                 method: 'POST',
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    "Content-Type": "application/json"
                 },
                 body: "data=" + JSON.stringify(jsonObj)
             })
@@ -95,17 +95,17 @@ export function getDetail(jsonObj, startDispatch, endDispatch, interfaceURL, cal
             .then(function (json) {
                 if (json.result == 'SUCCESS') {
                     dispatch(endFetch(endDispatch, json))
-                    if (callback) {
-                        callback(json);
-                    }
                 } else {
                     dispatch(endFetch(endDispatch, json))
+                }
+                if (callback) {
+                    callback(json);
                 }
             })
     }
 }
 
-export function saveObject(data, startDispatch, endDispatch, interfaceURL, listRouter, flag, callback) {
+export function saveObject(data, startDispatch, endDispatch, interfaceURL, callback) {
     return dispatch=> {
         if (startDispatch) {
             dispatch(startFetch(startDispatch))
@@ -115,19 +115,20 @@ export function saveObject(data, startDispatch, endDispatch, interfaceURL, listR
                 credentials: 'include',
                 method: 'POST',
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(data)
             })
             .then(response=>response.json())
             .then(function (json) {
                 if (json.result == 'SUCCESS') {
+                    operation_notification(1);
                     dispatch(endFetch(endDispatch, json));
-                    if (callback) {
-                        callback(json);
-                    }
                 } else {
                     operation_notification(0, json.message)
+                }
+                if (callback) {
+                    callback(json);
                 }
             })
 

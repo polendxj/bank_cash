@@ -11,7 +11,7 @@ import Search from '../components/Search'
 import Pagenation from '../components/Pagenation'
 import {commonRefresh} from '../actions/Common'
 import {operation_notification, ConfirmModal, renderList, formatDate} from '../businessHelper/BusinessUtils'
-import {protectInputTooFast} from '../frameworkHelper/FrameWorkUtils'
+import {protectInputTooFast, array2Json} from '../frameworkHelper/FrameWorkUtils'
 import {getListByMutilpCondition, deleteObject, getDetail, saveObject} from '../actions/CommonActions'
 import Loading from '../components/Loading'
 import NoData from '../components/NoData'
@@ -32,7 +32,9 @@ export default class MembershipContainer extends Component {
         this.optPage = business_operation_action.LIST; //0-list,1-add,2-edit
         this.operationStatus = business_operation_status.INIT;   //0-init,1-doing,2-success,3-error
         this.oldComponent = ""; //保存上一次的component渲染界面
-        this.selectedItems = [{key: "001", value: "景鹏"}, {key: "002", value: "郑杰"}]; //保存选择的条目
+        this.selectedItems = []; //保存选择的条目
+        this.imageUploadStatus = 0;    //0-未上传，1-正在上传，2-上传成功，3-上传失败
+        this.imageUploadPath = "";    //图片上传返回来的路径
         /*event*/
         this._startRefresh = this._startRefresh.bind(this);
         this._changePage = this._changePage.bind(this);
@@ -42,6 +44,8 @@ export default class MembershipContainer extends Component {
         this._changeManager = this._changeManager.bind(this);
         this._searchManagerByName = this._searchManagerByName.bind(this);
         this._getAllManager = this._getAllManager.bind(this);
+        this._changeImageUploadStatus = this._changeImageUploadStatus.bind(this);
+        this._changeSelectedItems = this._changeSelectedItems.bind(this);
     }
 
     componentDidMount() {
@@ -74,8 +78,6 @@ export default class MembershipContainer extends Component {
                     break;
             }
         });
-
-
         /*Init Load Data*/
         this.props.dispatch(getListByMutilpCondition({
             "page": 0,
@@ -113,22 +115,83 @@ export default class MembershipContainer extends Component {
     }
 
     _doAction(optType) {
+        var self = this;
         this.optPage = optType;
         switch (this.optPage) {
             case business_operation_action.SAVE:
-                this.operationStatus = business_operation_status.DOING;
-                setTimeout(function () {
-                    this.operationStatus = business_operation_status.SUCCESS;
-                    this.optPage = business_operation_action.LIST;
-                    operation_notification(1);
-                    this._startRefresh();
-                }.bind(this), 3000);
+                if ($("#saveForm").validate().form()) {
+                    this.operationStatus = business_operation_status.DOING;
+                    var saveAction = "";
+                    if (self.selectedItems.length == 1) {
+                        saveAction = user_edit + "/" + self.selectedItems[0];
+                    } else {
+                        saveAction = user_save;
+                    }
+                    if ($("#input-24").val()) {
+                        if (this.imageUploadStatus == 0) {  //开始上传
+                            this.imageUploadStatus = 1;
+                            $('#input-24').fileinput('upload');
+                        } else if (this.imageUploadStatus == 2) {    //上传成功，开始保存数据,拿到imageUploadPath进行数据保存
+                            var params = array2Json($("#saveForm").serializeArray());
+                            params["card_img"] = this.imageUploadPath;
+                            params["bind_card_status"] = 1;
+                            this.props.dispatch(saveObject(params, USER_SAVE_START, USER_SAVE_END, saveAction, function (json) {
+                                if (json.result == 'SUCCESS') {
+                                    self.operationStatus = business_operation_status.SUCCESS;
+                                    self.optPage = business_operation_action.LIST;
+                                    self.selectedItems.splice(0);
+                                    self._changeManager(params.manager_id);
+                                } else {
+                                    self.operationStatus = business_operation_status.ERROR;
+                                    self._startRefresh();
+                                }
+
+                            }));
+                        } else if (this.imageUploadStatus == 3) {    //上传失败，提示图片上传失败，并开始保存数据
+                            operation_notification(0, "银行卡图片上传失败，正在保存会员基本信息");
+                            var params = array2Json($("#saveForm").serializeArray());
+                            params["bind_card_status"] = 0;
+                            this.props.dispatch(saveObject(params, USER_SAVE_START, USER_SAVE_END, saveAction, function (json) {
+                                if (json.result == 'SUCCESS') {
+                                    self.operationStatus = business_operation_status.SUCCESS;
+                                    self.optPage = business_operation_action.LIST;
+                                    self.selectedItems.splice(0);
+                                    self._changeManager(params.manager_id);
+                                } else {
+                                    self.operationStatus = business_operation_status.ERROR;
+                                    self._startRefresh();
+                                }
+                            }));
+                        }
+                    } else {
+                        var params = array2Json($("#saveForm").serializeArray());
+                        params["bind_card_status"] = 0;
+                        this.props.dispatch(saveObject(params, USER_SAVE_START, USER_SAVE_END, saveAction, function (json) {
+                            if (json.result == 'SUCCESS') {
+                                self.operationStatus = business_operation_status.SUCCESS;
+                                self.optPage = business_operation_action.LIST;
+                                self.selectedItems.splice(0);
+                                self._changeManager(params.manager_id);
+                            } else {
+                                self.operationStatus = business_operation_status.ERROR;
+                                self._startRefresh();
+                            }
+                        }));
+                    }
+
+                }
+
                 break;
             case business_operation_action.ADD:
                 this.operationStatus = business_operation_status.INIT;
                 break;
             case business_operation_action.EDIT:
                 this.operationStatus = business_operation_status.INIT;
+                self.props.dispatch(getListByMutilpCondition({
+                    "page": 0,
+                    "pageSize": page_size,
+                    "id": self.selectedItems[0]
+                }, USER_DETAIL_START, USER_DETAIL_END, user_list));
                 break;
             case business_operation_action.DELETE:
                 this.operationStatus = business_operation_status.DOING;
@@ -137,6 +200,9 @@ export default class MembershipContainer extends Component {
                     operation_notification(0, "不允许删除");
                     this._startRefresh();
                 }.bind(this), 3000);
+                break;
+            case business_operation_action.LIST:
+                this.selectedItems.splice(0);
                 break;
         }
         this._startRefresh();
@@ -167,8 +233,23 @@ export default class MembershipContainer extends Component {
         }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list));
     }
 
+    _changeImageUploadStatus(status, path) {
+        this.imageUploadStatus = status;
+        this.imageUploadPath = path;
+        this._doAction(business_operation_action.SAVE);
+    }
+
+    _changeSelectedItems(id) {
+        var self = this;
+        this.selectedItems.splice(0);
+        $('input[name=' + id + ']:checked').each(function () {
+            self.selectedItems.push($(this).val());
+        });
+        this._startRefresh();
+    }
+
     render() {
-        const {userManagerList, userListByManager}=this.props;
+        const {userManagerList, userListByManager, userDetail}=this.props;
         var component = "";
         switch (this.optPage) {
             case business_operation_action.LIST:
@@ -178,16 +259,23 @@ export default class MembershipContainer extends Component {
                                     page={this.page}
                                     _changePage={this._changePage} _prePage={this._prePage}
                                     _nextPage={this._nextPage}/>
-                        <MembershipList userListByManager={userListByManager}/>
+                        <MembershipList userListByManager={userListByManager}
+                                        _changeSelectedItems={this._changeSelectedItems}/>
                     </div>;
                 break;
             case business_operation_action.ADD:
                 component =
                     <div className="row">
-                        <AddUser />
-                    </div>
+                        <AddUser userManagerList={userManagerList}
+                                 _changeImageUploadStatus={this._changeImageUploadStatus}/>
+                    </div>;
                 break;
             case business_operation_action.EDIT:
+                component =
+                    <div className="row">
+                        <EditUser userManagerList={userManagerList} userDetail={userDetail}
+                                  _changeImageUploadStatus={this._changeImageUploadStatus}/>
+                    </div>;
                 break;
             default:
                 component = this.oldComponent;
@@ -299,7 +387,7 @@ class ManagersList extends Component {
                                     <div style={{width: "5%", float: "left"}}>
                                         <input type="checkbox"
                                                className="form-control teamInput"
-                                               style={{marginTop: "-5px", display: "none"}} value={val.id}/>
+                                               style={{marginTop: "-5px", display: "none"}} defaultValue={val.id}/>
                                     </div>
                                     <div onClick={self._changeManager.bind(self, key, val.id)}
                                          style={{width: "85%", paddingLeft: "30px"}}>
@@ -322,8 +410,13 @@ class ManagersList extends Component {
 }
 
 class MembershipList extends Component {
+    componentDidMount() {
+
+    }
+
     render() {
-        const {userListByManager}=this.props;
+        const {userListByManager, _changeSelectedItems}=this.props;
+        var self = this;
         return (
             <section className="panel" style={{marginBottom: "-1px", minHeight: "600px"}}>
                 <div className="panel-body" style={{padding: "1px"}}>
@@ -339,14 +432,14 @@ class MembershipList extends Component {
                             <th>绑卡日期</th>
                             <th>虚拟卡</th>
                             <th>银行卡</th>
-                            <th>续费日期</th>
                         </tr>
                         </thead>
                         <tbody className="text-center">
                         {renderList(userListByManager, function (rows) {
                             return rows.map(function (val, key) {
                                 return <tr key={key}>
-                                    <td><input type="checkbox" value={true}/></td>
+                                    <td><input type="checkbox" value={val.id} name="member"
+                                               onChange={_changeSelectedItems.bind(self, "member")}/></td>
                                     <td>{val.name}</td>
                                     <td>{val.idcard}</td>
                                     <td>{val.account}</td>
@@ -355,9 +448,16 @@ class MembershipList extends Component {
                                     <td>{formatDate(val.bind_card_date, "yyyy-mm-dd")}</td>
                                     <td>{val.virtual_card == 0 ? <span className="label bg-danger">未办卡</span> :
                                         <span className="label bg-primary">已办卡</span>}</td>
-                                    <td>{val.bind_card_status ? <span className="label bg-danger">未上传</span> :
-                                        <span className="label bg-primary">已上传</span>}</td>
-                                    <td>{formatDate(val.renew_fee_date, "yyyy-mm-dd")}</td>
+                                    <td>
+                                        {val.bind_card_date && val.card_img ?
+                                            <span className="label bg-primary">绑定-已上传</span> : ""}
+                                        {val.bind_card_date && !val.card_img ?
+                                            <span className="label bg-warning">绑定-未上传</span> : ""}
+                                        {!val.bind_card_date && val.card_img ?
+                                            <span className="label bg-warning">无时间-已上传</span> : ""}
+                                        {!val.bind_card_date && !val.card_img ?
+                                            <span className="label bg-danger">未绑定</span> : ""}
+                                    </td>
                                 </tr>
                             });
                         })}
@@ -371,7 +471,115 @@ class MembershipList extends Component {
 }
 
 class AddUser extends Component {
+    constructor(props) {
+        super(props);
+
+    }
+
+    componentDidMount() {
+        var self = this;
+        /*jQuery DOM*/
+        $("#input-24").fileinput({
+            uploadUrl: node_service + '/file/uploading',
+            theme: "fa",
+            initialPreviewAsData: true,
+            language: 'zh',
+            showUpload: false,
+            showPreview: true,
+            enctype: 'multipart/form-data',
+            overwriteInitial: false,
+            maxFileSize: 100000
+        });
+        $('#input-24').on('fileuploaded', function (event, data, previewId, index) {
+            if (data.response && data.response.result == "SUCCESS") {
+                var filePath = data.response.path;
+                self.props._changeImageUploadStatus(2, filePath);
+            } else {
+                self.props._changeImageUploadStatus(3);
+            }
+        });
+        $(".daterange-two").jeDate({
+            format: "YYYY-MM-DD hh:mm:ss", //日期格式
+            minDate: "1900-01-01 00:00:00", //最小日期
+            maxDate: "2099-12-31 23:59:59", //最大日期
+            isinitVal: false, //是否初始化时间
+            isTime: false, //是否开启时间选择
+            isClear: true, //是否显示清空
+            festival: false, //是否显示节日
+            zIndex: 999,  //弹出层的层级高度
+            marks: null, //给日期做标注
+        });
+        $("#saveForm").validate({
+            errorClass: 'validation-error-label',
+            successClass: 'validation-valid-label',
+            highlight: function (element, errorClass) {
+                $(element).removeClass(errorClass);
+            },
+            unhighlight: function (element, errorClass) {
+                $(element).removeClass(errorClass);
+            },
+            success: function (label) {
+                label.addClass("validation-valid-label").text("正确");
+            },
+            validClass: "validation-valid-label",
+            rules: {
+                name: {
+                    required: true,
+                },
+                idcard: {
+                    required: true,
+                },
+                account: {
+                    required: true,
+                },
+                password: {
+                    required: true,
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                email_password: {
+                    required: true,
+                },
+                register_date: {
+                    required: true,
+                },
+            },
+            messages: {
+                name: {
+                    required: "姓名不能为空"
+                },
+                idcard: {
+                    required: "会员ID号不能为空"
+                },
+                account: {
+                    required: "登录账号不能为空"
+                },
+                password: {
+                    required: "登录密码不能为空"
+                },
+                email: {
+                    required: "邮箱不能为空"
+                },
+                email_password: {
+                    required: "邮箱密码不能为空"
+                },
+                register_date: {
+                    required: "请选择报单日期"
+                }
+
+            }
+        });
+        $("#is_manager").on("change", function () {
+            $("#manager_id").css({display: $("#is_manager option:selected").val() == 0 ? "block" : "none"});
+        });
+        $('.selectpicker').selectpicker();
+
+    }
+
     render() {
+        const {userManagerList}=this.props;
         return (
             <section className="panel" style={{minHeight: "600px"}}>
                 <div className="panel-body" style={{padding: "1px"}}>
@@ -380,70 +588,94 @@ class AddUser extends Component {
                             <br />
                             <h3><strong>基本</strong> 信息</h3>
                             <hr />
-                            <form>
+                            <form id="saveForm">
                                 <div className="form-group row">
-                                    <div className="col-md-4">
+                                    <div className="col-md-3">
                                         <label className="control-label">姓名</label>
-                                        <input type="text" className="form-control" id="fullname"
+                                        <input type="text" className="form-control" name="name"
                                                placeholder="报单人员的真实姓名"/>
                                     </div>
-                                    <div className="col-md-4">
+                                    <div className="col-md-3">
                                         <label className="control-label">ID</label>
-                                        <input type="text" className="form-control" placeholder="报单人员的ID会员号"/>
+                                        <input type="text" className="form-control" name="idcard"
+                                               placeholder="报单人员的ID会员号"/>
                                     </div>
-                                    <div className="col-md-4">
+                                    <div className="col-md-3" id="is_manager">
                                         <label className="control-label">职位</label>
-                                        <select className="form-control">
+                                        <select className="form-control" name="is_manager">
                                             <option value={0}>普通会员</option>
                                             <option value={1}>团队负责人</option>
+                                        </select>
+                                    </div>
+                                    <div className="col-md-3" id="manager_id">
+                                        <label className="control-label">所属团队</label>
+                                        <select className="selectpicker form-control" name="manager_id" data-size="10"
+                                                data-live-search="true">
+                                            {renderList(userManagerList, function (rows) {
+                                                return rows.map(function (val, key) {
+                                                    return <option key={key} value={val.id}>{val.name}</option>
+                                                })
+                                            })}
                                         </select>
                                     </div>
                                 </div>
                                 <div className="form-group row">
                                     <div className="col-md-6">
                                         <label className="control-label">账号名称</label>
-                                        <input type="text" className="form-control" id="fullname"
+                                        <input type="text" className="form-control" name="account"
                                                placeholder="后台登录账号"/>
                                     </div>
                                     <div className="col-md-6">
                                         <label className="control-label">账号密码</label>
-                                        <input type="text" className="form-control" placeholder="后台登录密码"/>
+                                        <input type="text" className="form-control" placeholder="后台登录密码"
+                                               name="password"/>
                                     </div>
                                 </div>
                                 <div className="form-group row">
                                     <div className="col-md-6">
-                                        <label className="control-label">邮箱</label>
-                                        <input type="text" className="form-control" id="fullname"
-                                               placeholder="个人提交的私人邮箱"/>
+                                        <label className="control-label">账号当前状态</label>
+                                        <select className="form-control" name="task_status">
+                                            <option value={0}>后台选码完毕，等待下轮流水提取</option>
+                                            <option value={1}>流水提取完毕，等待后续后台选码</option>
+                                        </select>
                                     </div>
                                     <div className="col-md-6">
-                                        <label className="control-label">邮箱密码</label>
-                                        <input type="text" className="form-control" placeholder="邮箱密码"/>
+                                        <label className="control-label">报单日期</label>
+                                        <input id="bindCard" type="text"
+                                               className="form-control daterange-two" name="register_date"
+                                               placeholder="会员报单的日期"/>
                                     </div>
                                 </div>
                                 <div className="form-group row">
                                     <div className="col-md-6">
                                         <label className="control-label">绑卡日期</label>
-                                        <input type="text" className="form-control" id="fullname"
-                                               placeholder="绑卡日期"/>
+                                        <input id="renewFee" type="text"
+                                               className="form-control daterange-two" name="bind_card_date"
+                                               placeholder="会员绑卡的日期"/>
                                     </div>
-                                    <div className="col-md-6">
-                                        <label className="control-label">续费日期</label>
-                                        <input type="text" className="form-control" placeholder="最近一次会员续费日期"/>
-                                    </div>
-                                </div>
-                                <div className="form-group row">
                                     <div className="col-md-6">
                                         <label className="control-label">虚拟卡</label>
-                                        <select className="form-control">
+                                        <select className="form-control" name="virtual_card">
                                             <option value={0}>未绑定</option>
                                             <option value={1}>已绑定</option>
                                         </select>
                                     </div>
                                 </div>
+                                <div className="form-group row">
+                                    <div className="col-md-6">
+                                        <label className="control-label">邮箱</label>
+                                        <input type="text" className="form-control" name="email"
+                                               placeholder="个人提交的私人邮箱"/>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="control-label">邮箱密码</label>
+                                        <input type="text" className="form-control" placeholder="邮箱密码"
+                                               name="email_password"/>
+                                    </div>
+                                </div>
                                 <div className="form-group ">
                                     <label className="control-label">银行卡图片</label>
-
+                                    <input id="input-24" name="inputFile" type="file" className="file-loading"/>
                                 </div>
                             </form>
                         </div>
@@ -454,12 +686,255 @@ class AddUser extends Component {
     }
 }
 
+class EditUser extends Component {
+    constructor(props) {
+        super(props);
+
+    }
+
+    componentDidMount() {
+        var self = this;
+        /*jQuery DOM*/
+        var timer = setInterval(function () {
+            if (self.props.userDetail.data) {
+                $("#input-24").fileinput({
+                    uploadUrl: node_service + '/file/uploading',
+                    theme: "fa",
+                    initialPreviewAsData: true,
+                    language: 'zh',
+                    showUpload: false,
+                    showPreview: true,
+                    maxFileCount: 1,
+                    enctype: 'multipart/form-data',
+                    overwriteInitial: false,
+                    maxFileSize: 100000,
+                    initialPreview: [self.props.userDetail.data.rows[0].card_img?imagePath + "/" + self.props.userDetail.data.rows[0].card_img:""],
+                });
+                $('#input-24').on('fileuploaded', function (event, data, previewId, index) {
+                    if (data.response && data.response.result == "SUCCESS") {
+                        var filePath = data.response.path;
+                        self.props._changeImageUploadStatus(2, filePath);
+                    } else {
+                        self.props._changeImageUploadStatus(3);
+                    }
+                });
+                $(".daterange-two").jeDate({
+                    format: "YYYY-MM-DD hh:mm:ss", //日期格式
+                    minDate: "1900-01-01 00:00:00", //最小日期
+                    maxDate: "2099-12-31 23:59:59", //最大日期
+                    isinitVal: false, //是否初始化时间
+                    isTime: false, //是否开启时间选择
+                    isClear: true, //是否显示清空
+                    festival: false, //是否显示节日
+                    zIndex: 999,  //弹出层的层级高度
+                    marks: null, //给日期做标注
+                });
+                $("#saveForm").validate({
+                    errorClass: 'validation-error-label',
+                    successClass: 'validation-valid-label',
+                    highlight: function (element, errorClass) {
+                        $(element).removeClass(errorClass);
+                    },
+                    unhighlight: function (element, errorClass) {
+                        $(element).removeClass(errorClass);
+                    },
+                    success: function (label) {
+                        label.addClass("validation-valid-label").text("正确");
+                    },
+                    validClass: "validation-valid-label",
+                    rules: {
+                        name: {
+                            required: true,
+                        },
+                        idcard: {
+                            required: true,
+                        },
+                        account: {
+                            required: true,
+                        },
+                        password: {
+                            required: true,
+                        },
+                        email: {
+                            required: true,
+                            email: true
+                        },
+                        email_password: {
+                            required: true,
+                        },
+                        register_date: {
+                            required: true,
+                        },
+                    },
+                    messages: {
+                        name: {
+                            required: "姓名不能为空"
+                        },
+                        idcard: {
+                            required: "会员ID号不能为空"
+                        },
+                        account: {
+                            required: "登录账号不能为空"
+                        },
+                        password: {
+                            required: "登录密码不能为空"
+                        },
+                        email: {
+                            required: "邮箱不能为空"
+                        },
+                        email_password: {
+                            required: "邮箱密码不能为空"
+                        },
+                        register_date: {
+                            required: "请选择报单日期"
+                        }
+
+                    }
+                });
+                $("#manager_id").css({display: $("#is_manager option:selected").val() == 0 ? "block" : "none"});
+                $("#is_manager").on("change", function () {
+                    $("#manager_id").css({display: $("#is_manager option:selected").val() == 0 ? "block" : "none"});
+                });
+                $('.selectpicker').selectpicker();
+
+                clearInterval(timer);
+            }
+        }, 100);
+
+
+    }
+
+    render() {
+        const {userManagerList, userDetail}=this.props;
+        return (
+            <section className="panel" style={{minHeight: "600px"}}>
+                <div className="panel-body" style={{padding: "1px"}}>
+                    <div className="row">
+                        <div className="col-md-12" style={{padding: "5px 25px"}}>
+                            <br />
+                            <h3><strong>基本</strong> 信息</h3>
+                            <hr />
+                            {renderList(userDetail, function (rows) {
+                                return <form id="saveForm">
+                                    <div className="form-group row">
+                                        <div className="col-md-3">
+                                            <label className="control-label">姓名</label>
+                                            <input type="text" className="form-control" name="name"
+                                                   defaultValue={rows[0].name}
+                                                   placeholder="报单人员的真实姓名"/>
+                                        </div>
+                                        <div className="col-md-3">
+                                            <label className="control-label">ID</label>
+                                            <input type="text" className="form-control" name="idcard"
+                                                   defaultValue={rows[0].idcard}
+                                                   placeholder="报单人员的ID会员号"/>
+                                        </div>
+                                        <div className="col-md-3" id="is_manager">
+                                            <label className="control-label">职位</label>
+                                            <select className="form-control" name="is_manager"
+                                                    defaultValue={rows[0].is_manager}>
+                                                <option value={0}>普通会员</option>
+                                                <option value={1}>团队负责人</option>
+                                            </select>
+                                        </div>
+                                        <div className="col-md-3" id="manager_id">
+                                            <label className="control-label">所属团队</label>
+                                            <select className="selectpicker form-control" name="manager_id"
+                                                    defaultValue={rows[0].manager_id}
+                                                    data-size="10"
+                                                    data-live-search="true">
+                                                {renderList(userManagerList, function (rows) {
+                                                    return rows.map(function (val, key) {
+                                                        return <option key={key} value={val.id}>{val.name}</option>
+                                                    })
+                                                })}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="form-group row">
+                                        <div className="col-md-6">
+                                            <label className="control-label">账号名称</label>
+                                            <input type="text" className="form-control" name="account"
+                                                   defaultValue={rows[0].account}
+                                                   placeholder="后台登录账号"/>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="control-label">账号密码</label>
+                                            <input type="text" className="form-control" placeholder="后台登录密码"
+                                                   defaultValue={rows[0].password}
+                                                   name="password"/>
+                                        </div>
+                                    </div>
+                                    <div className="form-group row">
+                                        <div className="col-md-6">
+                                            <label className="control-label">账号当前状态</label>
+                                            <select className="form-control" name="task_status"
+                                                    defaultValue={rows[0].task_status}>
+                                                <option value={0}>后台选码完毕，等待下轮流水提取</option>
+                                                <option value={1}>流水提取完毕，等待后续后台选码</option>
+                                            </select>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="control-label">报单日期</label>
+                                            <input id="bindCard" type="text"
+                                                   className="form-control daterange-two" name="register_date"
+                                                   defaultValue={formatDate(rows[0].register_date, "yyyy-mm-dd")}
+                                                   placeholder="会员报单的日期"/>
+                                        </div>
+                                    </div>
+                                    <div className="form-group row">
+                                        <div className="col-md-6">
+                                            <label className="control-label">绑卡日期</label>
+                                            <input id="renewFee" type="text"
+                                                   className="form-control daterange-two" name="bind_card_date"
+                                                   defaultValue={formatDate(rows[0].bind_card_date, "yyyy-mm-dd")}
+                                                   placeholder="会员绑卡的日期"/>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="control-label">虚拟卡</label>
+                                            <select className="form-control" name="virtual_card"
+                                                    defaultValue={rows[0].virtual_card}>
+                                                <option value={0}>未绑定</option>
+                                                <option value={1}>已绑定</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="form-group row">
+                                        <div className="col-md-6">
+                                            <label className="control-label">邮箱</label>
+                                            <input type="text" className="form-control" name="email"
+                                                   defaultValue={rows[0].email}
+                                                   placeholder="个人提交的私人邮箱"/>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="control-label">邮箱密码</label>
+                                            <input type="text" className="form-control" placeholder="邮箱密码"
+                                                   defaultValue={rows[0].email_password}
+                                                   name="email_password"/>
+                                        </div>
+                                    </div>
+                                    <div className="form-group ">
+                                        <label className="control-label">银行卡图片</label>
+                                        <input id="input-24" name="inputFile" type="file" className="file-loading"/>
+                                    </div>
+                                </form>
+                            })}
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+        )
+    }
+}
+
 function mapStateToProps(state) {
-    const {commonReducer, userManagerListReducer, userListByManagerReducer}=state
+    const {commonReducer, userManagerListReducer, userListByManagerReducer, userDetailReducer}=state
     return {
         refresh: commonReducer.refresh,
         userManagerList: userManagerListReducer,
-        userListByManager: userListByManagerReducer
+        userListByManager: userListByManagerReducer,
+        userDetail: userDetailReducer
     }
 }
 

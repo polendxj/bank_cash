@@ -110,12 +110,16 @@ export default class Operations extends Component {
                     </button>
                     <button onClick={this._edit} type="button"
                             className="btn btn-theme-inverse  btn-sm"
-                            style={{marginRight: "5px", display: this.editBtn ? "inline-block" : "none"}}>
+                            style={{marginRight: "5px", display: this.editBtn ? "inline-block" : "none"}}
+                            disabled={selectedItems.length != 1 ? true : false}
+                    >
                         <i className="fa fa-edit"></i> 编 辑
                     </button>
                     <button onClick={this._startRefresh} type="button" className="btn btn-danger btn-sm"
                             style={{marginRight: "5px", display: this.deleteBtn ? "inline-block" : "none"}}
-                            data-toggle="modal" data-target="#confirm_modal">
+                            data-toggle="modal" data-target="#confirm_modal"
+                            disabled={selectedItems.length == 0 ? true : false}
+                    >
                         <i className="fa fa-trash-o"></i> 删 除
                     </button>
                     <button id="searchBtn" onClick={this._search} type="button"
@@ -193,12 +197,16 @@ export default class Operations extends Component {
                     </button>
                     <button onClick={this._edit} type="button"
                             className="btn btn-theme-inverse  btn-sm"
-                            style={{marginRight: "5px", display: this.editBtn ? "inline-block" : "none"}}>
+                            style={{marginRight: "5px", display: this.editBtn ? "inline-block" : "none"}}
+                            disabled={selectedItems.length != 1 ? true : false}
+                    >
                         <i className="fa fa-edit"></i> 编 辑
                     </button>
                     <button onClick={this._startRefresh} type="button" className="btn btn-danger btn-sm"
                             style={{marginRight: "5px", display: this.deleteBtn ? "inline-block" : "none"}}
-                            data-toggle="modal" data-target="#confirm_modal">
+                            data-toggle="modal" data-target="#confirm_modal"
+                            disabled={selectedItems.length == 0 ? true : false}
+                    >
                         <i className="fa fa-trash-o"></i> 删 除
                     </button>
                     <button id="searchBtn" onClick={this._search} type="button"
@@ -230,12 +238,16 @@ export default class Operations extends Component {
                     </button>
                     <button onClick={this._edit} type="button"
                             className="btn btn-theme-inverse  btn-sm"
-                            style={{marginRight: "5px", display: this.editBtn ? "inline-block" : "none"}}>
+                            style={{marginRight: "5px", display: this.editBtn ? "inline-block" : "none"}}
+                            disabled={selectedItems.length != 1 ? true : false}
+                    >
                         <i className="fa fa-edit"></i> 编 辑
                     </button>
                     <button onClick={this._startRefresh} type="button" className="btn btn-danger btn-sm"
                             style={{marginRight: "5px", display: this.deleteBtn ? "inline-block" : "none"}}
-                            data-toggle="modal" data-target="#confirm_modal">
+                            data-toggle="modal" data-target="#confirm_modal"
+                            disabled={selectedItems.length ==0 ? true : false}
+                    >
                         <i className="fa fa-trash-o"></i> 删 除
                     </button>
                     <button id="searchBtn" onClick={this._search} type="button"
@@ -251,9 +263,9 @@ export default class Operations extends Component {
                 </div>;
         }
         return (
-            <div className="row" >
+            <div className="row">
                 <div>
-                    <div className="mail-tools clearfix" style={{marginBottom:"2px"}}>
+                    <div className="mail-tools clearfix" style={{marginBottom: "2px"}}>
                         {content}
                         <h4 className="hidden-xs pull-left">{this.props.title}
                             <small>{this.props.smallTitle}</small>
