@@ -58,8 +58,8 @@ var _findAndCountAll = function(resp,object,params,callback){
         }
     });
 };
-var _deleteByManagerIds = function(resp,object,managerIds,callback){
-    object.destroy({
+var _deleteByManagerIds = function(resp,object,managerIds,params,callback){
+    object.update(params,{
         where:{
             manager_id: managerIds
         }
@@ -71,14 +71,34 @@ var _deleteByManagerIds = function(resp,object,managerIds,callback){
         }
     }).catch(function(err){
         if(callback){
-            callback({result:"SUCCESS",message:err.message});
+            callback({result:"FAILURE",message:err.message});
         }else {
-            resp.send({result:"SUCCESS",message:err.message});
+            resp.send({result:"FAILURE",message:err.message});
+        }
+    });
+};
+var _delete = function(resp,object,ids,params,callback){
+    object.update(params,{
+        where:{
+            id: ids
+        }
+    }).then(function(result){
+        if(callback){
+            callback({result:"SUCCESS"});
+        }else {
+            resp.send({result:"SUCCESS"});
+        }
+    }).catch(function(err){
+        if(callback){
+            callback({result:"FAILURE",message:err.message});
+        }else {
+            resp.send({result:"FAILURE",message:err.message});
         }
     });
 };
 
 module.exports = {
     _findAndCountAll: _findAndCountAll,
-    _deleteByManagerIds: _deleteByManagerIds
+    _deleteByManagerIds: _deleteByManagerIds,
+    _delete: _delete
 }

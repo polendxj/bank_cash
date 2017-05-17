@@ -37,6 +37,11 @@ router.post('/user/register', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
     var id = frameworkUtils.GenerateUUID();
     data.id = id;
+    data.delete_status = 1;
+    if(data.is_manager==1){
+        data.manager_id = id;
+    }
+    data = frameworkUtils.deleteNullKey(data);
     BaseService._register(resp, User, data);
 });
 
@@ -44,6 +49,10 @@ router.post('/user/update/:id', function (req, resp) {
     var id = req.params.id;
     var data = frameworkUtils.JSONStrToObj(req.body);
     console.log(req.params);
+    if(data.is_manager==1){
+        data.manager_id = id;
+    }
+    data = frameworkUtils.deleteNullKey(data);
     BaseService._update(resp, User, data, id);
 });
 
@@ -114,14 +123,17 @@ router.post('/user/updateCodeSelectStatus', function (req, resp) {
 
 router.post('/user/deleteByManager', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
-    var managerIds = JSON.parse(data.managerIds);
-    UserService._deleteByManagerIds(resp, User, managerIds);
+    var managerIds = data.managerIds;
+    var params = {delete_status:0};
+    UserService._deleteByManagerIds(resp, User, managerIds, params);
 });
 
 router.post('/user/deleteByIds', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
+    console.log(data);
     var ids = JSON.parse(data.ids);
-    BaseService._delete(resp, User, ids);
+    var params = {delete_status:0};
+    UserService._delete(resp, User, ids, params);
 });
 
 router.post('/file/uploading', function (req, res, next) {

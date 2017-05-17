@@ -160,7 +160,7 @@ var JSONStrToObj = function (content) {
 
 var deleteNullKey = function(json){
     for(var key in json){
-        if(json[key]==""){
+        if(json[key]=="" || json[key]== null){
             delete json[key];
         }
     }
