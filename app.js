@@ -18,6 +18,7 @@ var querystring = require('querystring');
 var config = require('./config/config');
 var log4js = require('log4js');
 var schedule = require('node-schedule');
+var User = require("./backend/models/User");
 
 log4js.configure({
     appenders: [
@@ -60,11 +61,57 @@ process.on('exit', function () {
     console.log('Bye.');
 });
 
-function scheduleTask(){
-    schedule.scheduleJob('10 * * * * *', function(){
-        console.log('scheduleCronstyle:' + new Date());
+function renewFeeStatus() {
+    User.findAll({
+        where: {}
+    }).then(function (result) {
+        for (var user of result) {
+            var diffDate = frameworkUtils.GetDateDiff(new Date(),user.register_date);
+            console.log(diffDate);
+            if(user.renew_fee_status == 0){
+                if (diffDate % 28 == 0) {
+                    var params = {renew_fee_status:1};
+                    User.update(params, {
+                        where: {id: user.id}
+                    }).then(function (result) {
+
+                    }).catch(function (err) {
+                        console.log(err.message);
+                    });
+                }
+            }
+        }
+    }).catch(function (err) {
+        console.log(err.message);
+    });
+}
+function taskStatus() {
+    User.findAll({
+        where: {}
+    }).then(function (result) {
+        for (var user of result) {
+            var diffDate = frameworkUtils.GetDateDiff(new Date(),user.register_date);
+            console.log(diffDate);
+            if (diffDate % 28 == 0) {
+                var params = {renew_fee_status:1};
+                User.update(params, {
+                    where: {id: user.id}
+                }).then(function (result) {
+
+                }).catch(function (err) {
+                    console.log(err.message);
+                });
+            }
+        }
+    }).catch(function (err) {
+        console.log(err.message);
+    });
+}
+function scheduleTask() {
+    schedule.scheduleJob('1 * * * * *', function () {
+        renewFeeStatus();
     });
 }
 
-// scheduleTask();
+ // scheduleTask();
 module.exports = app;

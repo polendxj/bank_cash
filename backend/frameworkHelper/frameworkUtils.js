@@ -1,6 +1,7 @@
 /**
  * Created by Administrator on 2016/11/2.
  */
+var moment = require('moment');
 var CatchUncaughtException = function (func, resp) {
     try {
         func()
@@ -164,7 +165,13 @@ var deleteNullKey = function(json){
         }
     }
     return json;
-}
+};
+
+var GetDateDiff = function(startDate,endDate) {
+    var startTime = new Date(moment(startDate).format("YYYY-MM-DD")).getTime();
+    var endTime = new Date(moment(endDate).format("YYYY-MM-DD")).getTime();
+    return parseInt(Math.abs((startTime - endTime))/(1000*60*60*24));
+};
 
 module.exports.uncaughtException = CatchUncaughtException;
 module.exports.not200Exception = CatchNot200Exception;
@@ -175,3 +182,4 @@ module.exports.FormatDate = FormatDate;
 module.exports.Request = Request;
 module.exports.JSONStrToObj = JSONStrToObj;
 module.exports.deleteNullKey = deleteNullKey;
+module.exports.GetDateDiff = GetDateDiff;

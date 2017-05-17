@@ -9,6 +9,7 @@ var multiparty = require('multiparty');
 var fs = require('fs');
 var frameworkUtils = require('../frameworkHelper/frameworkUtils');
 var User = require("../models/User");
+var HistoryTask = require("../models/HistoryTask");
 var UserService = require("../service/UserService");
 var BaseService = require("../service/BaseService");
 
@@ -44,6 +45,71 @@ router.post('/user/update/:id', function (req, resp) {
     var data = req.body;
     console.log(req.params);
     BaseService._update(resp, User, data, id);
+});
+
+router.post('/user/updateRenewFeeStatus', function (req, resp) {
+    var data = req.body;
+    var id = data.id;
+    var admin_id = data.admin_id;
+    delete data.admin_id;
+    delete data.id;
+    console.log(id);
+    BaseService._update(resp, User, data, id,function (result) {
+        if(result.result == "SUCCESS"){
+            var params = {
+                user_id: id,
+                admin_id: admin_id,
+                status: 3,
+                plan_deal_date:data.plan_deal_date,
+                real_deal_date:new Date()
+            };
+            BaseService._register(resp, HistoryTask, params);
+        }else{
+            resp.send(result);
+        }
+    });
+});
+router.post('/user/updateFlowRecordStatus', function (req, resp) {
+    var data = req.body;
+    var id = data.id;
+    var admin_id = data.admin_id;
+    delete data.admin_id;
+    delete data.id;
+    BaseService._update(resp, User, data, id,function (result) {
+        if(result.result == "SUCCESS"){
+            var params = {
+                user_id: id,
+                admin_id: admin_id,
+                status: 1,
+                plan_deal_date:data.plan_deal_date,
+                real_deal_date:new Date()
+            }
+            BaseService._register(resp, HistoryTask, params);
+        }else{
+            resp.send(result);
+        }
+    });
+});
+router.post('/user/updateCodeSelectStatus', function (req, resp) {
+    var data = req.body;
+    var id = data.id;
+    var admin_id = data.admin_id;
+    delete data.admin_id;
+    delete data.id;
+    BaseService._update(resp, User, data, id,function (result) {
+        if(result.result == "SUCCESS"){
+            var params = {
+                user_id: id,
+                admin_id: admin_id,
+                status: 2,
+                plan_deal_date:data.plan_deal_date,
+                real_deal_date:new Date()
+            }
+            BaseService._register(resp, HistoryTask, params);
+        }else{
+            resp.send(result);
+        }
+    });
 });
 
 router.post('/user/deleteByManager', function (req, resp) {
