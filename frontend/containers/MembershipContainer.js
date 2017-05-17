@@ -35,6 +35,7 @@ export default class MembershipContainer extends Component {
         this.selectedItems = []; //保存选择的条目
         this.imageUploadStatus = 0;    //0-未上传，1-正在上传，2-上传成功，3-上传失败
         this.imageUploadPath = "";    //图片上传返回来的路径
+        this.selectedManager = "";      //选择的团队负责人
         /*event*/
         this._startRefresh = this._startRefresh.bind(this);
         this._changePage = this._changePage.bind(this);
@@ -178,9 +179,7 @@ export default class MembershipContainer extends Component {
                             }
                         }));
                     }
-
                 }
-
                 break;
             case business_operation_action.ADD:
                 this.operationStatus = business_operation_status.INIT;
@@ -195,11 +194,13 @@ export default class MembershipContainer extends Component {
                 break;
             case business_operation_action.DELETE:
                 this.operationStatus = business_operation_status.DOING;
-                setTimeout(function () {
-                    this.operationStatus = business_operation_status.ERROR;
-                    operation_notification(0, "不允许删除");
-                    this._startRefresh();
-                }.bind(this), 3000);
+                self.props.dispatch(deleteObject({
+                    "ids": self.selectedItems
+                }, USER_DELETE_START, USER_DELETE_END, user_delete, function (json) {
+                    self.selectedItems.splice(0);
+                    self.operationStatus = business_operation_status.SUCCESS;
+                    self._changeManager(self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id);
+                }));
                 break;
             case business_operation_action.LIST:
                 this.selectedItems.splice(0);
@@ -209,6 +210,7 @@ export default class MembershipContainer extends Component {
     }
 
     _changeManager(id) {
+        this.selectedManager = id;
         this.props.dispatch(getListByMutilpCondition({
             "page": 0,
             "pageSize": page_size,
@@ -252,6 +254,7 @@ export default class MembershipContainer extends Component {
         const {userManagerList, userListByManager, userDetail}=this.props;
         var component = "";
         switch (this.optPage) {
+            case business_operation_action.DELETE:
             case business_operation_action.LIST:
                 component =
                     <div className="row">
@@ -708,7 +711,7 @@ class EditUser extends Component {
                     enctype: 'multipart/form-data',
                     overwriteInitial: false,
                     maxFileSize: 100000,
-                    initialPreview: [self.props.userDetail.data.rows[0].card_img?imagePath + "/" + self.props.userDetail.data.rows[0].card_img:""],
+                    initialPreview: [self.props.userDetail.data.rows[0].card_img ? imagePath + "/" + self.props.userDetail.data.rows[0].card_img : ""],
                 });
                 $('#input-24').on('fileuploaded', function (event, data, previewId, index) {
                     if (data.response && data.response.result == "SUCCESS") {

@@ -34,8 +34,11 @@ export function getListByMutilpCondition(params, startDispatch, endDispatch, int
     }
 }
 
-export function deleteObject(obj, searchConditions, startDispatch, endDispatch, deleteInterface, listInterface, callback) {
+export function deleteObject(obj, startDispatch, endDispatch, deleteInterface, callback) {
     return dispatch=> {
+        if (startDispatch) {
+            dispatch(startFetch(startDispatch))
+        }
         fetch(node_service + deleteInterface,
             {
                 credentials: 'include',
@@ -48,25 +51,11 @@ export function deleteObject(obj, searchConditions, startDispatch, endDispatch, 
             .then(response=>response.json())
             .then(function (json) {
                 if (json.result == 'SUCCESS') {
-                    if (startDispatch) {
-                        dispatch(startFetch(startDispatch))
+                    dispatch(endFetch(endDispatch, json));
+                    operation_notification(1);
+                    if (callback) {
+                        callback(json);
                     }
-                    fetch(node_service + listInterface,
-                        {
-                            credentials: 'include',
-                            method: 'POST',
-                            headers: {
-                                "Content-Type": "application/x-www-form-urlencoded"
-                            },
-                            body: JSON.stringify(params)
-                        })
-                        .then(response=>response.json())
-                        .then(function (json) {
-                            dispatch(endFetch(endDispatch, json));
-                            if (callback) {
-                                callback(json);
-                            }
-                        })
                 } else {
                     operation_notification(0, json.message);
                     if (callback) {
