@@ -34,7 +34,9 @@ router.post('/users', function (req, resp) {
 // });
 
 router.post('/user/register', function (req, resp) {
-    var data = req.body;
+    var data = frameworkUtils.JSONStrToObj(req.body);
+    var id = frameworkUtils.GenerateUUID();
+    data.id = id;
     data.register_date = new Date();
     console.log(data);
     BaseService._register(resp, User, data);
@@ -42,13 +44,13 @@ router.post('/user/register', function (req, resp) {
 
 router.post('/user/update/:id', function (req, resp) {
     var id = req.params.id;
-    var data = req.body;
+    var data = frameworkUtils.JSONStrToObj(req.body);
     console.log(req.params);
     BaseService._update(resp, User, data, id);
 });
 
 router.post('/user/updateRenewFeeStatus', function (req, resp) {
-    var data = req.body;
+    var data = frameworkUtils.JSONStrToObj(req.body);
     var id = data.id;
     var admin_id = data.admin_id;
     delete data.admin_id;
@@ -70,7 +72,7 @@ router.post('/user/updateRenewFeeStatus', function (req, resp) {
     });
 });
 router.post('/user/updateFlowRecordStatus', function (req, resp) {
-    var data = req.body;
+    var data = frameworkUtils.JSONStrToObj(req.body);
     var id = data.id;
     var admin_id = data.admin_id;
     delete data.admin_id;
@@ -91,7 +93,7 @@ router.post('/user/updateFlowRecordStatus', function (req, resp) {
     });
 });
 router.post('/user/updateCodeSelectStatus', function (req, resp) {
-    var data = req.body;
+    var data = frameworkUtils.JSONStrToObj(req.body);
     var id = data.id;
     var admin_id = data.admin_id;
     delete data.admin_id;
@@ -113,7 +115,7 @@ router.post('/user/updateCodeSelectStatus', function (req, resp) {
 });
 
 router.post('/user/deleteByManager', function (req, resp) {
-    var data = req.body;
+    var data = frameworkUtils.JSONStrToObj(req.body);
     var managerIds = JSON.parse(data.managerIds);
     UserService._deleteByManagerIds(resp, User, managerIds);
 });
