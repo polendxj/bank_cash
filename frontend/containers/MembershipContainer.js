@@ -116,13 +116,19 @@ export default class MembershipContainer extends Component {
         this.optPage = optType;
         switch (this.optPage) {
             case business_operation_action.SAVE:
-                this.operationStatus = business_operation_status.DOING;
-                setTimeout(function () {
-                    this.operationStatus = business_operation_status.SUCCESS;
-                    this.optPage = business_operation_action.LIST;
-                    operation_notification(1);
-                    this._startRefresh();
-                }.bind(this), 3000);
+
+                if ($("#saveForm").validate().form()) {
+                    this.operationStatus = business_operation_status.DOING;
+                    setTimeout(function () {
+                        this.operationStatus = business_operation_status.SUCCESS;
+                        this.optPage = business_operation_action.LIST;
+                        operation_notification(1);
+                        this._startRefresh();
+                    }.bind(this), 3000);
+                } else {
+                    alert("Sorry");
+                }
+
                 break;
             case business_operation_action.ADD:
                 this.operationStatus = business_operation_status.INIT;
@@ -371,6 +377,116 @@ class MembershipList extends Component {
 }
 
 class AddUser extends Component {
+    constructor(props) {
+        super(props);
+
+    }
+
+    componentDidMount() {
+        var self = this;
+        /*jQuery DOM*/
+        $("#input-24").fileinput({
+            uploadUrl: node_service + '/file/uploading',
+            theme: "fa",
+            initialPreviewAsData: true,
+            language: 'zh',
+            showUpload: false,
+            showPreview: true,
+            enctype: 'multipart/form-data',
+            overwriteInitial: false,
+            maxFileSize: 100000
+        });
+        $('#input-24').on('fileuploaded', function (event, data, previewId, index) {
+            if (data.response && data.response.result == "SUCCESS") {
+                var filePath = data.response.path;
+                //TODO 此处开始ADD操作
+
+            }
+        });
+        $(".daterange-two").jeDate({
+            format: "YYYY-MM-DD hh:mm:ss", //日期格式
+            minDate: "1900-01-01 00:00:00", //最小日期
+            maxDate: "2099-12-31 23:59:59", //最大日期
+            isinitVal: false, //是否初始化时间
+            isTime: false, //是否开启时间选择
+            isClear: true, //是否显示清空
+            festival: false, //是否显示节日
+            zIndex: 999,  //弹出层的层级高度
+            marks: null, //给日期做标注
+        });
+        $("#saveForm").validate({
+            errorClass: 'validation-error-label',
+            successClass: 'validation-valid-label',
+            highlight: function (element, errorClass) {
+                $(element).removeClass(errorClass);
+            },
+            unhighlight: function (element, errorClass) {
+                $(element).removeClass(errorClass);
+            },
+            success: function (label) {
+                label.addClass("validation-valid-label").text("正确");
+            },
+            validClass: "validation-valid-label",
+            rules: {
+                name: {
+                    required: true,
+                },
+                idcard: {
+                    required: true,
+                },
+                account: {
+                    required: true,
+                },
+                password: {
+                    required: true,
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                email_password: {
+                    required: true,
+                },
+                bind_card_date: {
+                    required: true,
+                },
+                renew_fee_date: {
+                    required: true,
+                }
+            },
+            messages: {
+                name: {
+                    required: "姓名不能为空"
+                },
+                idcard: {
+                    required: "会员ID号不能为空"
+                },
+                account: {
+                    required: "登录账号不能为空"
+                },
+                password: {
+                    required: "登录密码不能为空"
+                },
+                email: {
+                    required: "邮箱不能为空"
+                },
+                email_password: {
+                    required: "邮箱密码不能为空"
+                },
+                bind_card_date: {
+                    required: "请选择绑卡日期"
+                },
+                renew_fee_date: {
+                    required: "请选择最近一次续费日期"
+                }
+
+            }
+        });
+        $("#is_manager").on("change", function () {
+            $("#manager_id").css({display: $("#is_manager option:selected").val() == 0 ? "block" : "none"});
+        });
+    }
+
     render() {
         return (
             <section className="panel" style={{minHeight: "600px"}}>
@@ -380,20 +496,28 @@ class AddUser extends Component {
                             <br />
                             <h3><strong>基本</strong> 信息</h3>
                             <hr />
-                            <form>
+                            <form id="saveForm">
                                 <div className="form-group row">
-                                    <div className="col-md-4">
+                                    <div className="col-md-3">
                                         <label className="control-label">姓名</label>
-                                        <input type="text" className="form-control" id="fullname"
+                                        <input type="text" className="form-control" name="name"
                                                placeholder="报单人员的真实姓名"/>
                                     </div>
-                                    <div className="col-md-4">
+                                    <div className="col-md-3">
                                         <label className="control-label">ID</label>
-                                        <input type="text" className="form-control" placeholder="报单人员的ID会员号"/>
+                                        <input type="text" className="form-control" name="idcard"
+                                               placeholder="报单人员的ID会员号"/>
                                     </div>
-                                    <div className="col-md-4">
+                                    <div className="col-md-3" name="is_manager" id="is_manager">
                                         <label className="control-label">职位</label>
-                                        <select className="form-control">
+                                        <select className="form-control" name="is_manager">
+                                            <option value={0}>普通会员</option>
+                                            <option value={1}>团队负责人</option>
+                                        </select>
+                                    </div>
+                                    <div className="col-md-3" name="manager_id" id="manager_id">
+                                        <label className="control-label">所属团队</label>
+                                        <select className="form-control" name="is_manager">
                                             <option value={0}>普通会员</option>
                                             <option value={1}>团队负责人</option>
                                         </select>
@@ -402,40 +526,45 @@ class AddUser extends Component {
                                 <div className="form-group row">
                                     <div className="col-md-6">
                                         <label className="control-label">账号名称</label>
-                                        <input type="text" className="form-control" id="fullname"
+                                        <input type="text" className="form-control" name="account"
                                                placeholder="后台登录账号"/>
                                     </div>
                                     <div className="col-md-6">
                                         <label className="control-label">账号密码</label>
-                                        <input type="text" className="form-control" placeholder="后台登录密码"/>
+                                        <input type="text" className="form-control" placeholder="后台登录密码"
+                                               name="password"/>
                                     </div>
                                 </div>
                                 <div className="form-group row">
                                     <div className="col-md-6">
                                         <label className="control-label">邮箱</label>
-                                        <input type="text" className="form-control" id="fullname"
+                                        <input type="text" className="form-control" name="email"
                                                placeholder="个人提交的私人邮箱"/>
                                     </div>
                                     <div className="col-md-6">
                                         <label className="control-label">邮箱密码</label>
-                                        <input type="text" className="form-control" placeholder="邮箱密码"/>
+                                        <input type="text" className="form-control" placeholder="邮箱密码"
+                                               name="email_password"/>
                                     </div>
                                 </div>
                                 <div className="form-group row">
                                     <div className="col-md-6">
                                         <label className="control-label">绑卡日期</label>
-                                        <input type="text" className="form-control" id="fullname"
+                                        <input id="bindCard" type="text"
+                                               className="form-control daterange-two" name="bind_card_date"
                                                placeholder="绑卡日期"/>
                                     </div>
                                     <div className="col-md-6">
                                         <label className="control-label">续费日期</label>
-                                        <input type="text" className="form-control" placeholder="最近一次会员续费日期"/>
+                                        <input id="renewFee" type="text"
+                                               className="form-control daterange-two" name="renew_fee_date"
+                                               placeholder="最近一次续费日期"/>
                                     </div>
                                 </div>
                                 <div className="form-group row">
                                     <div className="col-md-6">
                                         <label className="control-label">虚拟卡</label>
-                                        <select className="form-control">
+                                        <select className="form-control" name="virtual_card">
                                             <option value={0}>未绑定</option>
                                             <option value={1}>已绑定</option>
                                         </select>
@@ -443,7 +572,7 @@ class AddUser extends Component {
                                 </div>
                                 <div className="form-group ">
                                     <label className="control-label">银行卡图片</label>
-
+                                    <input id="input-24" name="inputFile" type="file" className="file-loading"/>
                                 </div>
                             </form>
                         </div>
