@@ -15,10 +15,10 @@ var BaseService = require("../service/BaseService");
 
 router.post('/users', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
-    if(data.page&&data.pageSize){
+    if (data.page && data.pageSize) {
         data.page = parseInt(data.page);
         data.pageSize = parseInt(data.pageSize);
-    }else{
+    } else {
         data.page = 0;
         data.pageSize = 1000;
     }
@@ -38,7 +38,7 @@ router.post('/user/register', function (req, resp) {
     var id = frameworkUtils.GenerateUUID();
     data.id = id;
     data.delete_status = 1;
-    if(data.is_manager==1){
+    if (data.is_manager == 1) {
         data.manager_id = id;
     }
     data = frameworkUtils.deleteNullKey(data);
@@ -49,7 +49,7 @@ router.post('/user/update/:id', function (req, resp) {
     var id = req.params.id;
     var data = frameworkUtils.JSONStrToObj(req.body);
     console.log(req.params);
-    if(data.is_manager==1){
+    if (data.is_manager == 1) {
         data.manager_id = id;
     }
     data = frameworkUtils.deleteNullKey(data);
@@ -63,17 +63,17 @@ router.post('/user/updateRenewFeeStatus', function (req, resp) {
     delete data.admin_id;
     delete data.id;
     console.log(id);
-    BaseService._update(resp, User, data, id,function (result) {
-        if(result.result == "SUCCESS"){
+    BaseService._update(resp, User, data, id, function (result) {
+        if (result.result == "SUCCESS") {
             var params = {
                 user_id: id,
                 admin_id: admin_id,
                 status: 3,
-                plan_deal_date:data.plan_deal_date,
-                real_deal_date:new Date()
+                plan_deal_date: data.plan_deal_date,
+                real_deal_date: new Date()
             };
             BaseService._register(resp, HistoryTask, params);
-        }else{
+        } else {
             resp.send(result);
         }
     });
@@ -84,17 +84,17 @@ router.post('/user/updateFlowRecordStatus', function (req, resp) {
     var admin_id = data.admin_id;
     delete data.admin_id;
     delete data.id;
-    BaseService._update(resp, User, data, id,function (result) {
-        if(result.result == "SUCCESS"){
+    BaseService._update(resp, User, data, id, function (result) {
+        if (result.result == "SUCCESS") {
             var params = {
                 user_id: id,
                 admin_id: admin_id,
                 status: 1,
-                plan_deal_date:data.plan_deal_date,
-                real_deal_date:new Date()
+                plan_deal_date: data.plan_deal_date,
+                real_deal_date: new Date()
             }
             BaseService._register(resp, HistoryTask, params);
-        }else{
+        } else {
             resp.send(result);
         }
     });
@@ -105,17 +105,17 @@ router.post('/user/updateCodeSelectStatus', function (req, resp) {
     var admin_id = data.admin_id;
     delete data.admin_id;
     delete data.id;
-    BaseService._update(resp, User, data, id,function (result) {
-        if(result.result == "SUCCESS"){
+    BaseService._update(resp, User, data, id, function (result) {
+        if (result.result == "SUCCESS") {
             var params = {
                 user_id: id,
                 admin_id: admin_id,
                 status: 2,
-                plan_deal_date:data.plan_deal_date,
-                real_deal_date:new Date()
+                plan_deal_date: data.plan_deal_date,
+                real_deal_date: new Date()
             }
             BaseService._register(resp, HistoryTask, params);
-        }else{
+        } else {
             resp.send(result);
         }
     });
@@ -124,15 +124,14 @@ router.post('/user/updateCodeSelectStatus', function (req, resp) {
 router.post('/user/deleteByManager', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
     var managerIds = data.managerIds;
-    var params = {delete_status:0};
+    var params = {delete_status: 0};
     UserService._deleteByManagerIds(resp, User, managerIds, params);
 });
 
 router.post('/user/deleteByIds', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
-    console.log(data);
-    var ids = JSON.parse(data.ids);
-    var params = {delete_status:0};
+    var ids = data.ids;
+    var params = {delete_status: 0};
     UserService._delete(resp, User, ids, params);
 });
 
@@ -165,7 +164,6 @@ router.post('/file/uploading', function (req, res, next) {
 
     });
 });
-
 
 
 //fs.unlink("./uploadImgs/" + data.path); //删除图片

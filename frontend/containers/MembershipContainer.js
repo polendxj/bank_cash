@@ -36,6 +36,7 @@ export default class MembershipContainer extends Component {
         this.imageUploadStatus = 0;    //0-未上传，1-正在上传，2-上传成功，3-上传失败
         this.imageUploadPath = "";    //图片上传返回来的路径
         this.selectedManager = "";      //选择的团队负责人
+        this.deletingManager = [];
         /*event*/
         this._startRefresh = this._startRefresh.bind(this);
         this._changePage = this._changePage.bind(this);
@@ -47,6 +48,8 @@ export default class MembershipContainer extends Component {
         this._getAllManager = this._getAllManager.bind(this);
         this._changeImageUploadStatus = this._changeImageUploadStatus.bind(this);
         this._changeSelectedItems = this._changeSelectedItems.bind(this);
+        this._changeSelectedManager = this._changeSelectedManager.bind(this);
+        this._deleteManager = this._deleteManager.bind(this);
     }
 
     componentDidMount() {
@@ -142,6 +145,7 @@ export default class MembershipContainer extends Component {
                                     self.optPage = business_operation_action.LIST;
                                     self.selectedItems.splice(0);
                                     self._changeManager(params.manager_id);
+                                    self._getAllManager();
                                 } else {
                                     self.operationStatus = business_operation_status.ERROR;
                                     self._startRefresh();
@@ -158,6 +162,7 @@ export default class MembershipContainer extends Component {
                                     self.optPage = business_operation_action.LIST;
                                     self.selectedItems.splice(0);
                                     self._changeManager(params.manager_id);
+                                    self._getAllManager();
                                 } else {
                                     self.operationStatus = business_operation_status.ERROR;
                                     self._startRefresh();
@@ -173,6 +178,7 @@ export default class MembershipContainer extends Component {
                                 self.optPage = business_operation_action.LIST;
                                 self.selectedItems.splice(0);
                                 self._changeManager(params.manager_id);
+                                self._getAllManager();
                             } else {
                                 self.operationStatus = business_operation_status.ERROR;
                                 self._startRefresh();
@@ -250,6 +256,25 @@ export default class MembershipContainer extends Component {
         this._startRefresh();
     }
 
+    _changeSelectedManager(id) {
+        var self = this;
+        this.deletingManager.splice(0);
+        $('input[name=' + id + ']:checked').each(function () {
+            self.deletingManager.push($(this).val());
+        });
+        console.log(self.deletingManager);
+        this._startRefresh();
+    }
+
+    _deleteManager() {
+        var self = this;
+        this.props.dispatch(deleteObject({
+            managerIds: self.deletingManager
+        }, USER_DELETE_START, USER_DELETE_END, user_delete_manager, function (json) {
+            self._getAllManager();
+        }));
+    }
+
     render() {
         const {userManagerList, userListByManager, userDetail}=this.props;
         var component = "";
@@ -295,6 +320,9 @@ export default class MembershipContainer extends Component {
                                       _changeManager={this._changeManager}
                                       _searchManagerByName={this._searchManagerByName}
                                       _getAllManager={this._getAllManager}
+                                      _changeSelectedManager={this._changeSelectedManager}
+                                      _deleteManager={this._deleteManager}
+                                      deleteManagers={this.deletingManager}
                         />
                     </div>
                     <div id="content" className="after-mail-box" style={{top: "75px", padding: "15px 18px 0"}}>
@@ -345,7 +373,7 @@ class ManagersList extends Component {
     }
 
     render() {
-        const {userManagerList}=this.props;
+        const {userManagerList, deleteManagers}=this.props;
         var self = this;
         return (
             <div id="nav-scroll">
@@ -373,8 +401,9 @@ class ManagersList extends Component {
                                 <button type="button" className="btn btn-default btn-xs"
                                         style={{marginRight: "2px"}}>取 消
                                 </button>
-                                <button type="button" className="btn btn-danger btn-xs"><i
-                                    className="fa fa-trash-o"></i> 删除 0 项
+                                <button onClick={this.props._deleteManager} type="button"
+                                        className="btn btn-danger btn-xs"><i
+                                    className="fa fa-trash-o"></i> 删除 {deleteManagers.length} 项
                                 </button>
                             </div>
                         </div>
@@ -388,9 +417,10 @@ class ManagersList extends Component {
                                                cursor: "pointer"
                                            }}>
                                     <div style={{width: "5%", float: "left"}}>
-                                        <input type="checkbox"
+                                        <input type="checkbox" name="managerCheckbox"
                                                className="form-control teamInput"
-                                               style={{marginTop: "-5px", display: "none"}} defaultValue={val.id}/>
+                                               style={{marginTop: "-5px", display: "none"}} defaultValue={val.id}
+                                               onChange={self.props._changeSelectedManager.bind(self, "managerCheckbox")}/>
                                     </div>
                                     <div onClick={self._changeManager.bind(self, key, val.id)}
                                          style={{width: "85%", paddingLeft: "30px"}}>

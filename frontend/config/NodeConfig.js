@@ -33,6 +33,7 @@ var user_list = "/users";
 var user_save = "/user/register";
 var user_edit = "/user/update";
 var user_delete = "/user/deleteByIds";
+var user_delete_manager = "/user/deleteByManager";
 var imagePath = node_service + "/uploadImgs";
 
 
