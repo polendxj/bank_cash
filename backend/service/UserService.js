@@ -39,7 +39,8 @@ var _findAndCountAll = function(resp,object,params,callback){
                     name:{
                         '$like': '%'+name+'%'
                     }
-                }
+                },
+                {delete_status:1}
             ]
         },
         offset:page * pageSize,

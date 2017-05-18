@@ -25,14 +25,6 @@ router.post('/users', function (req, resp) {
     UserService._findAndCountAll(resp, User, data);
 });
 
-// router.post('/usersByManagerId', function (req, resp) {
-//     var data = req.body;
-//     console.log(data);
-//     data.page = parseInt(data.page);
-//     data.pageSize = parseInt(data.pageSize);
-//     UserService._findByManagerId(resp,User,data);
-// });
-
 router.post('/user/register', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
     var id = frameworkUtils.GenerateUUID();
@@ -41,6 +33,7 @@ router.post('/user/register', function (req, resp) {
     if (data.is_manager == 1) {
         data.manager_id = id;
     }
+    data.
     data = frameworkUtils.deleteNullKey(data);
     BaseService._register(resp, User, data);
 });

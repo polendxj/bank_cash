@@ -6,7 +6,12 @@ var config = {
     consul_url: 'http://172.20.225.207:8500',
     node_port: '80',
     time_out: 5000,
-    log4j_dir: ""
+    log4j_dir: "",
+    database:"bank_cash",
+    username:"root",
+    password:"199133",
+    host: 'localhost',
+    dialect: 'mysql'
 };
 
 module.exports = config

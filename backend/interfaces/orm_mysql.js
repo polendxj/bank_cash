@@ -3,8 +3,8 @@
  */
 var Sequelize = require('sequelize');
 
-var sequelize = new Sequelize('bank_cash', 'root', '1234', {
-    host: 'localhost',
-    dialect: 'mysql'
+var sequelize = new Sequelize(database, username, password, {
+    host: host,
+    dialect: dialect
 });
 module.exports = sequelize;
