@@ -10,6 +10,9 @@ import {syncHistoryWithStore, routerReducer} from 'react-router-redux'
 import App from './containers/App'
 import HomeContainer from './containers/HomeContainer'
 import MembershipContainer from './containers/MembershipContainer'
+import NeedDownloadFlowContainer from './containers/NeedDownloadFlowContainer'
+import NeedCodeSelectContainer from './containers/NeedCodeSelectContainer'
+import NeedRenewFeeContainer from './containers/NeedRenewFeeContainer'
 import configureStore from './store/configureStore'
 
 let store = configureStore()
@@ -22,6 +25,9 @@ render(
                 <IndexRoute component={HomeContainer}/>
                 <Route path="/home" component={HomeContainer}/>
                 <Route path="/membership" component={MembershipContainer}/>
+                <Route path="/flowWarning" component={NeedDownloadFlowContainer}/>
+                <Route path="/codeSelect" component={NeedCodeSelectContainer}/>
+                <Route path="/renewFee" component={NeedRenewFeeContainer}/>
             </Route>
         </Router>
     </Provider>,

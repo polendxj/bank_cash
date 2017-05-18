@@ -10,7 +10,7 @@ export default class Search extends Component {
     render() {
         const {type}=this.props;
         var searchType = [
-            {title: "会员搜索", content:<span><input type="text" name="q" placeholder="Find something..." className="form-control"/></span>}
+            {title: "会员搜索", content: <div></div>}
         ];
         var result = searchType[type];
         return (
@@ -21,10 +21,6 @@ export default class Search extends Component {
                     <h2><strong>{result.title}</strong></h2>
                     <div className="input-group">
                         {result.content}
-                        <span className="input-group-btn">
-							<button className="btn" type="button" title="Advance Search"><i
-                                className="fa fa-search"></i></button>
-							</span>
                     </div>
                 </form>
             </div>
