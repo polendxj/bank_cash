@@ -11,7 +11,11 @@ var config = {
     username:"root",
     password:"199133",
     host: 'localhost',
-    dialect: 'mysql'
+    dialect: 'mysql',
+    renew_fee_time:28,
+    flow_record_time:10,
+    code_select_time:10
+
 };
 
 module.exports = config

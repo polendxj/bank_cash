@@ -35,7 +35,13 @@ router.post('/user/register', function (req, resp) {
     }
     data.
     data = frameworkUtils.deleteNullKey(data);
-    BaseService._register(resp, User, data);
+    BaseService._register(resp, User, data,function (result) {
+        if(result.result == "SUCCESS"){
+            UserService.renewFeeStatus();
+            UserService.taskStatus();
+        }
+        resp.send(result);
+    });
 });
 
 router.post('/user/update/:id', function (req, resp) {
@@ -126,6 +132,18 @@ router.post('/user/deleteByIds', function (req, resp) {
     var ids = data.ids;
     var params = {delete_status: 0};
     UserService._delete(resp, User, ids, params);
+});
+
+router.post('/user/findCountInManager', function (req, resp) {
+    var data = frameworkUtils.JSONStrToObj(req.body);
+    if(data.page&&data.pageSize){
+        data.page = parseInt(data.page);
+        data.pageSize = parseInt(data.pageSize);
+    }else{
+        data.page = 0;
+        data.pageSize = 1000;
+    }
+    UserService.findCountInManager(resp,User,data);
 });
 
 router.post('/file/uploading', function (req, res, next) {
