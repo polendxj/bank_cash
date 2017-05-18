@@ -49,10 +49,11 @@ var _register = function(resp,object,data,callback){
             resp.send({result:"SUCCESS"});
         }
     }).catch(function(err){
+        console.log(err);
         if(callback){
-            callback({result:"FAILURE",message:err.message});
+            callback({result:"FAILURE",message:err.errors[0].message});
         }else {
-            resp.send({result:"FAILURE",message:err.message});
+            resp.send({result:"FAILURE",message:err.errors[0].message});
         }
     });
 };
