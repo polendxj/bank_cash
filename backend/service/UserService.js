@@ -134,21 +134,24 @@ var taskStatus = function(object) {
         where: {delete_status:1}
     }).then(function (result) {
         for (var user of result) {
-            var diffDate = frameworkUtils.GetDateDiff(new Date(),user.register_date);
             if (user.task_status==0) {
-                if(diffDate % flow_record_time == 0 && user.flow_record_status == 0){
-                    var params = {flow_record_status:1};
-                    object.update(params, {
-                        where: {id: user.id}
-                    }).then(function (result) {
+                if(user.bind_card_date){
+                    var flowRecordDiffDate = frameworkUtils.GetDateDiff(new Date(),user.bind_card_date);
+                    if(flowRecordDiffDate % flow_record_time == 0 && user.flow_record_status == 0){
+                        var params = {flow_record_status:1,plan_flow_record_date:new Date()};
+                        object.update(params, {
+                            where: {id: user.id}
+                        }).then(function (result) {
 
-                    }).catch(function (err) {
-                        console.log(err.message);
-                    });
+                        }).catch(function (err) {
+                            console.log(err.message);
+                        });
+                    }
                 }
             }else if(user.task_status==1){
-                if(diffDate % code_select_time == 0 && user.code_select_status == 0){
-                    var params = {code_select_status:1};
+                var codeSelectDiffDate = frameworkUtils.GetDateDiff(new Date(),user.bind_card_date);
+                if(codeSelectDiffDate % code_select_time == 0 && user.code_select_status == 0){
+                    var params = {code_select_status:1,plan_code_select_date:new Date()};
                     object.update(params, {
                         where: {id: user.id}
                     }).then(function (result) {

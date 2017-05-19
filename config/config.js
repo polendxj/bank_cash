@@ -12,9 +12,9 @@ var config = {
     password:"199133",
     host: 'localhost',
     dialect: 'mysql',
-    renew_fee_time:2,
-    flow_record_time:10,
-    code_select_time:10
+    renew_fee_time:10,
+    flow_record_time:30,
+    code_select_time:20
 
 };
 
