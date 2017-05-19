@@ -52,7 +52,7 @@ class LeftMenu extends Component {
                 <ul>
                     <li onClick={this.locationTo.bind(this, "/membership")}><a href="javascript:void(0)"><i
                         className="icon fa fa-users"></i> 会员信息 </a></li>
-                    <li><span><i className="icon  fa  fa-tasks"></i> 处理任务</span>
+                    <li><span><i className="icon  fa  fa-tasks"></i> 任务预警</span>
                         <ul>
                             <li><a href="javascript:void(0)" onClick={this.locationTo.bind(this, "/flowWarning")}>流水提取</a></li>
                             <li><a href="javascript:void(0)" onClick={this.locationTo.bind(this, "/codeSelect")}> 后台选码 </a></li>

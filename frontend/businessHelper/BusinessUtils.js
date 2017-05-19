@@ -77,7 +77,7 @@ export class ConfirmModal extends Component {
                     <h3>系统提示</h3>
                 </div>
                 <div className="modal-body">
-                    <p>确认删除 {text} 吗？</p>
+                    <p>确认{this.props.contentTip ? this.props.contentTip : "删除"} {text} 吗？</p>
                 </div>
                 <div className="modal-footer">
                     <button type="button" data-dismiss="modal" className="btn btn-inverse">取 消</button>

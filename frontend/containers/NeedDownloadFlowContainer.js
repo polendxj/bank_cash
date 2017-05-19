@@ -135,70 +135,15 @@ export default class NeedDownloadFlowContainer extends Component {
         var self = this;
         this.optPage = optType;
         switch (this.optPage) {
-            case business_operation_action.SAVE:
-                if ($("#saveForm").validate().form()) {
-                    this.operationStatus = business_operation_status.DOING;
-                    var saveAction = "";
-                    if (self.selectedItems.length == 1) {
-                        saveAction = user_edit + "/" + self.selectedItems[0];
-                    } else {
-                        saveAction = user_save;
-                    }
-                    if ($("#input-24").val()) {
-                        if (this.imageUploadStatus == 0) {  //开始上传
-                            this.imageUploadStatus = 1;
-                            $('#input-24').fileinput('upload');
-                        } else if (this.imageUploadStatus == 2) {    //上传成功，开始保存数据,拿到imageUploadPath进行数据保存
-                            var params = array2Json($("#saveForm").serializeArray());
-                            params["card_img"] = this.imageUploadPath;
-                            params["bind_card_status"] = 1;
-                            this.props.dispatch(saveObject(params, USER_SAVE_START, USER_SAVE_END, saveAction, function (json) {
-                                if (json.result == 'SUCCESS') {
-                                    self.operationStatus = business_operation_status.SUCCESS;
-                                    self.optPage = business_operation_action.LIST;
-                                    self.selectedItems.splice(0);
-                                    self._changeManager(params.manager_id);
-                                    self._getAllManager();
-                                } else {
-                                    self.operationStatus = business_operation_status.ERROR;
-                                    self._startRefresh();
-                                }
+            case business_operation_action.SAVE: //此处响应发送邮件的事件
+                this.operationStatus = business_operation_status.DOING;
+                setTimeout(function () {
+                    self.operationStatus = business_operation_status.SUCCESS;
+                    self.optPage = business_operation_action.LIST;
+                    operation_notification(1);
+                    self._startRefresh();
+                },3000);
 
-                            }));
-                        } else if (this.imageUploadStatus == 3) {    //上传失败，提示图片上传失败，并开始保存数据
-                            operation_notification(0, "银行卡图片上传失败，正在保存会员基本信息");
-                            var params = array2Json($("#saveForm").serializeArray());
-                            params["bind_card_status"] = 0;
-                            this.props.dispatch(saveObject(params, USER_SAVE_START, USER_SAVE_END, saveAction, function (json) {
-                                if (json.result == 'SUCCESS') {
-                                    self.operationStatus = business_operation_status.SUCCESS;
-                                    self.optPage = business_operation_action.LIST;
-                                    self.selectedItems.splice(0);
-                                    self._changeManager(params.manager_id);
-                                    self._getAllManager();
-                                } else {
-                                    self.operationStatus = business_operation_status.ERROR;
-                                    self._startRefresh();
-                                }
-                            }));
-                        }
-                    } else {
-                        var params = array2Json($("#saveForm").serializeArray());
-                        params["bind_card_status"] = 0;
-                        this.props.dispatch(saveObject(params, USER_SAVE_START, USER_SAVE_END, saveAction, function (json) {
-                            if (json.result == 'SUCCESS') {
-                                self.operationStatus = business_operation_status.SUCCESS;
-                                self.optPage = business_operation_action.LIST;
-                                self.selectedItems.splice(0);
-                                self._changeManager(params.manager_id);
-                                self._getAllManager();
-                            } else {
-                                self.operationStatus = business_operation_status.ERROR;
-                                self._startRefresh();
-                            }
-                        }));
-                    }
-                }
                 break;
             case business_operation_action.ADD:
                 this.operationStatus = business_operation_status.INIT;
@@ -211,15 +156,13 @@ export default class NeedDownloadFlowContainer extends Component {
                     "id": self.selectedItems[0]
                 }, USER_DETAIL_START, USER_DETAIL_END, user_list));
                 break;
-            case business_operation_action.DELETE:
+            case business_operation_action.DELETE:  //此处响应确认完成的事件
                 this.operationStatus = business_operation_status.DOING;
-                self.props.dispatch(deleteObject({
-                    "ids": self.selectedItems
-                }, USER_DELETE_START, USER_DELETE_END, user_delete, function (json) {
-                    self.selectedItems.splice(0);
+                setTimeout(function () {
                     self.operationStatus = business_operation_status.SUCCESS;
-                    self._changeManager(self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id);
-                }));
+                    operation_notification(1);
+                    self._startRefresh();
+                },3000);
                 break;
             case business_operation_action.LIST:
                 this.selectedItems.splice(0);
@@ -290,7 +233,7 @@ export default class NeedDownloadFlowContainer extends Component {
     }
 
     render() {
-        const {userManagerList, userListByManager, userDetail,userCountOfManager}=this.props;
+        const {userManagerList, userListByManager, userDetail, userCountOfManager}=this.props;
         var component = "";
         switch (this.optPage) {
             case business_operation_action.DELETE:
@@ -315,8 +258,8 @@ export default class NeedDownloadFlowContainer extends Component {
             case business_operation_action.EDIT:
                 component =
                     <div className="row">
-                        <EditUser userManagerList={userManagerList} userDetail={userDetail}
-                                  _changeImageUploadStatus={this._changeImageUploadStatus}/>
+                        <SendEmail userManagerList={userManagerList} userDetail={userDetail}
+                                   _changeImageUploadStatus={this._changeImageUploadStatus}/>
                     </div>;
                 break;
             default:
@@ -328,7 +271,7 @@ export default class NeedDownloadFlowContainer extends Component {
             <div>
                 <Search />
                 <div id="main">
-                    <BreadCrumb titles={["会员信息"]}/>
+                    <BreadCrumb titles={["任务预警", "流水提取"]}/>
                     <div id="mailbox" style={{top: "35px"}}>
                         <ManagersList userManagerList={userManagerList} _startRefresh={this._startRefresh}
                                       _changeManager={this._changeManager}
@@ -343,7 +286,8 @@ export default class NeedDownloadFlowContainer extends Component {
                     <div id="content" className="after-mail-box" style={{top: "75px", padding: "15px 18px 0"}}>
                         <Operations title="景鹏" smallTitle="团队" operationStatus={this.operationStatus}
                                     selectedItems={this.selectedItems} _startRefresh={this._startRefresh}
-                                    _doAction={this._doAction}/>
+                                    _doAction={this._doAction} addBtnHidden={true} editText="写邮件" deleteText="确认完成"
+                                    saveText="发 送" saveIcon="fa-location-arrow" editIcon="fa-envelope-o" deleteIcon="fa-check-square-o" contentTip="完成流水提取任务"/>
                         <div className="row" style={{
                             display: this.optPage == (business_operation_action.LIST || business_operation_action.SEARCH) ? "block" : "none"
                         }}>
@@ -405,7 +349,7 @@ class ManagersList extends Component {
     }
 
     render() {
-        const {userManagerList, deleteManagers,userCountOfManager}=this.props;
+        const {userManagerList, deleteManagers, userCountOfManager}=this.props;
         var self = this;
         return (
             <div id="nav-scroll">
@@ -416,7 +360,7 @@ class ManagersList extends Component {
                             <a onClick={this._getAllManager.bind(this)} href="javascript:void(0)"
                                className="btn btn-inverse btn-transparent"><i
                                 className="fa fa-plus-square"></i></a>
-                            <a href="javascript:void(0)" className="btn btn-inverse btn-transparent  "><i
+                            <a href="javascript:void(0)" className="btn btn-inverse btn-transparent " style={{display:"none"}}><i
                                 className="fa fa-edit"></i></a>
                             <a href="javascript:void(0)"
                                className="btn btn-inverse btn-transparent active"><i
@@ -461,9 +405,10 @@ class ManagersList extends Component {
                                         <time className="timeago" dateTime={val.register_date}
                                               title={val.register_date}>
                                             {"报单时间 : " + formatDate(val.register_date, "yyyy-mm-dd")}
-                                            - {"待提取流水人数 : " + (userCountOfManager.data && userCountOfManager.data[val.id]? userCountOfManager.data[val.id] : 0)}
+                                            - {"待提取流水人数 : " + (userCountOfManager.data && userCountOfManager.data[val.id] ? userCountOfManager.data[val.id] : 0)}
                                         </time>
-                                        <label data-color="red" style={{display:userCountOfManager.data && userCountOfManager.data[val.id] && userCountOfManager.data[val.id]!=0?"block":"none"}}></label>
+                                        <label data-color="red"
+                                               style={{display: userCountOfManager.data && userCountOfManager.data[val.id] && userCountOfManager.data[val.id] != 0 ? "block" : "none"}}></label>
                                     </div>
                                     <div style={{float: "right", marginTop: "-37px"}}></div>
                                 </li>
@@ -495,10 +440,8 @@ class MembershipList extends Component {
                             <th>ID</th>
                             <th>用户名</th>
                             <th>邮箱</th>
-                            <th>报单日期</th>
+                            <th>邮箱密码</th>
                             <th>绑卡日期</th>
-                            <th>虚拟卡</th>
-                            <th>银行卡</th>
                         </tr>
                         </thead>
                         <tbody className="text-center">
@@ -511,20 +454,9 @@ class MembershipList extends Component {
                                     <td>{val.idcard}</td>
                                     <td>{val.account}</td>
                                     <td>{val.email}</td>
-                                    <td>{formatDate(val.register_date, "yyyy-mm-dd")}</td>
+                                    <td>{val.email_password}</td>
                                     <td>{formatDate(val.bind_card_date, "yyyy-mm-dd")}</td>
-                                    <td>{val.virtual_card == 0 ? <span className="label bg-danger">未办卡</span> :
-                                        <span className="label bg-primary">已办卡</span>}</td>
-                                    <td>
-                                        {val.bind_card_date && val.card_img ?
-                                            <span className="label bg-primary">绑定-已上传</span> : ""}
-                                        {val.bind_card_date && !val.card_img ?
-                                            <span className="label bg-warning">绑定-未上传</span> : ""}
-                                        {!val.bind_card_date && val.card_img ?
-                                            <span className="label bg-warning">无时间-已上传</span> : ""}
-                                        {!val.bind_card_date && !val.card_img ?
-                                            <span className="label bg-danger">未绑定</span> : ""}
-                                    </td>
+
                                 </tr>
                             });
                         })}
@@ -753,7 +685,7 @@ class AddUser extends Component {
     }
 }
 
-class EditUser extends Component {
+class SendEmail extends Component {
     constructor(props) {
         super(props);
 
@@ -764,38 +696,6 @@ class EditUser extends Component {
         /*jQuery DOM*/
         var timer = setInterval(function () {
             if (self.props.userDetail.data) {
-                $("#input-24").fileinput({
-                    uploadUrl: node_service + '/file/uploading',
-                    theme: "fa",
-                    initialPreviewAsData: true,
-                    language: 'zh',
-                    showUpload: false,
-                    showPreview: true,
-                    maxFileCount: 1,
-                    enctype: 'multipart/form-data',
-                    overwriteInitial: false,
-                    maxFileSize: 100000,
-                    initialPreview: [self.props.userDetail.data.rows[0].card_img ? imagePath + "/" + self.props.userDetail.data.rows[0].card_img : ""],
-                });
-                $('#input-24').on('fileuploaded', function (event, data, previewId, index) {
-                    if (data.response && data.response.result == "SUCCESS") {
-                        var filePath = data.response.path;
-                        self.props._changeImageUploadStatus(2, filePath);
-                    } else {
-                        self.props._changeImageUploadStatus(3);
-                    }
-                });
-                $(".daterange-two").jeDate({
-                    format: "YYYY-MM-DD hh:mm:ss", //日期格式
-                    minDate: "1900-01-01 00:00:00", //最小日期
-                    maxDate: "2099-12-31 23:59:59", //最大日期
-                    isinitVal: false, //是否初始化时间
-                    isTime: false, //是否开启时间选择
-                    isClear: true, //是否显示清空
-                    festival: false, //是否显示节日
-                    zIndex: 999,  //弹出层的层级高度
-                    marks: null, //给日期做标注
-                });
                 $("#saveForm").validate({
                     errorClass: 'validation-error-label',
                     successClass: 'validation-valid-label',
@@ -862,7 +762,6 @@ class EditUser extends Component {
                 $("#is_manager").on("change", function () {
                     $("#manager_id").css({display: $("#is_manager option:selected").val() == 0 ? "block" : "none"});
                 });
-                $('.selectpicker').selectpicker();
 
                 clearInterval(timer);
             }
@@ -878,7 +777,7 @@ class EditUser extends Component {
                     <div className="row">
                         <div className="col-md-12" style={{padding: "5px 25px"}}>
                             <br />
-                            <h3><strong>基本</strong> 信息</h3>
+                            <h3><strong>发件人</strong> 信息</h3>
                             <hr />
                             {renderList(userDetail, function (rows) {
                                 return <form id="saveForm">
@@ -887,17 +786,17 @@ class EditUser extends Component {
                                             <label className="control-label">姓名</label>
                                             <input type="text" className="form-control" name="name"
                                                    defaultValue={rows[0].name}
-                                                   placeholder="报单人员的真实姓名"/>
+                                                   placeholder="报单人员的真实姓名" disabled={true}/>
                                         </div>
                                         <div className="col-md-3">
                                             <label className="control-label">ID</label>
                                             <input type="text" className="form-control" name="idcard"
                                                    defaultValue={rows[0].idcard}
-                                                   placeholder="报单人员的ID会员号"/>
+                                                   placeholder="报单人员的ID会员号" disabled={true}/>
                                         </div>
                                         <div className="col-md-3" id="is_manager">
                                             <label className="control-label">职位</label>
-                                            <select className="form-control" name="is_manager"
+                                            <select className="form-control" name="is_manager" disabled={true}
                                                     defaultValue={rows[0].is_manager}>
                                                 <option value={0}>普通会员</option>
                                                 <option value={1}>团队负责人</option>
@@ -905,7 +804,7 @@ class EditUser extends Component {
                                         </div>
                                         <div className="col-md-3" id="manager_id">
                                             <label className="control-label">所属团队</label>
-                                            <select className="selectpicker form-control" name="manager_id"
+                                            <select className="selectpicker form-control" name="manager_id" disabled={true}
                                                     defaultValue={rows[0].manager_id}
                                                     data-size="10"
                                                     data-live-search="true">
@@ -918,74 +817,31 @@ class EditUser extends Component {
                                         </div>
                                     </div>
                                     <div className="form-group row">
-                                        <div className="col-md-6">
+                                        <div className="col-md-4">
                                             <label className="control-label">账号名称</label>
-                                            <input type="text" className="form-control" name="account"
+                                            <input type="text" className="form-control" name="account" disabled={true}
                                                    defaultValue={rows[0].account}
                                                    placeholder="后台登录账号"/>
                                         </div>
-                                        <div className="col-md-6">
-                                            <label className="control-label">账号密码</label>
-                                            <input type="text" className="form-control" placeholder="后台登录密码"
-                                                   defaultValue={rows[0].password}
-                                                   name="password"/>
-                                        </div>
-                                    </div>
-                                    <div className="form-group row">
-                                        <div className="col-md-6">
-                                            <label className="control-label">账号当前状态</label>
-                                            <select className="form-control" name="task_status"
-                                                    defaultValue={rows[0].task_status}>
-                                                <option value={0}>后台选码完毕，等待下轮流水提取</option>
-                                                <option value={1}>流水提取完毕，等待后续后台选码</option>
-                                            </select>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <label className="control-label">报单日期</label>
-                                            <input id="bindCard" type="text"
-                                                   className="form-control daterange-two" name="register_date"
-                                                   defaultValue={formatDate(rows[0].register_date, "yyyy-mm-dd")}
-                                                   placeholder="会员报单的日期"/>
-                                        </div>
-                                    </div>
-                                    <div className="form-group row">
-                                        <div className="col-md-6">
+                                        <div className="col-md-4">
                                             <label className="control-label">绑卡日期</label>
                                             <input id="renewFee" type="text"
                                                    className="form-control daterange-two" name="bind_card_date"
-                                                   defaultValue={formatDate(rows[0].bind_card_date, "yyyy-mm-dd")}
+                                                   defaultValue={formatDate(rows[0].bind_card_date, "yyyy-mm-dd")} disabled={true}
                                                    placeholder="会员绑卡的日期"/>
                                         </div>
-                                        <div className="col-md-6">
-                                            <label className="control-label">虚拟卡</label>
-                                            <select className="form-control" name="virtual_card"
-                                                    defaultValue={rows[0].virtual_card}>
-                                                <option value={0}>未绑定</option>
-                                                <option value={1}>已绑定</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div className="form-group row">
-                                        <div className="col-md-6">
+                                        <div className="col-md-4">
                                             <label className="control-label">邮箱</label>
-                                            <input type="text" className="form-control" name="email"
+                                            <input type="text" className="form-control" placeholder="邮箱" disabled={true}
                                                    defaultValue={rows[0].email}
-                                                   placeholder="个人提交的私人邮箱"/>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <label className="control-label">邮箱密码</label>
-                                            <input type="text" className="form-control" placeholder="邮箱密码"
-                                                   defaultValue={rows[0].email_password}
                                                    name="email_password"/>
                                         </div>
                                     </div>
-                                    <div className="form-group ">
-                                        <label className="control-label">银行卡图片</label>
-                                        <input id="input-24" name="inputFile" type="file" className="file-loading"/>
-                                    </div>
                                 </form>
                             })}
-
+                            <br />
+                            <h3><strong>新邮件</strong> 内容</h3>
+                            <hr />
                         </div>
                     </div>
                 </div>
@@ -995,7 +851,7 @@ class EditUser extends Component {
 }
 
 function mapStateToProps(state) {
-    const {commonReducer, userManagerListReducer, userListByManagerReducer, userDetailReducer,userCountOfManagerReducer}=state
+    const {commonReducer, userManagerListReducer, userListByManagerReducer, userDetailReducer, userCountOfManagerReducer}=state
     return {
         refresh: commonReducer.refresh,
         userManagerList: userManagerListReducer,
