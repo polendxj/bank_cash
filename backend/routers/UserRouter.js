@@ -15,7 +15,7 @@ var BaseService = require("../service/BaseService");
 
 router.post('/users', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
-    if (data.page && data.pageSize) {
+    if ((data.page||data.page==0) && data.pageSize) {
         data.page = parseInt(data.page);
         data.pageSize = parseInt(data.pageSize);
     } else {
@@ -37,8 +37,10 @@ router.post('/user/register', function (req, resp) {
     data = frameworkUtils.deleteNullKey(data);
     BaseService._register(resp, User, data,function (result) {
         if(result.result == "SUCCESS"){
-            UserService.renewFeeStatus();
-            UserService.taskStatus();
+            UserService.renewFeeStatus(User);
+            UserService.taskStatus(User);
+        }else{
+            fs.unlink("./uploadImgs/" + data.path);
         }
         resp.send(result);
     });
