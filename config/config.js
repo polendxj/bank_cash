@@ -9,7 +9,7 @@ var config = {
     log4j_dir: "",
     database:"bank_cash",
     username:"root",
-    password:"199133",
+    password:"1234",
     host: 'localhost',
     dialect: 'mysql',
     renew_fee_time:10,

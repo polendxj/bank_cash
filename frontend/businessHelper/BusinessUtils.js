@@ -51,7 +51,7 @@ export class ConfirmModal extends Component {
 
     _doAction() {
         this.props._doAction();
-        $("#confirm_modal").modal("hide");
+        $("#" + (this.props.id ? this.props.id : "confirm_modal")).modal("hide");
     }
 
     render() {
@@ -69,14 +69,15 @@ export class ConfirmModal extends Component {
         }
 
         return (
-            <div id="confirm_modal" className="modal fade" tabIndex="-1" data-width="600">
+            <div id={this.props.id ? this.props.id : "confirm_modal"} className="modal fade" tabIndex="-1"
+                 data-width="600">
                 <div className="modal-header">
                     <button type="button" className="close" data-dismiss="modal" aria-hidden="true"><i
                         className="fa fa-times"></i></button>
                     <h3>系统提示</h3>
                 </div>
                 <div className="modal-body">
-                    <p>确认删除 {text} 吗？</p>
+                    <p>确认{this.props.contentTip ? this.props.contentTip : "删除"} {text} 吗？</p>
                 </div>
                 <div className="modal-footer">
                     <button type="button" data-dismiss="modal" className="btn btn-inverse">取 消</button>

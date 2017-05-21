@@ -34,6 +34,7 @@ var user_save = "/user/register";
 var user_edit = "/user/update";
 var user_delete = "/user/deleteByIds";
 var user_delete_manager = "/user/deleteByManager";
+var user_count_of_manager = "/user/findCountInManager";
 var imagePath = node_service + "/uploadImgs";
 
 

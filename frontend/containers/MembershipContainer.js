@@ -7,7 +7,7 @@ import {bindActionCreators} from 'redux'
 import BreadCrumb from '../components/BreadCrumb'
 import FilterPanel from '../components/FilterPanel'
 import Operations from '../components/Operations'
-import Search from '../components/Search'
+// import Search from '../components/Search'
 import Pagenation from '../components/Pagenation'
 import {commonRefresh} from '../actions/Common'
 import {operation_notification, ConfirmModal, renderList, formatDate} from '../businessHelper/BusinessUtils'
@@ -20,9 +20,10 @@ import {
     USER_DETAIL_END, USER_DETAIL_START,
     USER_LIST_END, USER_LIST_START,
     USER_SAVE_END, USER_SAVE_START,
-    USER_MANAGER_LIST_END, USER_MANAGER_LIST_START
-} from '../constants/index'
+    USER_MANAGER_LIST_END, USER_MANAGER_LIST_START,
+    USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END
 
+} from '../constants/index'
 
 export default class MembershipContainer extends Component {
     constructor(props) {
@@ -82,6 +83,16 @@ export default class MembershipContainer extends Component {
                     break;
             }
         });
+        $("#cancel").on("click", function () {
+            $("#mailbox .opt").find("a").removeClass("active");
+            $("#mailbox .opt").find("a").eq(2).addClass("active");
+            $("#teamEdit").fadeOut(function () {
+                $("#teamSearch").fadeIn();
+                $(".teamInput").hide();
+            });
+            // self.deletingManager.splice(0);
+            self._startRefresh();
+        });
         /*Init Load Data*/
         this.props.dispatch(getListByMutilpCondition({
             "page": 0,
@@ -97,6 +108,8 @@ export default class MembershipContainer extends Component {
             }
         }));
 
+        this.props.dispatch(getListByMutilpCondition({}, USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END, user_count_of_manager));
+
     }
 
     _startRefresh() {
@@ -105,17 +118,17 @@ export default class MembershipContainer extends Component {
 
     _changePage(page) {
         this.page = page;
-        this._startRefresh();
+        this._changeManager(this.selectedManager ? this.selectedManager : this.props.userManagerList.data.rows[0].id, this.page);
     }
 
     _prePage(page) {
         this.page = this.page - 1;
-        this._startRefresh();
+        this._changeManager(this.selectedManager ? this.selectedManager : this.props.userManagerList.data.rows[0].id, this.page);
     }
 
     _nextPage(page) {
         this.page = this.page + 1;
-        this._startRefresh();
+        this._changeManager(this.selectedManager ? this.selectedManager : this.props.userManagerList.data.rows[0].id, this.page);
     }
 
     _doAction(optType) {
@@ -215,10 +228,10 @@ export default class MembershipContainer extends Component {
         this._startRefresh();
     }
 
-    _changeManager(id) {
+    _changeManager(id, page) {
         this.selectedManager = id;
         this.props.dispatch(getListByMutilpCondition({
-            "page": 0,
+            "page": page ? page : 0,
             "pageSize": page_size,
             "manager_id": id
         }, USER_LIST_START, USER_LIST_END, user_list));
@@ -262,7 +275,6 @@ export default class MembershipContainer extends Component {
         $('input[name=' + id + ']:checked').each(function () {
             self.deletingManager.push($(this).val());
         });
-        console.log(self.deletingManager);
         this._startRefresh();
     }
 
@@ -271,19 +283,20 @@ export default class MembershipContainer extends Component {
         this.props.dispatch(deleteObject({
             managerIds: self.deletingManager
         }, USER_DELETE_START, USER_DELETE_END, user_delete_manager, function (json) {
+            self.deletingManager.splice(0);
             self._getAllManager();
         }));
     }
 
     render() {
-        const {userManagerList, userListByManager, userDetail}=this.props;
+        const {userManagerList, userListByManager, userDetail, userCountOfManager}=this.props;
         var component = "";
         switch (this.optPage) {
             case business_operation_action.DELETE:
             case business_operation_action.LIST:
                 component =
                     <div className="row">
-                        <Pagenation counts={10}
+                        <Pagenation counts={userListByManager.data ? userListByManager.data.count : 0}
                                     page={this.page}
                                     _changePage={this._changePage} _prePage={this._prePage}
                                     _nextPage={this._nextPage}/>
@@ -312,7 +325,7 @@ export default class MembershipContainer extends Component {
         this.oldComponent = component;
         return (
             <div>
-                <Search type="0"/>
+                <Search />
                 <div id="main">
                     <BreadCrumb titles={["会员信息"]}/>
                     <div id="mailbox" style={{top: "35px"}}>
@@ -323,6 +336,7 @@ export default class MembershipContainer extends Component {
                                       _changeSelectedManager={this._changeSelectedManager}
                                       _deleteManager={this._deleteManager}
                                       deleteManagers={this.deletingManager}
+                                      userCountOfManager={userCountOfManager}
                         />
                     </div>
                     <div id="content" className="after-mail-box" style={{top: "75px", padding: "15px 18px 0"}}>
@@ -338,9 +352,26 @@ export default class MembershipContainer extends Component {
                         {component}
                     </div>
                 </div>
-
+                <ConfirmModal id="deleteManagerConfirm" _doAction={this._deleteManager}
+                              selectedItems={this.props.selectedItems}/>
             </div>
 
+        )
+    }
+}
+
+class Search extends Component {
+    render() {
+        const {type}=this.props;
+        return (
+            <div className="widget-top-search">
+                    <span className="icon"><a href="#" className="close-header-search"><i
+                        className="fa fa-times"></i></a></span>
+                <form id="top-search">
+                    <h2><strong>{"会员搜索"}</strong></h2>
+
+                </form>
+            </div>
         )
     }
 }
@@ -373,7 +404,7 @@ class ManagersList extends Component {
     }
 
     render() {
-        const {userManagerList, deleteManagers}=this.props;
+        const {userManagerList, deleteManagers, userCountOfManager}=this.props;
         var self = this;
         return (
             <div id="nav-scroll">
@@ -398,10 +429,11 @@ class ManagersList extends Component {
                             </div>
                             <div id="teamEdit"
                                  style={{display: "none", marginTop: "5px", textAlign: "right"}}>
-                                <button type="button" className="btn btn-default btn-xs"
+                                <button id="cancel" type="button" className="btn btn-default btn-xs"
                                         style={{marginRight: "2px"}}>取 消
                                 </button>
-                                <button onClick={this.props._deleteManager} type="button"
+                                <button disabled={deleteManagers.length == 0 ? true : false} data-toggle="modal"
+                                        data-target="#deleteManagerConfirm" type="button"
                                         className="btn btn-danger btn-xs"><i
                                     className="fa fa-trash-o"></i> 删除 {deleteManagers.length} 项
                                 </button>
@@ -427,9 +459,9 @@ class ManagersList extends Component {
                                         <h5><a href="#">{val.name}</a></h5>
                                         <time className="timeago" dateTime={val.register_date}
                                               title={val.register_date}>
-                                            {val.register_date}
+                                            {"报单时间 : " + formatDate(val.register_date, "yyyy-mm-dd")}
+                                            - {"当前人数 : " + (userCountOfManager.data && userCountOfManager.data[val.id] ? userCountOfManager.data[val.id] : 0)}
                                         </time>
-                                        <label data-color="red"></label>
                                     </div>
                                     <div style={{float: "right", marginTop: "-37px"}}></div>
                                 </li>
@@ -962,12 +994,13 @@ class EditUser extends Component {
 }
 
 function mapStateToProps(state) {
-    const {commonReducer, userManagerListReducer, userListByManagerReducer, userDetailReducer}=state
+    const {commonReducer, userManagerListReducer, userListByManagerReducer, userDetailReducer, userCountOfManagerReducer}=state
     return {
         refresh: commonReducer.refresh,
         userManagerList: userManagerListReducer,
         userListByManager: userListByManagerReducer,
-        userDetail: userDetailReducer
+        userDetail: userDetailReducer,
+        userCountOfManager: userCountOfManagerReducer
     }
 }
 

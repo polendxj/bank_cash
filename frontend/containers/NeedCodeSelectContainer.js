@@ -20,11 +20,12 @@ import {
     USER_DETAIL_END, USER_DETAIL_START,
     USER_LIST_END, USER_LIST_START,
     USER_SAVE_END, USER_SAVE_START,
-    USER_MANAGER_LIST_END, USER_MANAGER_LIST_START
+    USER_MANAGER_LIST_END, USER_MANAGER_LIST_START,
+    USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END
 } from '../constants/index'
 
 
-export default class NeedDownloadFlowContainer extends Component {
+export default class NeedCodeSelectContainer extends Component {
     constructor(props) {
         super(props);
         /*attribute*/
@@ -103,11 +104,11 @@ export default class NeedDownloadFlowContainer extends Component {
                     "page": 0,
                     "pageSize": page_size,
                     "manager_id": json.rows[0].id,
-                    "flow_record_status": 1
+                    "code_select_status": 1
                 }, USER_LIST_START, USER_LIST_END, user_list));
             }
         }));
-
+        this.props.dispatch(getListByMutilpCondition({"code_select_status": 1}, USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END, user_count_of_manager));
     }
 
     _startRefresh() {
@@ -232,7 +233,7 @@ export default class NeedDownloadFlowContainer extends Component {
             "page": 0,
             "pageSize": page_size,
             "manager_id": id,
-            "flow_record_status": 1
+            "code_select_status": 1
         }, USER_LIST_START, USER_LIST_END, user_list));
     }
 
@@ -288,7 +289,7 @@ export default class NeedDownloadFlowContainer extends Component {
     }
 
     render() {
-        const {userManagerList, userListByManager, userDetail}=this.props;
+        const {userManagerList, userListByManager, userDetail, userCountOfManager}=this.props;
         var component = "";
         switch (this.optPage) {
             case business_operation_action.DELETE:
@@ -335,6 +336,7 @@ export default class NeedDownloadFlowContainer extends Component {
                                       _changeSelectedManager={this._changeSelectedManager}
                                       _deleteManager={this._deleteManager}
                                       deleteManagers={this.deletingManager}
+                                      userCountOfManager={userCountOfManager}
                         />
                     </div>
                     <div id="content" className="after-mail-box" style={{top: "75px", padding: "15px 18px 0"}}>
@@ -402,7 +404,7 @@ class ManagersList extends Component {
     }
 
     render() {
-        const {userManagerList, deleteManagers}=this.props;
+        const {userManagerList, deleteManagers, userCountOfManager}=this.props;
         var self = this;
         return (
             <div id="nav-scroll">
@@ -457,9 +459,11 @@ class ManagersList extends Component {
                                         <h5><a href="#">{val.name}</a></h5>
                                         <time className="timeago" dateTime={val.register_date}
                                               title={val.register_date}>
-                                            {val.register_date}
+                                            {"报单时间 : " + formatDate(val.register_date, "yyyy-mm-dd")}
+                                            - {"待选码人数 : " + (userCountOfManager.data && userCountOfManager.data[val.id] ? userCountOfManager.data[val.id] : 0)}
                                         </time>
-                                        <label data-color="red"></label>
+                                        <label data-color="red"
+                                               style={{display: userCountOfManager.data && userCountOfManager.data[val.id] && userCountOfManager.data[val.id] != 0 ? "block" : "none"}}></label>
                                     </div>
                                     <div style={{float: "right", marginTop: "-37px"}}></div>
                                 </li>
@@ -992,13 +996,14 @@ class EditUser extends Component {
 }
 
 function mapStateToProps(state) {
-    const {commonReducer, userManagerListReducer, userListByManagerReducer, userDetailReducer}=state
+    const {commonReducer, userManagerListReducer, userListByManagerReducer, userDetailReducer, userCountOfManagerReducer}=state
     return {
         refresh: commonReducer.refresh,
         userManagerList: userManagerListReducer,
         userListByManager: userListByManagerReducer,
-        userDetail: userDetailReducer
+        userDetail: userDetailReducer,
+        userCountOfManager: userCountOfManagerReducer
     }
 }
 
-export default connect(mapStateToProps)(NeedDownloadFlowContainer)
+export default connect(mapStateToProps)(NeedCodeSelectContainer)

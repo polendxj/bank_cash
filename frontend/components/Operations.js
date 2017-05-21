@@ -6,18 +6,21 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {browserHistory} from 'react-router';
 import {ConfirmModal} from '../businessHelper/BusinessUtils';
+import classnames from "classnames"
 
 export default class Operations extends Component {
     constructor(props) {
         super(props);
         /*attribute*/
         this.backBtn = false;
-        this.addBtn = true;
-        this.editBtn = true;
-        this.deleteBtn = true;
+        this.addBtn = this.props.addBtnHidden ? false : true;
+        this.editBtn = this.props.editBtnHidden ? false : true;
+        this.deleteBtn = this.props.deleteBtnHidden ? false : true;
         this.saveBtn = false;
-        this.searchBtn = true;
+        this.searchBtn = this.props.searchBtnHidden ? false : true;
         this.doing = false;
+        //special btn define
+
 
         /*event*/
         this._add = this._add.bind(this);
@@ -64,7 +67,7 @@ export default class Operations extends Component {
 
     _back() {
         this.backBtn = false;
-        this.addBtn = true;
+        this.addBtn = this.props.addBtnHidden ? false : true;
         this.editBtn = true;
         this.deleteBtn = true;
         this.saveBtn = false;
@@ -101,7 +104,7 @@ export default class Operations extends Component {
                     </button>
                     <button onClick={this._save} type="button" className="btn btn-success btn-sm"
                             style={{marginRight: "5px", display: this.saveBtn ? "inline-block" : "none"}}>
-                        <i className="fa fa-save"></i> 保 存
+                        <i className={"fa " + (this.props.saveIcon ? this.props.saveIcon : "fa-save")}></i> {this.props.saveText ? this.props.saveText : "保 存"}
 
                     </button>
                     <button onClick={this._add} type="button" className="btn btn-primary btn-sm"
@@ -113,14 +116,14 @@ export default class Operations extends Component {
                             style={{marginRight: "5px", display: this.editBtn ? "inline-block" : "none"}}
                             disabled={selectedItems.length != 1 ? true : false}
                     >
-                        <i className="fa fa-edit"></i> 编 辑
+                        <i className={"fa " + (this.props.editIcon ? this.props.editIcon : "fa-edit")}></i> {this.props.editText ? this.props.editText : "编 辑"}
                     </button>
                     <button onClick={this._startRefresh} type="button" className="btn btn-danger btn-sm"
                             style={{marginRight: "5px", display: this.deleteBtn ? "inline-block" : "none"}}
                             data-toggle="modal" data-target="#confirm_modal"
                             disabled={selectedItems.length == 0 ? true : false}
                     >
-                        <i className="fa fa-trash-o"></i> 删 除
+                        <i className={"fa " + (this.props.deleteIcon ? this.props.deleteIcon : "fa-trash-o")}></i> {this.props.deleteText ? this.props.deleteText : "删 除"}
                     </button>
                     <button id="searchBtn" onClick={this._search} type="button"
                             className="btn btn-sm btn-header-search" style={{
@@ -142,7 +145,7 @@ export default class Operations extends Component {
                     </button>
                     <button onClick={this._save} type="button" className="btn btn-success btn-sm"
                             style={{marginRight: "5px", display: "none"}}>
-                        <i className="fa fa-save"></i> 保 存
+                        <i className={"fa " + (this.props.saveIcon ? this.props.saveIcon : "fa-save")}></i> {this.props.saveText ? this.props.saveText : "保 存"}
 
                     </button>
                     <button onClick={this._add} type="button" className="btn btn-primary btn-sm"
@@ -152,12 +155,12 @@ export default class Operations extends Component {
                     <button onClick={this._edit} type="button"
                             className="btn btn-theme-inverse  btn-sm"
                             style={{marginRight: "5px", display: "none"}}>
-                        <i className="fa fa-edit"></i> 编 辑
+                        <i className={"fa " + (this.props.editIcon ? this.props.editIcon : "fa-edit")}></i> {this.props.editText ? this.props.editText : "编 辑"}
                     </button>
                     <button onClick={this._startRefresh} type="button" className="btn btn-danger btn-sm"
                             style={{marginRight: "5px", display: "none"}} data-toggle="modal"
                             data-target="#confirm_modal">
-                        <i className="fa fa-trash-o"></i> 删 除
+                        <i className={"fa " + (this.props.deleteIcon ? this.props.deleteIcon : "fa-trash-o")}></i> {this.props.deleteText ? this.props.deleteText : "删 除"}
                     </button>
                     <button id="searchBtn" onClick={this._search} type="button"
                             className="btn btn-sm btn-header-search" style={{
@@ -175,11 +178,11 @@ export default class Operations extends Component {
                 </div>;
         } else if (this.props.operationStatus == business_operation_status.SUCCESS) {
             this.backBtn = false;
-            this.addBtn = true;
-            this.editBtn = true;
-            this.deleteBtn = true;
+            this.addBtn = this.props.addBtnHidden ? false : true;;
+            this.editBtn = this.props.editBtnHidden ? false : true;
+            this.deleteBtn = this.props.deleteBtnHidden ? false : true;
             this.saveBtn = false;
-            this.searchBtn = true;
+            this.searchBtn = this.props.searchBtnHidden ? false : true;
             content =
                 <div className="btn-group  pull-right ">
                     <button onClick={this._back} type="button" className="btn btn-default btn-sm"
@@ -188,7 +191,7 @@ export default class Operations extends Component {
                     </button>
                     <button onClick={this._save} type="button" className="btn btn-success btn-sm"
                             style={{marginRight: "5px", display: this.saveBtn ? "inline-block" : "none"}}>
-                        <i className="fa fa-save"></i> 保 存
+                        <i className={"fa " + (this.props.saveIcon ? this.props.saveIcon : "fa-save")}></i> {this.props.saveText ? this.props.saveText : "保 存"}
 
                     </button>
                     <button onClick={this._add} type="button" className="btn btn-primary btn-sm"
@@ -200,14 +203,14 @@ export default class Operations extends Component {
                             style={{marginRight: "5px", display: this.editBtn ? "inline-block" : "none"}}
                             disabled={selectedItems.length != 1 ? true : false}
                     >
-                        <i className="fa fa-edit"></i> 编 辑
+                        <i className={"fa " + (this.props.editIcon ? this.props.editIcon : "fa-edit")}></i> {this.props.editText ? this.props.editText : "编 辑"}
                     </button>
                     <button onClick={this._startRefresh} type="button" className="btn btn-danger btn-sm"
                             style={{marginRight: "5px", display: this.deleteBtn ? "inline-block" : "none"}}
                             data-toggle="modal" data-target="#confirm_modal"
                             disabled={selectedItems.length == 0 ? true : false}
                     >
-                        <i className="fa fa-trash-o"></i> 删 除
+                        <i className={"fa " + (this.props.deleteIcon ? this.props.deleteIcon : "fa-trash-o")}></i> {this.props.deleteText ? this.props.deleteText : "删 除"}
                     </button>
                     <button id="searchBtn" onClick={this._search} type="button"
                             className="btn btn-sm btn-header-search" style={{
@@ -229,7 +232,7 @@ export default class Operations extends Component {
                     </button>
                     <button onClick={this._save} type="button" className="btn btn-success btn-sm"
                             style={{marginRight: "5px", display: this.saveBtn ? "inline-block" : "none"}}>
-                        <i className="fa fa-save"></i> 保 存
+                        <i className={"fa " + (this.props.saveIcon ? this.props.saveIcon : "fa-save")}></i> {this.props.saveText ? this.props.saveText : "保 存"}
 
                     </button>
                     <button onClick={this._add} type="button" className="btn btn-primary btn-sm"
@@ -241,14 +244,14 @@ export default class Operations extends Component {
                             style={{marginRight: "5px", display: this.editBtn ? "inline-block" : "none"}}
                             disabled={selectedItems.length != 1 ? true : false}
                     >
-                        <i className="fa fa-edit"></i> 编 辑
+                        <i className={"fa " + (this.props.editIcon ? this.props.editIcon : "fa-edit")}></i> {this.props.editText ? this.props.editText : "编 辑"}
                     </button>
                     <button onClick={this._startRefresh} type="button" className="btn btn-danger btn-sm"
                             style={{marginRight: "5px", display: this.deleteBtn ? "inline-block" : "none"}}
                             data-toggle="modal" data-target="#confirm_modal"
-                            disabled={selectedItems.length ==0 ? true : false}
+                            disabled={selectedItems.length == 0 ? true : false}
                     >
-                        <i className="fa fa-trash-o"></i> 删 除
+                        <i className={"fa " + (this.props.deleteIcon ? this.props.deleteIcon : "fa-trash-o")}></i> {this.props.deleteText ? this.props.deleteText : "删 除"}
                     </button>
                     <button id="searchBtn" onClick={this._search} type="button"
                             className="btn btn-sm btn-header-search" style={{
@@ -273,7 +276,7 @@ export default class Operations extends Component {
 
                     </div>
                 </div>
-                <ConfirmModal _doAction={this._delete} selectedItems={this.props.selectedItems}/>
+                <ConfirmModal _doAction={this._delete} selectedItems={this.props.selectedItems} contentTip={this.props.contentTip}/>
             </div>
         )
     }
