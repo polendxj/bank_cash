@@ -32,7 +32,7 @@ module.exports = {
         main: [path.join(__dirname, 'frontend/entry.js')]
     },
     output: {
-        devtoll: 'source-map',
+        devtool: 'source-map',
         path: path.join(__dirname, 'build/'),    //打包存放的绝对路径
         publicPath: "/",         //网站运行时的房屋路径
         filename: '[name].js',          //打包后的文件名

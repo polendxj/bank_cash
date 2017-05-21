@@ -18,6 +18,7 @@ var querystring = require('querystring');
 var config = require('./config/config');
 var log4js = require('log4js');
 var schedule = require('node-schedule');
+var ueditor = require("./backend/frameworkHelper/ueditor/index");
 
 log4js.configure({
     appenders: [
@@ -57,8 +58,15 @@ app.use(UserRouter)
 app.use(CurrentTaskRouter)
 app.use(express.static(path.join(__dirname, 'build')));
 app.set('port', require('./config/config').node_port);
+// app.get('*', function (request, response, next) {
+//     response.sendFile(__dirname + '/build/index.html');
+// });
 app.get('*', function (request, response, next) {
-    response.sendFile(__dirname + '/build/index.html');
+    if (request.originalUrl.indexOf("ueditor") >= 0) {
+        next();
+    } else {
+        response.sendFile(__dirname + '/build/index.html');
+    }
 });
 var server = app.listen(app.get('port'), function (req, res) {
     console.log('服务器启动了...');
@@ -77,5 +85,36 @@ function scheduleTask() {
     });
 }
 
-scheduleTask();
+// scheduleTask();
+
+app.use("/ueditor/ue", ueditor(path.join(__dirname, 'build'), function (req, res, next) {
+    //客户端上传文件设置
+    var imgDir = '/img/ueditor/'
+    console.log("aa");
+    var ActionType = req.query.action;
+    if (ActionType === 'uploadimage' || ActionType === 'uploadfile' || ActionType === 'uploadvideo') {
+        var filename = req.ueditor.filename;
+        console.log(filename);
+        var file_url = imgDir;//默认图片上传地址
+        /*其他上传格式的地址*/
+        if (ActionType === 'uploadfile') {
+            file_url = '/file/ueditor/'; //附件
+        }
+        if (ActionType === 'uploadvideo') {
+            file_url = '/video/ueditor/'; //视频
+        }
+        res.ue_up(file_url); //你只要输入要保存的地址 。保存操作交给ueditor来做
+        res.setHeader('Content-Type', 'text/html');
+    }
+    //  客户端发起图片列表请求
+    else if (req.query.action === 'listimage') {
+        var dir_url = imgDir;
+        res.ue_list(dir_url); // 客户端会列出 dir_url 目录下的所有图片
+    }
+    // 客户端发起其它请求
+    else {
+        res.setHeader('Content-Type', 'application/json');
+        res.redirect('/assets/plugins/ueditor/ueditor.config.json');
+    }
+}));
 module.exports = app;

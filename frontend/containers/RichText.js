@@ -2,11 +2,9 @@
  * Created by Captain on 2017/4/10.
  */
 import React from 'react';
-import {Editor, EditorState,RichUtils} from 'draft-js';
 import {connect} from 'react-redux'
 import {browserHistory} from 'react-router'
 import {bindActionCreators} from 'redux'
-import {commonRefresh} from '../../actions/Common';
 export default class RichText extends React.Component {
     constructor(props) {
         super(props);
@@ -15,17 +13,11 @@ export default class RichText extends React.Component {
     componentDidMount(){
         this.editor = UE.getEditor(this.props.id, {
             //工具栏
-            toolbars: [[
-                'fullscreen', 'source', '|', 'undo', 'redo', '|',
-                'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'superscript', 'subscript', 'removeformat', 'formatmatch',
-                '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc', '|',
-                'rowspacingtop', 'rowspacingbottom', 'lineheight', '|',
-                'customstyle', 'paragraph', 'fontfamily', 'fontsize', '|',
-                'directionalityltr', 'directionalityrtl', 'indent', '|',
-                'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|', 'touppercase', 'tolowercase', '|',
-                'imagenone', 'imageleft', 'imageright', 'imagecenter', '|',
-                'simpleupload',
-                'horizontal', 'date', 'time',
+            serverUrl : "/ueditor/ue",
+            toolbars: [["fullscreen","source","undo","redo","insertunorderedlist","insertorderedlist", "link",
+                "unlink","help","attachment","simpleupload","insertimage","emotion","pagebreak","date", "bold",
+                "italic","fontborder","strikethrough","underline","forecolor","justifyleft","justifycenter",
+                "justifyright","justifyjustify","paragraph","rowspacingbottom","rowspacingtop","lineheight"
             ]],
             lang:"zh-cn" ,
             //字体
@@ -55,6 +47,17 @@ export default class RichText extends React.Component {
             var value = that.props.value?that.props.value:'<p></p>';
             console.log("value",that.props.value);
             that.editor.setContent(value);
+            that.editor.addListener('afterUpfile', function (t, result) {
+                var files = [];
+                console.log("result",result);
+                for(var i in result){
+                    var filename = result[i].title;
+                    files[i] = {path:result[i].url,filename:filename};
+                    var fileHtml = '<li><a href="'+result[i].url+'" target="_blank">'+filename+'</a></li>';
+                    $("#upload_file_wrap").append(fileHtml);
+                }
+                that.props.getFilePaths(files);
+            });
         });
     }
     componentDidUpdate(){

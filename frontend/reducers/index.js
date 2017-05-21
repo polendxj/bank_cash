@@ -6,12 +6,13 @@ import {
     userManagerListReducer,
     userListByManagerReducer,
     userDetailReducer,
-    userCountOfManagerReducer
+    userCountOfManagerReducer,
+    sendEmailReducer
 } from '../reducers/UsersReducer';
 
 const rootReducer = combineReducers({
     commonReducer,
-    userManagerListReducer, userListByManagerReducer, userDetailReducer, userCountOfManagerReducer,
+    userManagerListReducer, userListByManagerReducer, userDetailReducer, userCountOfManagerReducer,sendEmailReducer,
     form: reduxFormReducer,
     routing: routerReducer
 });

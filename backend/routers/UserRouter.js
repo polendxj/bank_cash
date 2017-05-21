@@ -7,6 +7,7 @@ var querystring = require('querystring')
 var router = express();
 var multiparty = require('multiparty');
 var fs = require('fs');
+var nodemailer = require('nodemailer');
 var frameworkUtils = require('../frameworkHelper/frameworkUtils');
 var User = require("../models/User");
 var HistoryTask = require("../models/HistoryTask");
@@ -33,7 +34,6 @@ router.post('/user/register', function (req, resp) {
     if (data.is_manager == 1) {
         data.manager_id = id;
     }
-    data.
     data = frameworkUtils.deleteNullKey(data);
     BaseService._register(resp, User, data,function (result) {
         if(result.result == "SUCCESS"){
@@ -178,7 +178,65 @@ router.post('/file/uploading', function (req, res, next) {
     });
 });
 
-
-
 //fs.unlink("./uploadImgs/" + data.path); //删除图片
+router.post('/user/sendEmail', function (req, resp) {
+    var data = frameworkUtils.JSONStrToObj(req.body);
+    var service = data.from_email.split('@')[1].split('.')[0];
+    var transporter = nodemailer.createTransport({
+        service: service,
+        secureConnection: true, // 使用 SSL
+        auth: {
+            user: data.from_email,
+            //这里密码不是qq密码，是你设置的smtp密码
+            pass: data.email_password
+        }
+    });
+
+// NB! No need to recreate the transporter object. You can use
+// the same transporter object for all e-mails
+
+// setup e-mail data with unicode symbols
+    var mailOptions = {
+        from: data.from_email, // 发件地址
+        to: data.recipient, // 收件列表
+        subject: data.subject, // 标题
+        //text和html两者只支持一种
+        // text: 'Hello world ?', // 标题
+        html: data.content // html 内容
+    };
+    var files = frameworkUtils.JSONStrToObj(data.files);
+    if(files.length>0){
+        mailOptions.attachments = files;
+    }
+    console.log(mailOptions.attachments);
+// send mail with defined transport object
+    transporter.sendMail(mailOptions, function(error, info){
+        if(error){
+            console.log(error);
+            resp.send({result : "FAILURE", message : error});
+        }else{
+            console.log('Message sent: ' + info.response);
+            var id = data.id;
+            var admin_id = data.admin_id;
+            var updateParams = {
+                task_status:1,
+                flow_record_status:0
+            };
+            BaseService._update(resp, User, updateParams, id, function (result) {
+                if (result.result == "SUCCESS") {
+                    var params = {
+                        user_id: id,
+                        admin_id: admin_id,
+                        status: 1,
+                        plan_deal_date: data.plan_deal_date,
+                        real_deal_date: new Date()
+                    };
+                    BaseService._register(resp, HistoryTask, params);
+                } else {
+                    resp.send(result);
+                }
+            });
+        }
+    });
+});
 module.exports = router;

@@ -70,8 +70,8 @@ var respond = function (static_url, config = {}, callback) {
         req.ueditor.mimetype = mimetype;
         res.ue_up = function (img_url) {
           var tmpdir = path.join(os.tmpdir(), path.basename(filename));
-          //var name = snowflake.nextId() + path.extname(tmpdir);
-          var name = filename;
+          var name = snowflake.nextId() + path.extname(tmpdir);
+          // var name = filename;
           var dest = path.join(static_url, img_url, name);
           var client = {};
           if (config.qn) {

@@ -21,8 +21,10 @@ import {
     USER_LIST_END, USER_LIST_START,
     USER_SAVE_END, USER_SAVE_START,
     USER_MANAGER_LIST_END, USER_MANAGER_LIST_START,
-    USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END
+    USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END,
+    SEND_EMAIL_START,SEND_EMAIL_END
 } from '../constants/index'
+import RichText from "./RichText"
 
 
 export default class NeedDownloadFlowContainer extends Component {
@@ -38,6 +40,7 @@ export default class NeedDownloadFlowContainer extends Component {
         this.imageUploadPath = "";    //图片上传返回来的路径
         this.selectedManager = "";      //选择的团队负责人
         this.deletingManager = [];
+        this.files = [];
         /*event*/
         this._startRefresh = this._startRefresh.bind(this);
         this._changePage = this._changePage.bind(this);
@@ -51,6 +54,7 @@ export default class NeedDownloadFlowContainer extends Component {
         this._changeSelectedItems = this._changeSelectedItems.bind(this);
         this._changeSelectedManager = this._changeSelectedManager.bind(this);
         this._deleteManager = this._deleteManager.bind(this);
+        this.getFilePaths = this.getFilePaths.bind(this);
     }
 
     componentDidMount() {
@@ -136,14 +140,44 @@ export default class NeedDownloadFlowContainer extends Component {
         this.optPage = optType;
         switch (this.optPage) {
             case business_operation_action.SAVE: //此处响应发送邮件的事件
-                this.operationStatus = business_operation_status.DOING;
-                setTimeout(function () {
-                    self.operationStatus = business_operation_status.SUCCESS;
-                    self.optPage = business_operation_action.LIST;
-                    operation_notification(1);
-                    self._startRefresh();
-                },3000);
-
+                if ($("#sendEmailForm").validate().form()) {
+                    this.operationStatus = business_operation_status.DOING;
+                    var params = array2Json($("#sendEmailForm").serializeArray());
+                    params.id = self.props.userDetail.data.rows[0].id;
+                    params.plan_deal_date = self.props.userDetail.data.rows[0].plan_flow_record_date;
+                    params.from_email = self.props.userDetail.data.rows[0].email;
+                    params.email_password = self.props.userDetail.data.rows[0].email_password;
+                    params.content = UE.getEditor("content").getContent();
+                    params.files = this.files;
+                    this.props.dispatch(saveObject(params, SEND_EMAIL_START, SEND_EMAIL_END, send_email, function (json) {
+                        if (json.result == 'SUCCESS') {
+                            self.operationStatus = business_operation_status.SUCCESS;
+                            self.optPage = business_operation_action.LIST;
+                            self.selectedItems.splice(0);
+                            self._changeManager(params.manager_id);
+                            self._getAllManager();
+                        } else {
+                            self.operationStatus = business_operation_status.ERROR;
+                            self._startRefresh();
+                        }
+                    }));
+                }else{
+                    var recipient = $("#recipient").val();
+                    console.log("recipient",recipient);
+                    var subject = $("#subject").val();
+                    var myreg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+                    var text = "";
+                    if(!recipient){
+                        text = "请填写收件人后再发送";
+                        this.showError(text);
+                    }else if(!myreg.test(recipient)){
+                        text = "请填写正确的收件人邮箱";
+                        this.showError(text);
+                    }else if(!subject){
+                        text = "请输入标题";
+                        this.showError(text);
+                    }
+                }
                 break;
             case business_operation_action.ADD:
                 this.operationStatus = business_operation_status.INIT;
@@ -170,7 +204,18 @@ export default class NeedDownloadFlowContainer extends Component {
         }
         this._startRefresh();
     }
-
+    getFilePaths(files){
+        this.files = this.files.concat(files);
+        console.log("paths",this.files);
+    }
+    showError(text){
+        $("#errorShow").css({display:"block"});
+        $("#errmsg").html(text);
+        setTimeout(function () {
+            $("#errmsg").html("");
+            $("#errorShow").css({display:"none"});
+        },3000)
+    }
     _changeManager(id) {
         this.selectedManager = id;
         this.props.dispatch(getListByMutilpCondition({
@@ -259,7 +304,7 @@ export default class NeedDownloadFlowContainer extends Component {
                 component =
                     <div className="row">
                         <SendEmail userManagerList={userManagerList} userDetail={userDetail}
-                                   _changeImageUploadStatus={this._changeImageUploadStatus}/>
+                                   _changeImageUploadStatus={this._changeImageUploadStatus} getFilePaths={this.getFilePaths}/>
                     </div>;
                 break;
             default:
@@ -758,6 +803,18 @@ class SendEmail extends Component {
 
                     }
                 });
+                $("#sendEmailForm").validate({
+                    rules: {
+                        subject: {
+                            required: true,
+                        },
+                        recipient: {
+                            required: true,
+                            email: true
+                        }
+                    },
+                    errorPlacement: function(error, element) {},
+                });
                 $("#manager_id").css({display: $("#is_manager option:selected").val() == 0 ? "block" : "none"});
                 $("#is_manager").on("change", function () {
                     $("#manager_id").css({display: $("#is_manager option:selected").val() == 0 ? "block" : "none"});
@@ -773,6 +830,11 @@ class SendEmail extends Component {
         const {userManagerList, userDetail}=this.props;
         return (
             <section className="panel" style={{minHeight: "600px"}}>
+                <div id="errorShow" style={{position: "absolute",width: "100%", paddingTop: "2px", height: "24px", top: "-50px", textAlign:"center",display:"none"}}>
+                    <span id="errmsg" style={{background:"red",color:"#FFFFFF",padding: "3px 24px 3px",height:"20px",lineHeight:"18px",borderRadius:"3px",fontFamily:"'Arial', sans-serif",fontWeight:700}}>
+
+                    </span>
+                </div>
                 <div className="panel-body" style={{padding: "1px"}}>
                     <div className="row">
                         <div className="col-md-12" style={{padding: "5px 25px"}}>
@@ -842,6 +904,28 @@ class SendEmail extends Component {
                             <br />
                             <h3><strong>新邮件</strong> 内容</h3>
                             <hr />
+                            <form id="sendEmailForm" className="form-horizontal">
+                                <div className="form-group row">
+                                    <label className="control-label" style={{width:"58px",paddingRight:"10px",float:"left",lineHeight:"34px",textAlign:"right"}}>收件人</label>
+                                    <div style={{width:"95%",float:"left"}}>
+                                        <input id="recipient" type="text" className="form-control" name="recipient"/>
+                                    </div>
+                                </div>
+                                <div className="form-group row">
+                                    <label className="control-label" style={{width:"58px",paddingRight:"10px",float:"left",lineHeight:"34px",textAlign:"right"}}>主题</label>
+                                    <div style={{width:"95%",float:"left"}}>
+                                        <input id="subject" type="text" className="form-control" name="subject"/>
+                                    </div>
+                                </div>
+                                <div className="form-group row">
+                                    <label className="control-label"
+                                           style={{width:"58px",paddingRight:"10px",float:"left",lineHeight:"34px",textAlign:"right"}}>{"内容"}</label>
+                                    <div style={{width:"95%",float:"left",position:"relative"}}>
+                                        <ul id="upload_file_wrap"></ul>
+                                        <RichText id="content" height="200" value={""} disabled={false} getFilePaths={this.props.getFilePaths}/>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

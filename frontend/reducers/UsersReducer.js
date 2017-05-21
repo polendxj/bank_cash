@@ -9,7 +9,8 @@ import {
     USER_LIST_END, USER_LIST_START,
     USER_SAVE_END, USER_SAVE_START,
     USER_MANAGER_LIST_END, USER_MANAGER_LIST_START,
-    USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END
+    USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END,
+    SEND_EMAIL_START,SEND_EMAIL_END
 } from '../constants/index'
 
 /*获取所有团队负责人*/
@@ -61,6 +62,20 @@ export function userCountOfManagerReducer(state = {fetching: false, data: ""}, a
             state = {fetching: true};
             return state;
         case USER_COUNT_OF_MANAGER_END:
+            state = {fetching: false, data: action.json};
+            return state;
+        default:
+            return state;
+    }
+}
+
+/*发送邮件*/
+export function sendEmailReducer(state = {fetching: false, data: ""}, action) {
+    switch (action.type) {
+        case SEND_EMAIL_START:
+            state = {fetching: true};
+            return state;
+        case SEND_EMAIL_END:
             state = {fetching: false, data: action.json};
             return state;
         default:
