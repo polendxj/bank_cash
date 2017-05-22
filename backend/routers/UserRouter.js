@@ -35,6 +35,9 @@ router.post('/user/register', function (req, resp) {
         data.manager_id = id;
     }
     data = frameworkUtils.deleteNullKey(data);
+    data.renew_fee_status = 0;
+    data.flow_record_status = 0;
+    data.code_select_status = 0;
     BaseService._register(resp, User, data,function (result) {
         if(result.result == "SUCCESS"){
             UserService.renewFeeStatus(User);
@@ -212,15 +215,21 @@ router.post('/user/sendEmail', function (req, resp) {
 // send mail with defined transport object
     transporter.sendMail(mailOptions, function(error, info){
         if(error){
-            console.log(error);
-            resp.send({result : "FAILURE", message : error});
+            console.log("err",error.response);
+            if(error.response){
+                resp.send({result : "FAILURE", message : error.response});
+            }else{
+                resp.send({result : "FAILURE", message : "未知错误"});
+            }
+
         }else{
             console.log('Message sent: ' + info.response);
             var id = data.id;
             var admin_id = data.admin_id;
             var updateParams = {
                 task_status:1,
-                flow_record_status:0
+                flow_record_status:0,
+                flow_record_date:new Date()
             };
             BaseService._update(resp, User, updateParams, id, function (result) {
                 if (result.result == "SUCCESS") {

@@ -148,8 +148,8 @@ var taskStatus = function (object) {
                     }
                 }
             }else if(user.task_status==1){
-                var codeSelectDiffDate = frameworkUtils.GetDateDiff(new Date(),user.bind_card_date);
-                if(codeSelectDiffDate % code_select_time == 0 && user.code_select_status == 0){
+                var codeSelectDiffDate = frameworkUtils.GetDateDiff(new Date(),user.flow_record_date);
+                if(codeSelectDiffDate >= code_select_time_min && codeSelectDiffDate <= code_select_time_max && user.code_select_status == 0){
                     var params = {code_select_status:1,plan_code_select_date:new Date()};
                     object.update(params, {
                         where: {id: user.id}

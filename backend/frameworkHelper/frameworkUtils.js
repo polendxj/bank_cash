@@ -170,7 +170,7 @@ var deleteNullKey = function(json){
 var GetDateDiff = function(startDate,endDate) {
     var startTime = new Date(moment(startDate).format("YYYY-MM-DD")).getTime();
     var endTime = new Date(moment(endDate).format("YYYY-MM-DD")).getTime();
-    return parseInt(Math.abs((startTime - endTime))/(1000*60*60*24));
+    return parseInt(Math.abs(startTime - endTime)/(1000*60*60*24));
 };
 
 /*

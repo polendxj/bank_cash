@@ -37,10 +37,11 @@ database = config.database;
 username = config.username;
 password = config.password;
 host = config.host;
+dialect = config.dialect;
 renew_fee_time = config.renew_fee_time;
 flow_record_time = config.flow_record_time;
-code_select_time = config.code_select_time;
-dialect = require('./config/config').dialect
+code_select_time_min = config.code_select_time_min;
+code_select_time_max = config.code_select_time_max;
 // var SysManagerCSR = require('./routes/SysManagerCSR')    此处导入router
 var User = require("./backend/models/User");
 var AdminRouter = require('./backend/routers/AdminRouter');
@@ -79,13 +80,13 @@ process.on('exit', function () {
 });
 
 function scheduleTask() {
-    schedule.scheduleJob('1 * * * * *', function () {
+    schedule.scheduleJob('1 0 0 * * *', function () {
         UserService.renewFeeStatus(User);
         UserService.taskStatus(User);
     });
 }
 
-// scheduleTask();
+scheduleTask();
 
 app.use("/ueditor/ue", ueditor(path.join(__dirname, 'build'), function (req, res, next) {
     //客户端上传文件设置

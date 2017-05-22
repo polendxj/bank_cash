@@ -168,14 +168,11 @@ export default class NeedDownloadFlowContainer extends Component {
                     var myreg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
                     var text = "";
                     if(!recipient){
-                        text = "请填写收件人后再发送";
-                        this.showError(text);
+                        operation_notification(0, "请填写收件人后再发送");
                     }else if(!myreg.test(recipient)){
-                        text = "请填写正确的收件人邮箱";
-                        this.showError(text);
+                        operation_notification(0, "请填写正确的收件人邮箱");
                     }else if(!subject){
-                        text = "请输入标题";
-                        this.showError(text);
+                        operation_notification(0, "请输入标题");
                     }
                 }
                 break;
@@ -207,14 +204,6 @@ export default class NeedDownloadFlowContainer extends Component {
     getFilePaths(files){
         this.files = this.files.concat(files);
         console.log("paths",this.files);
-    }
-    showError(text){
-        $("#errorShow").css({display:"block"});
-        $("#errmsg").html(text);
-        setTimeout(function () {
-            $("#errmsg").html("");
-            $("#errorShow").css({display:"none"});
-        },3000)
     }
     _changeManager(id) {
         this.selectedManager = id;
@@ -828,13 +817,13 @@ class SendEmail extends Component {
 
     render() {
         const {userManagerList, userDetail}=this.props;
+        const imgPath = "http://localhost:80/img/ueditor/866647032289431552.JPG";
+        var img = "";
+        if(imgPath){
+            img = "<img src="+imgPath+" />"
+        }
         return (
             <section className="panel" style={{minHeight: "600px"}}>
-                <div id="errorShow" style={{position: "absolute",width: "100%", paddingTop: "2px", height: "24px", top: "-50px", textAlign:"center",display:"none"}}>
-                    <span id="errmsg" style={{background:"red",color:"#FFFFFF",padding: "3px 24px 3px",height:"20px",lineHeight:"18px",borderRadius:"3px",fontFamily:"'Arial', sans-serif",fontWeight:700}}>
-
-                    </span>
-                </div>
                 <div className="panel-body" style={{padding: "1px"}}>
                     <div className="row">
                         <div className="col-md-12" style={{padding: "5px 25px"}}>
@@ -922,7 +911,7 @@ class SendEmail extends Component {
                                            style={{width:"58px",paddingRight:"10px",float:"left",lineHeight:"34px",textAlign:"right"}}>{"内容"}</label>
                                     <div style={{width:"95%",float:"left",position:"relative"}}>
                                         <ul id="upload_file_wrap"></ul>
-                                        <RichText id="content" height="200" value={""} disabled={false} getFilePaths={this.props.getFilePaths}/>
+                                        <RichText id="content" height="200" value={img} disabled={false} getFilePaths={this.props.getFilePaths}/>
                                     </div>
                                 </div>
                             </form>
