@@ -62,67 +62,119 @@ router.post('/user/update/:id', function (req, resp) {
 
 router.post('/user/updateRenewFeeStatus', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
-    var id = data.id;
+    var ids = data.ids;
     var admin_id = data.admin_id;
-    delete data.admin_id;
-    delete data.id;
-    console.log(id);
-    BaseService._update(resp, User, data, id, function (result) {
-        if (result.result == "SUCCESS") {
-            var params = {
-                user_id: id,
-                admin_id: admin_id,
-                status: 3,
-                plan_deal_date: data.plan_deal_date,
-                real_deal_date: new Date()
-            };
-            BaseService._register(resp, HistoryTask, params);
-        } else {
-            resp.send(result);
-        }
-    });
+    var count = 0;
+    for(var id_date of ids){
+        console.log(id_date);
+        var id = id_date.split("_")[0];
+        var plan_renew_fee_date = id_date.split("_")[1];
+        var updateParams = {
+            renew_fee_status:0,
+            renew_fee_date:new Date()
+        };
+        BaseService._update(resp, User, updateParams, id, function (result) {
+            if (result.result == "SUCCESS") {
+                var params = {
+                    user_id: id,
+                    admin_id: admin_id,
+                    status: 3,
+                    plan_deal_date: plan_renew_fee_date,
+                    real_deal_date: new Date()
+                };
+                BaseService._register(resp, HistoryTask, params,function (res) {
+                    if (res.result == "SUCCESS") {
+                        count++;
+                        if(count == ids.length){
+                            resp.send({result:"SUCCESS"});
+                        }
+                    }else{
+                        return resp.send(res);
+                    }
+                });
+            } else {
+                return resp.send(result);
+            }
+        });
+    }
 });
 router.post('/user/updateFlowRecordStatus', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
-    var id = data.id;
+    var ids = data.ids;
     var admin_id = data.admin_id;
-    delete data.admin_id;
-    delete data.id;
-    BaseService._update(resp, User, data, id, function (result) {
-        if (result.result == "SUCCESS") {
-            var params = {
-                user_id: id,
-                admin_id: admin_id,
-                status: 1,
-                plan_deal_date: data.plan_deal_date,
-                real_deal_date: new Date()
+    var count = 0;
+    for(var id_date of ids){
+        console.log(id_date);
+        var id = id_date.split("_")[0];
+        var plan_flow_record_date = id_date.split("_")[1];
+        var updateParams = {
+            task_status:1,
+            flow_record_status:0,
+            flow_record_date:new Date()
+        };
+        BaseService._update(resp, User, updateParams, id, function (result) {
+            if (result.result == "SUCCESS") {
+                var params = {
+                    user_id: id,
+                    admin_id: admin_id,
+                    status: 1,
+                    plan_deal_date: plan_flow_record_date,
+                    real_deal_date: new Date()
+                };
+                BaseService._register(resp, HistoryTask, params,function (res) {
+                    if (res.result == "SUCCESS") {
+                        count++;
+                        if(count == ids.length){
+                            resp.send({result:"SUCCESS"});
+                        }
+                    }else{
+                        return resp.send(res);
+                    }
+                });
+            } else {
+                return resp.send(result);
             }
-            BaseService._register(resp, HistoryTask, params);
-        } else {
-            resp.send(result);
-        }
-    });
+        });
+    }
 });
 router.post('/user/updateCodeSelectStatus', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
-    var id = data.id;
+    var ids = data.ids;
     var admin_id = data.admin_id;
-    delete data.admin_id;
-    delete data.id;
-    BaseService._update(resp, User, data, id, function (result) {
-        if (result.result == "SUCCESS") {
-            var params = {
-                user_id: id,
-                admin_id: admin_id,
-                status: 2,
-                plan_deal_date: data.plan_deal_date,
-                real_deal_date: new Date()
+    var count = 0;
+    for(var id_date of ids) {
+        console.log(id_date);
+        var id = id_date.split("_")[0];
+        var plan_code_select_date = id_date.split("_")[1];
+        var updateParams = {
+            task_status: 0,
+            code_select_status: 0,
+            code_select_date: new Date()
+        };
+        BaseService._update(resp, User, updateParams, id, function (result) {
+            if (result.result == "SUCCESS") {
+                var params = {
+                    user_id: id,
+                    admin_id: admin_id,
+                    status: 2,
+                    plan_deal_date: plan_code_select_date,
+                    real_deal_date: new Date()
+                }
+                BaseService._register(resp, HistoryTask, params,function (res) {
+                    if (res.result == "SUCCESS") {
+                        count++;
+                        if(count == ids.length){
+                            resp.send({result:"SUCCESS"});
+                        }
+                    }else{
+                        return resp.send(res);
+                    }
+                });
+            } else {
+                return resp.send(result);
             }
-            BaseService._register(resp, HistoryTask, params);
-        } else {
-            resp.send(result);
-        }
-    });
+        });
+    }
 });
 
 router.post('/user/deleteByManager', function (req, resp) {

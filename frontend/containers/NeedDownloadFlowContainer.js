@@ -22,7 +22,8 @@ import {
     USER_SAVE_END, USER_SAVE_START,
     USER_MANAGER_LIST_END, USER_MANAGER_LIST_START,
     USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END,
-    SEND_EMAIL_START,SEND_EMAIL_END
+    SEND_EMAIL_START,SEND_EMAIL_END,
+    DOWNLOAD_FLOW_START,DOWNLOAD_FLOW_END
 } from '../constants/index'
 import RichText from "./RichText"
 
@@ -189,11 +190,14 @@ export default class NeedDownloadFlowContainer extends Component {
                 break;
             case business_operation_action.DELETE:  //此处响应确认完成的事件
                 this.operationStatus = business_operation_status.DOING;
-                setTimeout(function () {
+                self.props.dispatch(deleteObject({
+                    "ids": self.selectedItems,
+                    "admin_id":1
+                }, DOWNLOAD_FLOW_START, DOWNLOAD_FLOW_END, download_flow, function (json) {
+                    self.selectedItems.splice(0);
                     self.operationStatus = business_operation_status.SUCCESS;
-                    operation_notification(1);
-                    self._startRefresh();
-                },3000);
+                    self._changeManager(self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id);
+                }));
                 break;
             case business_operation_action.LIST:
                 this.selectedItems.splice(0);
@@ -482,7 +486,7 @@ class MembershipList extends Component {
                         {renderList(userListByManager, function (rows) {
                             return rows.map(function (val, key) {
                                 return <tr key={key}>
-                                    <td><input type="checkbox" value={val.id} name="member"
+                                    <td><input type="checkbox" value={val.id+"_"+formatDate(val.plan_flow_record_date, "yyyy-mm-dd")} name="member"
                                                onChange={_changeSelectedItems.bind(self, "member")}/></td>
                                     <td>{val.name}</td>
                                     <td>{val.idcard}</td>

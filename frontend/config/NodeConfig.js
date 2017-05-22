@@ -37,6 +37,9 @@ var user_delete_manager = "/user/deleteByManager";
 var user_count_of_manager = "/user/findCountInManager";
 var imagePath = node_service + "/uploadImgs";
 var send_email = "/user/sendEmail";
+var download_flow = "/user/updateFlowRecordStatus";
+var renew_fee = "/user/updateRenewFeeStatus";
+var code_select = "/user/updateCodeSelectStatus";
 
 
 

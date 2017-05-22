@@ -21,7 +21,8 @@ import {
     USER_LIST_END, USER_LIST_START,
     USER_SAVE_END, USER_SAVE_START,
     USER_MANAGER_LIST_END, USER_MANAGER_LIST_START,
-    USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END
+    USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END,
+    CODE_SELECT_START,CODE_SELECT_END
 } from '../constants/index'
 
 
@@ -212,9 +213,17 @@ export default class NeedCodeSelectContainer extends Component {
                 break;
             case business_operation_action.DELETE:
                 this.operationStatus = business_operation_status.DOING;
+                // self.props.dispatch(deleteObject({
+                //     "ids": self.selectedItems
+                // }, USER_DELETE_START, USER_DELETE_END, user_delete, function (json) {
+                //     self.selectedItems.splice(0);
+                //     self.operationStatus = business_operation_status.SUCCESS;
+                //     self._changeManager(self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id);
+                // }));
                 self.props.dispatch(deleteObject({
-                    "ids": self.selectedItems
-                }, USER_DELETE_START, USER_DELETE_END, user_delete, function (json) {
+                    "ids": self.selectedItems,
+                    "admin_id":1
+                }, CODE_SELECT_START, CODE_SELECT_END, code_select, function (json) {
                     self.selectedItems.splice(0);
                     self.operationStatus = business_operation_status.SUCCESS;
                     self._changeManager(self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id);
@@ -342,7 +351,7 @@ export default class NeedCodeSelectContainer extends Component {
                     <div id="content" className="after-mail-box" style={{top: "75px", padding: "15px 18px 0"}}>
                         <Operations title="景鹏" smallTitle="团队" operationStatus={this.operationStatus}
                                     selectedItems={this.selectedItems} _startRefresh={this._startRefresh}
-                                    _doAction={this._doAction}/>
+                                    _doAction={this._doAction} deleteText="确认完成"/>
                         <div className="row" style={{
                             display: this.optPage == (business_operation_action.LIST || business_operation_action.SEARCH) ? "block" : "none"
                         }}>
@@ -505,7 +514,7 @@ class MembershipList extends Component {
                         {renderList(userListByManager, function (rows) {
                             return rows.map(function (val, key) {
                                 return <tr key={key}>
-                                    <td><input type="checkbox" value={val.id} name="member"
+                                    <td><input type="checkbox" value={val.id+"_"+formatDate(val.plan_code_select_date, "yyyy-mm-dd")} name="member"
                                                onChange={_changeSelectedItems.bind(self, "member")}/></td>
                                     <td>{val.name}</td>
                                     <td>{val.idcard}</td>
