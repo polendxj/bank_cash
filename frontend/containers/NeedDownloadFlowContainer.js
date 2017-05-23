@@ -202,19 +202,23 @@ export default class NeedDownloadFlowContainer extends Component {
                 }, USER_DETAIL_START, USER_DETAIL_END, user_list));
                 break;
             case business_operation_action.DELETE:  //此处响应确认完成的事件
-                this.operationStatus = business_operation_status.DOING;
-                self.props.dispatch(deleteObject({
-                    "ids": self.selectedItems,
-                    "admin_id":1,
-                    flow_record_date:$("#flowRecordDate").val()
-                }, DOWNLOAD_FLOW_START, DOWNLOAD_FLOW_END, download_flow, function (json) {
-                    self.selectedItems.splice(0);
-                    self.operationStatus = business_operation_status.SUCCESS;
-                    var id = self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id;
-                    var name = self.selectedManagerName ? self.selectedManagerName : self.props.userManagerList.data.rows[0].name;
-                    self._changeManager(id,name);
-                }));
-                this.props.dispatch(getListByMutilpCondition({"flow_record_status": 1}, USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END, user_count_of_manager));
+                if($("#flowRecordDate").val()){
+                    this.operationStatus = business_operation_status.DOING;
+                    self.props.dispatch(deleteObject({
+                        "ids": self.selectedItems,
+                        "admin_id":1,
+                        flow_record_date:$("#flowRecordDate").val()
+                    }, DOWNLOAD_FLOW_START, DOWNLOAD_FLOW_END, download_flow, function (json) {
+                        self.selectedItems.splice(0);
+                        self.operationStatus = business_operation_status.SUCCESS;
+                        var id = self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id;
+                        var name = self.selectedManagerName ? self.selectedManagerName : self.props.userManagerList.data.rows[0].name;
+                        self._changeManager(id,name);
+                    }));
+                    this.props.dispatch(getListByMutilpCondition({"flow_record_status": 1}, USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END, user_count_of_manager));
+                }else{
+                    operation_notification(0, "请输入流水提取完成时间");
+                }
                 break;
             case business_operation_action.LIST:
                 this.selectedItems.splice(0);
@@ -326,10 +330,10 @@ export default class NeedDownloadFlowContainer extends Component {
         var flowRecordDate =  <form>
                 <div className="form-group row">
                     <div className="col-md-6">
-                        <label className="control-label">邮件发送日期</label>
+                        <label className="control-label">流水提取完成时间</label>
                         <input id="flowRecordDate" type="text"
                                className="form-control daterange-two" name="flow_record_date"
-                               placeholder="邮件发送的日期"/>
+                               placeholder="流水提取完成的时间"/>
                     </div>
                 </div>
             </form>;
