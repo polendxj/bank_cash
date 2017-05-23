@@ -110,19 +110,21 @@ var renewFeeStatus = function (object) {
         where: {delete_status: 1}
     }).then(function (result) {
         for (var user of result) {
-            var diffDate = frameworkUtils.GetDateDiff(new Date(), user.register_date);
-            if (user.renew_fee_status == 0) {
-                if (diffDate % renew_fee_time == 0) {
-                    var params = {renew_fee_status: 1};
-                    object.update(params, {
-                        where: {id: user.id}
-                    }).then(function (result) {
+            (function (u) {
+                var diffDate = frameworkUtils.GetDateDiff(new Date(), u.register_date);
+                if (u.renew_fee_status == 0) {
+                    if (diffDate % renew_fee_time == 0) {
+                        var params = {renew_fee_status: 1};
+                        object.update(params, {
+                            where: {id: u.id}
+                        }).then(function (result) {
 
-                    }).catch(function (err) {
-                        console.log(err.message);
-                    });
+                        }).catch(function (err) {
+                            console.log(err.message);
+                        });
+                    }
                 }
-            }
+            })(user)
         }
     }).catch(function (err) {
         console.log(err.message);
@@ -133,13 +135,27 @@ var taskStatus = function (object) {
         where: {delete_status: 1}
     }).then(function (result) {
         for (var user of result) {
-            if (user.task_status==0) {
-                if(user.bind_card_date){
-                    var flowRecordDiffDate = frameworkUtils.GetDateDiff(new Date(),user.bind_card_date);
-                    if(flowRecordDiffDate % flow_record_time == 0 && user.flow_record_status == 0){
-                        var params = {flow_record_status:1,plan_flow_record_date:new Date()};
+            (function (u) {
+                if (u.task_status==0) {
+                    if(u.bind_card_date){
+                        var flowRecordDiffDate = frameworkUtils.GetDateDiff(new Date(),u.bind_card_date);
+                        if(flowRecordDiffDate % flow_record_time == 0 && u.flow_record_status == 0){
+                            var params = {flow_record_status:1,plan_flow_record_date:new Date()};
+                            object.update(params, {
+                                where: {id: u.id}
+                            }).then(function (result) {
+
+                            }).catch(function (err) {
+                                console.log(err.message);
+                            });
+                        }
+                    }
+                }else if(u.task_status==1){
+                    var codeSelectDiffDate = frameworkUtils.GetDateDiff(new Date(),u.flow_record_date);
+                    if(codeSelectDiffDate >= code_select_time_min && codeSelectDiffDate <= code_select_time_max && u.code_select_status == 0){
+                        var params = {code_select_status:1,plan_code_select_date:new Date()};
                         object.update(params, {
-                            where: {id: user.id}
+                            where: {id: u.id}
                         }).then(function (result) {
 
                         }).catch(function (err) {
@@ -147,19 +163,7 @@ var taskStatus = function (object) {
                         });
                     }
                 }
-            }else if(user.task_status==1){
-                var codeSelectDiffDate = frameworkUtils.GetDateDiff(new Date(),user.flow_record_date);
-                if(codeSelectDiffDate >= code_select_time_min && codeSelectDiffDate <= code_select_time_max && user.code_select_status == 0){
-                    var params = {code_select_status:1,plan_code_select_date:new Date()};
-                    object.update(params, {
-                        where: {id: user.id}
-                    }).then(function (result) {
-
-                    }).catch(function (err) {
-                        console.log(err.message);
-                    });
-                }
-            }
+            })(user)
         }
     }).catch(function (err) {
         console.log(err.message);

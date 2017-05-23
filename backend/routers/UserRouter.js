@@ -65,35 +65,37 @@ router.post('/user/updateRenewFeeStatus', function (req, resp) {
     var admin_id = data.admin_id;
     var count = 0;
     for(var id_date of ids){
-        var id = id_date.split("_")[0];
-        var plan_renew_fee_date = id_date.split("_")[1];
-        var updateParams = {
-            renew_fee_status:0,
-            renew_fee_date:new Date()
-        };
-        BaseService._update(resp, User, updateParams, id, function (result) {
-            if (result.result == "SUCCESS") {
-                var params = {
-                    user_id: id,
-                    admin_id: admin_id,
-                    status: 3,
-                    plan_deal_date: plan_renew_fee_date,
-                    real_deal_date: new Date()
-                };
-                BaseService._register(resp, HistoryTask, params,function (res) {
-                    if (res.result == "SUCCESS") {
-                        count++;
-                        if(count == ids.length){
-                            resp.send({result:"SUCCESS"});
+        (function (id_d) {
+            var id = id_d.split("_")[0];
+            var plan_renew_fee_date = id_d.split("_")[1];
+            var updateParams = {
+                renew_fee_status:0,
+                renew_fee_date:new Date()
+            };
+            BaseService._update(resp, User, updateParams, id, function (result) {
+                if (result.result == "SUCCESS") {
+                    var params = {
+                        user_id: id,
+                        admin_id: admin_id,
+                        status: 3,
+                        plan_deal_date: plan_renew_fee_date,
+                        real_deal_date: new Date()
+                    };
+                    BaseService._register(resp, HistoryTask, params,function (res) {
+                        if (res.result == "SUCCESS") {
+                            count++;
+                            if(count == ids.length){
+                                resp.send({result:"SUCCESS"});
+                            }
+                        }else{
+                            return resp.send(res);
                         }
-                    }else{
-                        return resp.send(res);
-                    }
-                });
-            } else {
-                return resp.send(result);
-            }
-        });
+                    });
+                } else {
+                    return resp.send(result);
+                }
+            });
+        })(id_date)
     }
 });
 router.post('/user/updateFlowRecordStatus', function (req, resp) {
@@ -102,36 +104,38 @@ router.post('/user/updateFlowRecordStatus', function (req, resp) {
     var admin_id = data.admin_id;
     var count = 0;
     for(var id_date of ids){
-        var id = id_date.split("_")[0];
-        var plan_flow_record_date = id_date.split("_")[1];
-        var updateParams = {
-            task_status:1,
-            flow_record_status:0,
-            flow_record_date:data.flow_record_date
-        };
-        BaseService._update(resp, User, updateParams, id, function (result) {
-            if (result.result == "SUCCESS") {
-                var params = {
-                    user_id: id,
-                    admin_id: admin_id,
-                    status: 1,
-                    plan_deal_date: plan_flow_record_date,
-                    real_deal_date: new Date()
-                };
-                BaseService._register(resp, HistoryTask, params,function (res) {
-                    if (res.result == "SUCCESS") {
-                        count++;
-                        if(count == ids.length){
-                            resp.send({result:"SUCCESS"});
+        (function (id_d) {
+            var id = id_d.split("_")[0];
+            var plan_flow_record_date = id_d.split("_")[1];
+            var updateParams = {
+                task_status:1,
+                flow_record_status:0,
+                flow_record_date:data.flow_record_date
+            };
+            BaseService._update(resp, User, updateParams, id, function (result) {
+                if (result.result == "SUCCESS") {
+                    var params = {
+                        user_id: id,
+                        admin_id: admin_id,
+                        status: 1,
+                        plan_deal_date: plan_flow_record_date,
+                        real_deal_date: new Date()
+                    };
+                    BaseService._register(resp, HistoryTask, params,function (res) {
+                        if (res.result == "SUCCESS") {
+                            count++;
+                            if(count == ids.length){
+                                resp.send({result:"SUCCESS"});
+                            }
+                        }else{
+                            return resp.send(res);
                         }
-                    }else{
-                        return resp.send(res);
-                    }
-                });
-            } else {
-                return resp.send(result);
-            }
-        });
+                    });
+                } else {
+                    return resp.send(result);
+                }
+            });
+        })(id_date)
     }
 });
 router.post('/user/updateCodeSelectStatus', function (req, resp) {
@@ -140,36 +144,38 @@ router.post('/user/updateCodeSelectStatus', function (req, resp) {
     var admin_id = data.admin_id;
     var count = 0;
     for(var id_date of ids) {
-        var id = id_date.split("_")[0];
-        var plan_code_select_date = id_date.split("_")[1];
-        var updateParams = {
-            task_status: 0,
-            code_select_status: 0,
-            code_select_date: new Date()
-        };
-        BaseService._update(resp, User, updateParams, id, function (result) {
-            if (result.result == "SUCCESS") {
-                var params = {
-                    user_id: id,
-                    admin_id: admin_id,
-                    status: 2,
-                    plan_deal_date: plan_code_select_date,
-                    real_deal_date: new Date()
-                }
-                BaseService._register(resp, HistoryTask, params,function (res) {
-                    if (res.result == "SUCCESS") {
-                        count++;
-                        if(count == ids.length){
-                            resp.send({result:"SUCCESS"});
-                        }
-                    }else{
-                        return resp.send(res);
+        (function (id_d) {
+            var id = id_d.split("_")[0];
+            var plan_code_select_date = id_d.split("_")[1];
+            var updateParams = {
+                task_status: 0,
+                code_select_status: 0,
+                code_select_date: new Date()
+            };
+            BaseService._update(resp, User, updateParams, id, function (result) {
+                if (result.result == "SUCCESS") {
+                    var params = {
+                        user_id: id,
+                        admin_id: admin_id,
+                        status: 2,
+                        plan_deal_date: plan_code_select_date,
+                        real_deal_date: new Date()
                     }
-                });
-            } else {
-                return resp.send(result);
-            }
-        });
+                    BaseService._register(resp, HistoryTask, params,function (res) {
+                        if (res.result == "SUCCESS") {
+                            count++;
+                            if(count == ids.length){
+                                resp.send({result:"SUCCESS"});
+                            }
+                        }else{
+                            return resp.send(res);
+                        }
+                    });
+                } else {
+                    return resp.send(result);
+                }
+            });
+        })(id_date)
     }
 });
 
