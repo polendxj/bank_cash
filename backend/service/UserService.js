@@ -207,6 +207,7 @@ var findCountInManager = function (resp, object, params, callback) {
                     m[manager.id] = result.count;
                     list[manager.id]=result.count;
                     if (count == users.length) {
+                        console.log(list);
                         if (callback) {
                             callback(list);
                         } else {

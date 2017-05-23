@@ -40,6 +40,7 @@ export default class NeedDownloadFlowContainer extends Component {
         this.imageUploadStatus = 0;    //0-未上传，1-正在上传，2-上传成功，3-上传失败
         this.imageUploadPath = "";    //图片上传返回来的路径
         this.selectedManager = "";      //选择的团队负责人
+        this.selectedManagerName = "";
         this.deletingManager = [];
         this.files = [];
         /*event*/
@@ -105,6 +106,7 @@ export default class NeedDownloadFlowContainer extends Component {
             "is_manager": 1
         }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list, function (json) {
             if (json.count > 0) {
+                self.selectedManagerName = json.rows[0].name;
                 self.props.dispatch(getListByMutilpCondition({
                     "page": 0,
                     "pageSize": page_size,
@@ -155,7 +157,7 @@ export default class NeedDownloadFlowContainer extends Component {
                             self.operationStatus = business_operation_status.SUCCESS;
                             self.optPage = business_operation_action.LIST;
                             self.selectedItems.splice(0);
-                            self._changeManager(params.manager_id);
+                            self._changeManager(params.manager_id,params.name);
                             self._getAllManager();
                         } else {
                             self.operationStatus = business_operation_status.ERROR;
@@ -196,8 +198,11 @@ export default class NeedDownloadFlowContainer extends Component {
                 }, DOWNLOAD_FLOW_START, DOWNLOAD_FLOW_END, download_flow, function (json) {
                     self.selectedItems.splice(0);
                     self.operationStatus = business_operation_status.SUCCESS;
-                    self._changeManager(self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id);
+                    var id = self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id;
+                    var name = self.selectedManagerName ? self.selectedManagerName : self.props.userManagerList.data.rows[0].name;
+                    self._changeManager(id,name);
                 }));
+                this.props.dispatch(getListByMutilpCondition({"flow_record_status": 1}, USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END, user_count_of_manager));
                 break;
             case business_operation_action.LIST:
                 this.selectedItems.splice(0);
@@ -209,8 +214,9 @@ export default class NeedDownloadFlowContainer extends Component {
         this.files = this.files.concat(files);
         console.log("paths",this.files);
     }
-    _changeManager(id) {
+    _changeManager(id,name) {
         this.selectedManager = id;
+        this.selectedManagerName = name;
         this.props.dispatch(getListByMutilpCondition({
             "page": 0,
             "pageSize": page_size,
@@ -322,7 +328,7 @@ export default class NeedDownloadFlowContainer extends Component {
                         />
                     </div>
                     <div id="content" className="after-mail-box" style={{top: "75px", padding: "15px 18px 0"}}>
-                        <Operations title="景鹏" smallTitle="团队" operationStatus={this.operationStatus}
+                        <Operations title={this.selectedManagerName} smallTitle="团队" operationStatus={this.operationStatus}
                                     selectedItems={this.selectedItems} _startRefresh={this._startRefresh}
                                     _doAction={this._doAction} addBtnHidden={true} editText="写邮件" deleteText="确认完成"
                                     saveText="发 送" saveIcon="fa-location-arrow" editIcon="fa-envelope-o" deleteIcon="fa-check-square-o" contentTip="完成流水提取任务"/>
@@ -369,9 +375,9 @@ class ManagersList extends Component {
         this._searchManagerByName = this._searchManagerByName.bind(this);
     }
 
-    _changeManager(key, id) {
+    _changeManager(key, id,name) {
         this.selectedItem = key;
-        this.props._changeManager(id);
+        this.props._changeManager(id,name);
         this.props._startRefresh();
     }
 
@@ -437,7 +443,7 @@ class ManagersList extends Component {
                                                style={{marginTop: "-5px", display: "none"}} defaultValue={val.id}
                                                onChange={self.props._changeSelectedManager.bind(self, "managerCheckbox")}/>
                                     </div>
-                                    <div onClick={self._changeManager.bind(self, key, val.id)}
+                                    <div onClick={self._changeManager.bind(self, key, val.id,val.name)}
                                          style={{width: "85%", paddingLeft: "30px"}}>
                                         <h5><a href="#">{val.name}</a></h5>
                                         <time className="timeago" dateTime={val.register_date}
