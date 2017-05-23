@@ -110,7 +110,7 @@ router.post('/user/updateFlowRecordStatus', function (req, resp) {
         var updateParams = {
             task_status:1,
             flow_record_status:0,
-            flow_record_date:new Date()
+            flow_record_date:data.flow_record_date
         };
         BaseService._update(resp, User, updateParams, id, function (result) {
             if (result.result == "SUCCESS") {

@@ -5,7 +5,7 @@ import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {browserHistory} from 'react-router';
-import {ConfirmModal} from '../businessHelper/BusinessUtils';
+import {ConfirmModal,ListModal} from '../businessHelper/BusinessUtils';
 import classnames from "classnames"
 
 export default class Operations extends Component {
@@ -265,6 +265,8 @@ export default class Operations extends Component {
 
                 </div>;
         }
+        console.log(this.props.modalType);
+        var modal = this.props.modalType=="ListModal"?<ListModal  content={this.props.content} _doAction={this._delete} tip={this.props.tip}/>:<ConfirmModal _doAction={this._delete} selectedItems={this.props.selectedItems} contentTip={this.props.contentTip}/>
         return (
             <div className="row">
                 <div>
@@ -276,7 +278,7 @@ export default class Operations extends Component {
 
                     </div>
                 </div>
-                <ConfirmModal _doAction={this._delete} selectedItems={this.props.selectedItems} contentTip={this.props.contentTip}/>
+                {modal}
             </div>
         )
     }

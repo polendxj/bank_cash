@@ -308,7 +308,7 @@ export default class MembershipContainer extends Component {
                 component =
                     <div className="row">
                         <AddUser userManagerList={userManagerList}
-                                 _changeImageUploadStatus={this._changeImageUploadStatus}/>
+                                 _changeImageUploadStatus={this._changeImageUploadStatus} _startRefresh={this._startRefresh}/>
                     </div>;
                 break;
             case business_operation_action.EDIT:
@@ -538,7 +538,8 @@ class MembershipList extends Component {
 class AddUser extends Component {
     constructor(props) {
         super(props);
-
+        this.taskStatusValue = "0";
+        this.changeTaskStatus = this.changeTaskStatus.bind(this);
     }
 
     componentDidMount() {
@@ -642,7 +643,10 @@ class AddUser extends Component {
         $('.selectpicker').selectpicker();
 
     }
-
+    changeTaskStatus(){
+        this.taskStatusValue = $("#task_status").val();
+        this.props._startRefresh();
+    }
     render() {
         const {userManagerList}=this.props;
         return (
@@ -699,7 +703,7 @@ class AddUser extends Component {
                                 <div className="form-group row">
                                     <div className="col-md-6">
                                         <label className="control-label">账号当前状态</label>
-                                        <select className="form-control" name="task_status">
+                                        <select id="task_status" className="form-control" name="task_status" onChange={this.changeTaskStatus}>
                                             <option value={0}>后台选码完毕，等待下轮流水提取</option>
                                             <option value={1}>流水提取完毕，等待后续后台选码</option>
                                         </select>
@@ -709,6 +713,14 @@ class AddUser extends Component {
                                         <input id="bindCard" type="text"
                                                className="form-control daterange-two" name="register_date"
                                                placeholder="会员报单的日期"/>
+                                    </div>
+                                </div>
+                                <div className="form-group row" style={{display:this.taskStatusValue=="0"?"none":""}}>
+                                    <div className="col-md-6">
+                                        <label className="control-label">流水提取完成日期</label>
+                                        <input type="text"
+                                               className="form-control daterange-two" name="flow_record_date"
+                                               placeholder="流水提取完成的日期"/>
                                     </div>
                                 </div>
                                 <div className="form-group row">

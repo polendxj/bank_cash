@@ -10,7 +10,7 @@ import Operations from '../components/Operations'
 // import Search from '../components/Search'
 import Pagenation from '../components/Pagenation'
 import {commonRefresh} from '../actions/Common'
-import {operation_notification, ConfirmModal, renderList, formatDate} from '../businessHelper/BusinessUtils'
+import {operation_notification, ConfirmModal, renderList, formatDate,ListModal} from '../businessHelper/BusinessUtils'
 import {protectInputTooFast, array2Json} from '../frameworkHelper/FrameWorkUtils'
 import {getListByMutilpCondition, deleteObject, getDetail, saveObject} from '../actions/CommonActions'
 import Loading from '../components/Loading'
@@ -61,6 +61,17 @@ export default class NeedDownloadFlowContainer extends Component {
 
     componentDidMount() {
         var self = this;
+        $(".daterange-two").jeDate({
+            format: "YYYY-MM-DD hh:mm:ss", //日期格式
+            minDate: "1900-01-01 00:00:00", //最小日期
+            maxDate: "2099-12-31 23:59:59", //最大日期
+            isinitVal: false, //是否初始化时间
+            isTime: false, //是否开启时间选择
+            isClear: true, //是否显示清空
+            festival: false, //是否显示节日
+            zIndex: 9999,  //弹出层的层级高度
+            marks: null, //给日期做标注
+        });
         /*jQuery Operation*/
         $("#mailbox .opt").find("a").on("click", function () {
             $("#mailbox .opt").find("a").removeClass("active");
@@ -194,7 +205,8 @@ export default class NeedDownloadFlowContainer extends Component {
                 this.operationStatus = business_operation_status.DOING;
                 self.props.dispatch(deleteObject({
                     "ids": self.selectedItems,
-                    "admin_id":1
+                    "admin_id":1,
+                    flow_record_date:$("#flowRecordDate").val()
                 }, DOWNLOAD_FLOW_START, DOWNLOAD_FLOW_END, download_flow, function (json) {
                     self.selectedItems.splice(0);
                     self.operationStatus = business_operation_status.SUCCESS;
@@ -311,6 +323,16 @@ export default class NeedDownloadFlowContainer extends Component {
                 break;
         }
         this.oldComponent = component;
+        var flowRecordDate =  <form>
+                <div className="form-group row">
+                    <div className="col-md-6">
+                        <label className="control-label">邮件发送日期</label>
+                        <input id="flowRecordDate" type="text"
+                               className="form-control daterange-two" name="flow_record_date"
+                               placeholder="邮件发送的日期"/>
+                    </div>
+                </div>
+            </form>;
         return (
             <div>
                 <Search />
@@ -331,7 +353,8 @@ export default class NeedDownloadFlowContainer extends Component {
                         <Operations title={this.selectedManagerName} smallTitle="团队" operationStatus={this.operationStatus}
                                     selectedItems={this.selectedItems} _startRefresh={this._startRefresh}
                                     _doAction={this._doAction} addBtnHidden={true} editText="写邮件" deleteText="确认完成"
-                                    saveText="发 送" saveIcon="fa-location-arrow" editIcon="fa-envelope-o" deleteIcon="fa-check-square-o" contentTip="完成流水提取任务"/>
+                                    saveText="发 送" saveIcon="fa-location-arrow" editIcon="fa-envelope-o" deleteIcon="fa-check-square-o"
+                                    modalType="ListModal" doAction="" content={flowRecordDate} tip="发送邮件时间"/>
                         <div className="row" style={{
                             display: this.optPage == (business_operation_action.LIST || business_operation_action.SEARCH) ? "block" : "none"
                         }}>
