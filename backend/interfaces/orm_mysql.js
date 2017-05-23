@@ -4,7 +4,8 @@
 var Sequelize = require('sequelize');
 
 var sequelize = new Sequelize(database, username, password, {
-    host: host,
-    dialect: dialect
+    host : host,
+    dialect : dialect,
+    timezone : '+08:00'
 });
 module.exports = sequelize;
