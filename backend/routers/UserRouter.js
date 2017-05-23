@@ -52,7 +52,6 @@ router.post('/user/register', function (req, resp) {
 router.post('/user/update/:id', function (req, resp) {
     var id = req.params.id;
     var data = frameworkUtils.JSONStrToObj(req.body);
-    console.log(req.params);
     if (data.is_manager == 1) {
         data.manager_id = id;
     }
@@ -66,7 +65,6 @@ router.post('/user/updateRenewFeeStatus', function (req, resp) {
     var admin_id = data.admin_id;
     var count = 0;
     for(var id_date of ids){
-        console.log(id_date);
         var id = id_date.split("_")[0];
         var plan_renew_fee_date = id_date.split("_")[1];
         var updateParams = {
@@ -104,7 +102,6 @@ router.post('/user/updateFlowRecordStatus', function (req, resp) {
     var admin_id = data.admin_id;
     var count = 0;
     for(var id_date of ids){
-        console.log(id_date);
         var id = id_date.split("_")[0];
         var plan_flow_record_date = id_date.split("_")[1];
         var updateParams = {
@@ -143,7 +140,6 @@ router.post('/user/updateCodeSelectStatus', function (req, resp) {
     var admin_id = data.admin_id;
     var count = 0;
     for(var id_date of ids) {
-        console.log(id_date);
         var id = id_date.split("_")[0];
         var plan_code_select_date = id_date.split("_")[1];
         var updateParams = {
