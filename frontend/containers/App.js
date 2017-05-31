@@ -3,23 +3,27 @@ import {connect} from 'react-redux'
 import {bindActionCreators} from 'redux'
 import {browserHistory} from 'react-router'
 import {EncodeBase64, deleteCookie, routeTo} from '../frameworkHelper/FrameWorkUtils'
-
+import {getListByMutilpCondition} from '../actions/CommonActions'
+import {
+    TASK_USER_START, TASK_USER_END
+} from '../constants/index'
 
 class App extends Component {
     constructor(props) {
         super(props);
     }
-
     componentDidMount() {
         setTimeout(function () {
             $("body").children("div").first().removeClass("mm-page");
         }, 1);
+        this.props.dispatch(getListByMutilpCondition({}, TASK_USER_START, TASK_USER_END, task_user));
     }
 
 
     render() {
+        const {taskUsers} = this.props;
         return (
-            <FrameWork children={this.props.children} _startRefresh={this._startRefresh}/>
+            <FrameWork children={this.props.children} _startRefresh={this._startRefresh} taskUsers={taskUsers}/>
         )
     }
 }
@@ -30,7 +34,7 @@ class FrameWork extends Component {
             <div>
                 <LeftMenu />
                 <div id="wrapper" className="mm-page">
-                    <TopMenu />
+                    <TopMenu taskUsers={this.props.taskUsers}/>
                     {this.props.children}
                     <Footer />
                 </div>
@@ -392,8 +396,13 @@ class TopMenu extends Component {
     locationTo(path) {
         routeTo(path);
     }
-
     render() {
+        const {taskUsers} = this.props;
+        console.log("2341",taskUsers);
+        var totalTask = "- -";
+        if(taskUsers&&taskUsers.result=="SUCCESS"){
+            totalTask = taskUsers.flowRecordUser + taskUsers.codeSelectUser + taskUsers.renewFeeUser;
+        }
         return (
             <div>
                 <div id="header" style={{borderBottom: "5px #0aa699 solid"}}>
@@ -416,17 +425,20 @@ class TopMenu extends Component {
                             <li className="dropdown">
                                 <a href="#" className="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown">待处理任务数
                                     ： <span className="badge bg-danger"
-                                            style={{position: "relative", top: "-2px"}}>41</span></a>
+                                            style={{position: "relative", top: "-2px"}}>{totalTask}</span></a>
                                 <ul className="dropdown-menu arrow animated fadeInDown fast" style={{fontSize: "12px"}}>
-                                    <li><a href="#"> 流水提取任务 <span className="badge bg-info pull-right" style={{
+                                    <li onClick={this.locationTo.bind(this, "/flowWarning")}><a href="#"> 流水提取任务 <span className="badge bg-info pull-right" style={{
                                         position: "relative",
                                         marginTop: "3px"
-                                    }}>12</span></a></li>
-                                    <li><a href="#"> 后台选码任务 </a></li>
-                                    <li><a href="#"> 会员续费任务 <span className="badge bg-info pull-right" style={{
+                                    }}>{taskUsers&&taskUsers.result=="SUCCESS"?taskUsers.flowRecordUser:"- -"}</span></a></li>
+                                    <li onClick={this.locationTo.bind(this, "/codeSelect")}><a href="#"> 后台选码任务 <span className="badge bg-info pull-right" style={{
                                         position: "relative",
                                         marginTop: "3px"
-                                    }}>29</span></a></li>
+                                    }}>{taskUsers&&taskUsers.result=="SUCCESS"?taskUsers.codeSelectUser:"- -"}</span></a></li>
+                                    <li onClick={this.locationTo.bind(this, "/renewFee")}><a href="#"> 会员续费任务 <span className="badge bg-info pull-right" style={{
+                                        position: "relative",
+                                        marginTop: "3px"
+                                    }}>{taskUsers&&taskUsers.result=="SUCCESS"?taskUsers.renewFeeUser:"- -"}</span></a></li>
                                 </ul>
                             </li>
                             <li className="h-seperate"></li>
@@ -650,8 +662,10 @@ class Footer extends Component {
 }
 
 function mapStateToProps(state) {
-    const {}=state
-    return {}
+    const {getTaskUsers,commonReducer}=state;
+    return {
+        taskUsers: getTaskUsers.data
+    }
 }
 
 export default connect(mapStateToProps)(App)

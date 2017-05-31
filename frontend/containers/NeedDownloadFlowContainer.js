@@ -304,8 +304,9 @@ export default class NeedDownloadFlowContainer extends Component {
                                     page={this.page}
                                     _changePage={this._changePage} _prePage={this._prePage}
                                     _nextPage={this._nextPage}/>
-                        <MembershipList userListByManager={userListByManager}
-                                        _changeSelectedItems={this._changeSelectedItems}/>
+                        <MembershipList userListByManager={userListByManager} userManagerList={userManagerList}
+                                        _changeSelectedItems={this._changeSelectedItems} _startRefresh={this._startRefresh}
+                                        _changeImageUploadStatus={this._changeImageUploadStatus} getFilePaths={this.getFilePaths}/>
                     </div>;
                 break;
             case business_operation_action.ADD:
@@ -493,13 +494,29 @@ class ManagersList extends Component {
 }
 
 class MembershipList extends Component {
-    componentDidMount() {
-
+    constructor(props) {
+        super(props);
+        this.detailData = [];
+        this._showEmailModal = this._showEmailModal.bind(this);
     }
-
+    componentDidMount() {
+        // $('#email_modal').on('shown', function () {
+        //     $('#email_modal').find(".modal-body").css({overflow:"hidden"})
+        // })
+    }
+    _showEmailModal(val){
+        this.detailData[0] = val;
+        this.props._startRefresh();
+    }
     render() {
-        const {userListByManager, _changeSelectedItems}=this.props;
+        const {userListByManager,userManagerList, _changeSelectedItems}=this.props;
         var self = this;
+        var width = window.screen.width;
+        var height = window.screen.height-57-74-110;
+        var style = {top:0,marginTop:0};
+        var bodyStyle = {overflow:"hidden"};
+        var content = <SendEmail userManagerList={userManagerList} userDetail={this.detailData}
+                                 _changeImageUploadStatus={this.props._changeImageUploadStatus} getFilePaths={this.props.getFilePaths}/>;
         return (
             <section className="panel" style={{marginBottom: "-1px", minHeight: "600px"}}>
                 <div className="panel-body" style={{padding: "1px"}}>
@@ -513,6 +530,7 @@ class MembershipList extends Component {
                             <th>邮箱</th>
                             <th>邮箱密码</th>
                             <th>绑卡日期</th>
+                            <th>操作</th>
                         </tr>
                         </thead>
                         <tbody className="text-center">
@@ -527,14 +545,21 @@ class MembershipList extends Component {
                                     <td>{val.email}</td>
                                     <td>{val.email_password}</td>
                                     <td>{formatDate(val.bind_card_date, "yyyy-mm-dd")}</td>
-
+                                    <td>
+                                        <button onClick={self._showEmailModal.bind(self,val)} type="button" className="btn btn-theme-inverse btn-sm"
+                                                style={{marginRight: "5px"}} data-toggle="modal"
+                                                data-target="#email_modal"
+                                        >
+                                            <i className={"fa fa-envelope-o"}></i> {"写邮件"}
+                                        </button>
+                                    </td>
                                 </tr>
                             });
                         })}
-
                         </tbody>
                     </table>
                 </div>
+                <ListModal id="email_modal" content={content} tip="新邮件" _doAction={""} width={width} height={height} style={style} bodyStyle={bodyStyle}/>
             </section>
         )
     }
@@ -854,6 +879,7 @@ class SendEmail extends Component {
 
     render() {
         const {userManagerList, userDetail}=this.props;
+        console.log("11111",userManagerList);
         const imgPath = "http://localhost:80/img/ueditor/866647032289431552.JPG";
         var img = "";
         if(imgPath){

@@ -28,6 +28,7 @@ router.post('/users', function (req, resp) {
 
 router.post('/user/register', function (req, resp) {
     var data = frameworkUtils.JSONStrToObj(req.body);
+    console.log("11",data);
     var id = frameworkUtils.GenerateUUID();
     data.id = id;
     data.delete_status = 1;
@@ -38,6 +39,7 @@ router.post('/user/register', function (req, resp) {
     data.renew_fee_status = 0;
     data.flow_record_status = 0;
     data.code_select_status = 0;
+    console.log("22",data);
     BaseService._register(resp, User, data,function (result) {
         if(result.result == "SUCCESS"){
             UserService.renewFeeStatus(User);

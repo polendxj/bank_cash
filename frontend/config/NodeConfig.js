@@ -40,6 +40,11 @@ var send_email = "/user/sendEmail";
 var download_flow = "/user/updateFlowRecordStatus";
 var renew_fee = "/user/updateRenewFeeStatus";
 var code_select = "/user/updateCodeSelectStatus";
+var bind_card_user = "/statistic/getBindCardUsers";
+var task_user = "/statistic/getTaskUsers";
+var task_history = "/statistic/getTaskHistory";
+var system_operation = "/statistic/getOperations";
+var new_ten = "/statistic/newTenRecords";
 
 
 

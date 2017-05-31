@@ -20,9 +20,9 @@ var _findAndCountAll = function(resp,object,params,callback){
         }
     }).catch(function (err) {
         if(callback){
-            callback({result:"SUCCESS",message:err.message});
+            callback({result:"FAILURE",message:err.message});
         }else {
-            resp.send({result:"SUCCESS",message:err.message});
+            resp.send({result:"FAILURE",message:err.message});
         }
     });
 };

@@ -265,7 +265,6 @@ export default class Operations extends Component {
 
                 </div>;
         }
-        console.log(this.props.modalType);
         var modal = this.props.modalType=="ListModal"?<ListModal  content={this.props.content} _doAction={this._delete} tip={this.props.tip}/>:<ConfirmModal _doAction={this._delete} selectedItems={this.props.selectedItems} contentTip={this.props.contentTip}/>
         return (
             <div className="row">

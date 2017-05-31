@@ -47,6 +47,7 @@ var User = require("./backend/models/User");
 var AdminRouter = require('./backend/routers/AdminRouter');
 var UserRouter = require('./backend/routers/UserRouter');
 var CurrentTaskRouter = require('./backend/routers/CurrentTaskRouter');
+var StatisticRouter = require('./backend/routers/StatisticRouter');
 var UserService = require("./backend/service/UserService");
 
 var app = express();
@@ -57,6 +58,7 @@ app.use(cookieParser());
 app.use(AdminRouter)
 app.use(UserRouter)
 app.use(CurrentTaskRouter)
+app.use(StatisticRouter)
 app.use(express.static(path.join(__dirname, 'build')));
 app.set('port', require('./config/config').node_port);
 // app.get('*', function (request, response, next) {

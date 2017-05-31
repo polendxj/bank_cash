@@ -53,29 +53,17 @@ export class ListModal extends Component {
     }
 
     render() {
-        const {selectedItems}=this.props;
-        var text = [];
-        if (selectedItems) {
-            if (selectedItems.length > 6) {
-                text = "所选择的 " + selectedItems.length + " 项条目吗？";
-            } else {
-                selectedItems.forEach(function (val, key) {
-                    text.push(<span key={key} className="label label-info"
-                                    style={{marginRight: "5px", position: "relative", top: "-2px"}}>{val.value}</span>);
-                });
-            }
-        }
-
+        const {tip,content,width,height,style,bodyStyle}=this.props;
         return (
-            <div id={this.props.id ? this.props.id : "confirm_modal"} className="modal fade" tabIndex="-1"
-                 data-width="600">
+            <div id={this.props.id ? this.props.id : "confirm_modal"} className="modal fade" tabIndex="-1" style={style}
+                 data-width={width?width:"600"} data-height={height}>
                 <div className="modal-header">
                     <button type="button" className="close" data-dismiss="modal" aria-hidden="true"><i
                         className="fa fa-times"></i></button>
-                    <h3>{this.props.tip}</h3>
+                    <h3>{tip}</h3>
                 </div>
-                <div className="modal-body">
-                    {this.props.content}
+                <div className="modal-body" style={bodyStyle}>
+                    {content}
                 </div>
                 <div className="modal-footer">
                     <button type="button" data-dismiss="modal" className="btn btn-inverse">取 消</button>
@@ -156,14 +144,26 @@ export class ConfirmModal extends Component {
  * @exception
  * */
 export function renderList(reducer, callback) {
-    if (reducer.fetching) {
-        return <Loading />;
-    } else {
-        if (reducer.data && reducer.data.count > 0) {
-            return callback(reducer.data.rows);
-        } else {
-            return <NoData />;
+    if(reducer){
+        if(reducer.length){
+            if(reducer.length>0){
+                return callback(reducer);
+            }else{
+                return <NoData />;
+            }
+        }else{
+            if (reducer.fetching) {
+                return <Loading />;
+            } else {
+                if (reducer.data && reducer.data.count > 0) {
+                    return callback(reducer.data.rows);
+                } else {
+                    return <NoData />;
+                }
+            }
         }
+    }else {
+        return <NoData />;
     }
 }
 
@@ -184,8 +184,30 @@ export function formatDate(time, type) {
         case "yyyy-mm-dd":
             result = t.getFullYear() + "-" + (t.getMonth() + 1) + "-" + t.getDate();
             break;
+        case "yyyy-mm-dd hh:MM:ss":
+            result = t.getFullYear() + "-" + (t.getMonth() + 1) + "-" + t.getDate()+" "+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds();
+            break;
         default:
             result = type;
+            break;
+    }
+    return result;
+}
+
+export function historyStatus(type) {
+    var result = "";
+    switch (type) {
+        case 1:
+            result = "流水提取";
+            break;
+        case 2:
+            result = "后台选码";
+            break;
+        case 3:
+            result = "续费";
+            break;
+        default:
+            result = "未知";
             break;
     }
     return result;

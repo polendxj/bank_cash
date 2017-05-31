@@ -9,10 +9,12 @@ import {
     userCountOfManagerReducer,
     sendEmailReducer
 } from '../reducers/UsersReducer';
+import {getBindCardUsers,getOperations,getTaskUsers,getTaskHistory,getNewTenTask} from '../reducers/StatisticReducer'
 
 const rootReducer = combineReducers({
     commonReducer,
     userManagerListReducer, userListByManagerReducer, userDetailReducer, userCountOfManagerReducer,sendEmailReducer,
+    getBindCardUsers,getOperations,getTaskUsers,getTaskHistory,getNewTenTask,
     form: reduxFormReducer,
     routing: routerReducer
 });
