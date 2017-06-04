@@ -129,7 +129,7 @@ var renewFeeStatus = function (object) {
     }).catch(function (err) {
         console.log(err.message);
     });
-}
+};
 var taskStatus = function (object) {
     object.findAll({
         where: {delete_status: 1}

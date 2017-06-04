@@ -22,7 +22,8 @@ import {
     USER_SAVE_END, USER_SAVE_START,
     USER_MANAGER_LIST_END, USER_MANAGER_LIST_START,
     USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END,
-    RENEW_FEE_START,RENEW_FEE_END
+    RENEW_FEE_START,RENEW_FEE_END,
+    TASK_USER_START, TASK_USER_END
 } from '../constants/index'
 
 
@@ -231,6 +232,7 @@ export default class NeedRenewFeeContainer extends Component {
                     var id = self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id;
                     var name = self.selectedManagerName ? self.selectedManagerName : self.props.userManagerList.data.rows[0].name;
                     self._changeManager(id,name);
+                    self.props.dispatch(getListByMutilpCondition({}, TASK_USER_START, TASK_USER_END, task_user));
                 }));
                 this.props.dispatch(getListByMutilpCondition({"renew_fee_status": 1}, USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END, user_count_of_manager));
                 break;
@@ -311,7 +313,7 @@ export default class NeedRenewFeeContainer extends Component {
             case business_operation_action.LIST:
                 component =
                     <div className="row">
-                        <Pagenation counts={10}
+                        <Pagenation counts={userListByManager.data ? userListByManager.data.count : 0}
                                     page={this.page}
                                     _changePage={this._changePage} _prePage={this._prePage}
                                     _nextPage={this._nextPage}/>
@@ -357,7 +359,7 @@ export default class NeedRenewFeeContainer extends Component {
                     <div id="content" className="after-mail-box" style={{top: "75px", padding: "15px 18px 0"}}>
                         <Operations title={this.selectedManagerName} smallTitle="团队" operationStatus={this.operationStatus}
                                     selectedItems={this.selectedItems} _startRefresh={this._startRefresh}
-                                    _doAction={this._doAction} deleteText="确认完成" contentTip="完成续费"/>
+                                    _doAction={this._doAction} addBtnHidden={true} editBtnHidden={true} deleteText="确认完成" contentTip="完成续费"/>
                         <div className="row" style={{
                             display: this.optPage == (business_operation_action.LIST || business_operation_action.SEARCH) ? "block" : "none"
                         }}>

@@ -23,7 +23,8 @@ import {
     USER_MANAGER_LIST_END, USER_MANAGER_LIST_START,
     USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END,
     SEND_EMAIL_START,SEND_EMAIL_END,
-    DOWNLOAD_FLOW_START,DOWNLOAD_FLOW_END
+    DOWNLOAD_FLOW_START,DOWNLOAD_FLOW_END,
+    TASK_USER_START,TASK_USER_END
 } from '../constants/index'
 import RichText from "./RichText"
 
@@ -170,6 +171,7 @@ export default class NeedDownloadFlowContainer extends Component {
                             self.selectedItems.splice(0);
                             self._changeManager(params.manager_id,params.name);
                             self._getAllManager();
+                            self.props.dispatch(getListByMutilpCondition({}, TASK_USER_START, TASK_USER_END, task_user));
                         } else {
                             self.operationStatus = business_operation_status.ERROR;
                             self._startRefresh();
@@ -214,6 +216,7 @@ export default class NeedDownloadFlowContainer extends Component {
                         var id = self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id;
                         var name = self.selectedManagerName ? self.selectedManagerName : self.props.userManagerList.data.rows[0].name;
                         self._changeManager(id,name);
+                        self.props.dispatch(getListByMutilpCondition({}, TASK_USER_START, TASK_USER_END, task_user));
                     }));
                     this.props.dispatch(getListByMutilpCondition({"flow_record_status": 1}, USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END, user_count_of_manager));
                 }else{
@@ -300,7 +303,7 @@ export default class NeedDownloadFlowContainer extends Component {
             case business_operation_action.LIST:
                 component =
                     <div className="row">
-                        <Pagenation counts={10}
+                        <Pagenation counts={userListByManager.data ? userListByManager.data.count : 0}
                                     page={this.page}
                                     _changePage={this._changePage} _prePage={this._prePage}
                                     _nextPage={this._nextPage}/>
@@ -515,8 +518,8 @@ class MembershipList extends Component {
         var height = window.screen.height-57-74-110;
         var style = {top:0,marginTop:0};
         var bodyStyle = {overflow:"hidden"};
-        var content = <SendEmail userManagerList={userManagerList} userDetail={this.detailData}
-                                 _changeImageUploadStatus={this.props._changeImageUploadStatus} getFilePaths={this.props.getFilePaths}/>;
+        // var content = <SendEmail userManagerList={userManagerList} userDetail={this.detailData}
+        //                          _changeImageUploadStatus={this.props._changeImageUploadStatus} getFilePaths={this.props.getFilePaths}/>;
         return (
             <section className="panel" style={{marginBottom: "-1px", minHeight: "600px"}}>
                 <div className="panel-body" style={{padding: "1px"}}>
@@ -559,7 +562,7 @@ class MembershipList extends Component {
                         </tbody>
                     </table>
                 </div>
-                <ListModal id="email_modal" content={content} tip="新邮件" _doAction={""} width={width} height={height} style={style} bodyStyle={bodyStyle}/>
+               {/* <ListModal id="email_modal" content={content} tip="新邮件" _doAction={""} width={width} height={height} style={style} bodyStyle={bodyStyle}/>*/}
             </section>
         )
     }

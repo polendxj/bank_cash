@@ -109,16 +109,24 @@ export default class HomeContainer extends Component {
             });
         }
         if(this.props.systemOperations&&this.props.systemOperations.result=="SUCCESS"){
-
+            $('.easy-chart').each(function () {
+                var thisEasy=$(this) , $data = $(this).data();
+                $data.barColor = $.fillColor( thisEasy ) || "#6CC3A0";
+                $data.size = $data.size || 119;
+                $data.trackColor = $data.trackColor  || "#EEE";
+                $data.lineCap = $data.lineCap  || "butt";
+                $data.lineWidth = $data.lineWidth  || 20;
+                $data.scaleColor = $data.scaleColor || false,
+                    $data.onStep = function(from, to, percent) {
+                        $(this.el).find('.percent').text(Math.round(percent));
+                    }
+                thisEasy.find('.percent').css({"line-height": $data.size+"px"});
+                thisEasy.easyPieChart($data);
+            });
         }
     }
     render() {
         const {bindCardUsers,taskUsers, taskHistory, systemOperations, newTenTask} = this.props;
-        console.log("bindCardUsers",bindCardUsers);
-        console.log("taskUsers",taskUsers);
-        console.log("taskHistory",taskHistory);
-        console.log("systemOperations",systemOperations);
-        console.log("newTenTask",newTenTask);
         var bindRate = 0;
         var delayOperationRate = 0;
         if(bindCardUsers&&bindCardUsers.result=="SUCCESS"){
