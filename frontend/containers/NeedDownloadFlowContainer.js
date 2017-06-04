@@ -115,7 +115,8 @@ export default class NeedDownloadFlowContainer extends Component {
         this.props.dispatch(getListByMutilpCondition({
             "page": 0,
             "pageSize": page_size,
-            "is_manager": 1
+            "is_manager": 1,
+            "taskType": "flow_record_status"
         }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list, function (json) {
             if (json.count > 0) {
                 self.selectedManagerName = json.rows[0].name;
@@ -245,20 +246,43 @@ export default class NeedDownloadFlowContainer extends Component {
     }
 
     _searchManagerByName(name) {
+        var self = this;
         this.props.dispatch(getListByMutilpCondition({
             "page": 0,
             "pageSize": page_size,
             "is_manager": 1,
             "name": name
-        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list));
+        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list,function (json) {
+            if (json.count > 0) {
+                self.selectedManagerName = json.rows[0].name;
+                self.props.dispatch(getListByMutilpCondition({
+                    "page": 0,
+                    "pageSize": page_size,
+                    "manager_id": json.rows[0].id,
+                    "flow_record_status": 1
+                }, USER_LIST_START, USER_LIST_END, user_list));
+            }
+        }));
     }
 
     _getAllManager() {
+        var self = this;
         this.props.dispatch(getListByMutilpCondition({
             "page": 0,
             "pageSize": page_size,
-            "is_manager": 1
-        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list));
+            "is_manager": 1,
+            "taskType": "flow_record_status"
+        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list,function (json) {
+            if (json.count > 0) {
+                self.selectedManagerName = json.rows[0].name;
+                self.props.dispatch(getListByMutilpCondition({
+                    "page": 0,
+                    "pageSize": page_size,
+                    "manager_id": json.rows[0].id,
+                    "flow_record_status": 1
+                }, USER_LIST_START, USER_LIST_END, user_list));
+            }
+        }));
     }
 
     _changeImageUploadStatus(status, path) {

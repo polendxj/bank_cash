@@ -100,7 +100,8 @@ export default class NeedCodeSelectContainer extends Component {
         this.props.dispatch(getListByMutilpCondition({
             "page": 0,
             "pageSize": page_size,
-            "is_manager": 1
+            "is_manager": 1,
+            "taskType": "code_select_status"
         }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list, function (json) {
             if (json.count > 0) {
                 self.selectedManagerName = json.rows[0].name;
@@ -232,6 +233,7 @@ export default class NeedCodeSelectContainer extends Component {
                     var id = self.selectedManager ? self.selectedManager : self.props.userManagerList.data.rows[0].id;
                     var name = self.selectedManagerName ? self.selectedManagerName : self.props.userManagerList.data.rows[0].name;
                     self._changeManager(id,name);
+                    self._getAllManager();
                     self.props.dispatch(getListByMutilpCondition({}, TASK_USER_START, TASK_USER_END, task_user));
                 }));
                 this.props.dispatch(getListByMutilpCondition({"code_select_status": 1}, USER_COUNT_OF_MANAGER_START, USER_COUNT_OF_MANAGER_END, user_count_of_manager));
@@ -255,20 +257,43 @@ export default class NeedCodeSelectContainer extends Component {
     }
 
     _searchManagerByName(name) {
+        var self = this;
         this.props.dispatch(getListByMutilpCondition({
             "page": 0,
             "pageSize": page_size,
             "is_manager": 1,
             "name": name
-        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list));
+        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list,function (json) {
+            if (json.count > 0) {
+                self.selectedManagerName = json.rows[0].name;
+                self.props.dispatch(getListByMutilpCondition({
+                    "page": 0,
+                    "pageSize": page_size,
+                    "manager_id": json.rows[0].id,
+                    "code_select_status": 1
+                }, USER_LIST_START, USER_LIST_END, user_list));
+            }
+        }));
     }
 
     _getAllManager() {
+        var self = this;
         this.props.dispatch(getListByMutilpCondition({
             "page": 0,
             "pageSize": page_size,
-            "is_manager": 1
-        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list));
+            "is_manager": 1,
+            "taskType": "code_select_status"
+        }, USER_MANAGER_LIST_START, USER_MANAGER_LIST_END, user_list,function (json) {
+            if (json.count > 0) {
+                self.selectedManagerName = json.rows[0].name;
+                self.props.dispatch(getListByMutilpCondition({
+                    "page": 0,
+                    "pageSize": page_size,
+                    "manager_id": json.rows[0].id,
+                    "code_select_status": 1
+                }, USER_LIST_START, USER_LIST_END, user_list));
+            }
+        }));
     }
 
     _changeImageUploadStatus(status, path) {

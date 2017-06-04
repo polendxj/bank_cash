@@ -427,15 +427,15 @@ class TopMenu extends Component {
                                     ： <span className="badge bg-danger"
                                             style={{position: "relative", top: "-2px"}}>{totalTask}</span></a>
                                 <ul className="dropdown-menu arrow animated fadeInDown fast" style={{fontSize: "12px"}}>
-                                    <li onClick={this.locationTo.bind(this, "/flowWarning")}><a href="#"> 流水提取任务 <span className="badge bg-info pull-right" style={{
+                                    <li onClick={taskUsers&&taskUsers.result=="SUCCESS"&&taskUsers.flowRecordUser > 0 ? this.locationTo.bind(this, "/flowWarning"):""}><a href="#"> 流水提取任务 <span className="badge bg-info pull-right" style={{
                                         position: "relative",
                                         marginTop: "3px"
                                     }}>{taskUsers&&taskUsers.result=="SUCCESS"?taskUsers.flowRecordUser:"- -"}</span></a></li>
-                                    <li onClick={this.locationTo.bind(this, "/codeSelect")}><a href="#"> 后台选码任务 <span className="badge bg-info pull-right" style={{
+                                    <li onClick={taskUsers&&taskUsers.result=="SUCCESS"&&taskUsers.codeSelectUser > 0 ? this.locationTo.bind(this, "/codeSelect"):""}><a href="#"> 后台选码任务 <span className="badge bg-info pull-right" style={{
                                         position: "relative",
                                         marginTop: "3px"
                                     }}>{taskUsers&&taskUsers.result=="SUCCESS"?taskUsers.codeSelectUser:"- -"}</span></a></li>
-                                    <li onClick={this.locationTo.bind(this, "/renewFee")}><a href="#"> 会员续费任务 <span className="badge bg-info pull-right" style={{
+                                    <li onClick={taskUsers&&taskUsers.result=="SUCCESS"&&taskUsers.renewFeeUser > 0 ? this.locationTo.bind(this, "/renewFee"):""}><a href="#"> 会员续费任务 <span className="badge bg-info pull-right" style={{
                                         position: "relative",
                                         marginTop: "3px"
                                     }}>{taskUsers&&taskUsers.result=="SUCCESS"?taskUsers.renewFeeUser:"- -"}</span></a></li>

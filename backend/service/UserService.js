@@ -34,37 +34,116 @@ var _findAndCountAll = function (resp, object, params, callback) {
         name = "";
     }
     params = frameworkUtils.deleteNullKey(params);
-    console.log(params);
-    object.findAndCountAll({
-        where: {
-            '$and': [
-                params,
-                {
-                    name: {
-                        '$like': '%' + name + '%'
+    if(params.is_manager){
+        var countParams = {};
+        if(params.taskType){
+            countParams[params.taskType] = 1;
+            countParams.page = 0;
+            countParams.pageSize = 1000;
+            delete params.taskType;
+            findCountInManager(resp, object, countParams, function (result) {
+                var ids = [];
+                for(var manager_id in result){
+                    ids.push(manager_id);
+                }
+                object.findAndCountAll({
+                    where: {
+                        '$and': [
+                            params,
+                            {
+                                id:{
+                                    '$in': ids
+                                },
+                                name: {
+                                    '$like': '%' + name + '%'
+                                }
+                            },
+                            {delete_status: 1}
+                        ]
+                    },
+                    offset: page * pageSize,
+                    limit: pageSize,
+                    order: [
+                        [sortParam, sortType]
+                    ]
+                }).then(function (result) {
+                    if (callback) {
+                        callback(result);
+                    } else {
+                        resp.send(result);
                     }
+                }).catch(function (err) {
+                    if (callback) {
+                        callback({result: "FAILURE", message: err.message});
+                    } else {
+                        resp.send({result: "FAILURE", message: err.message});
+                    }
+                });
+            })
+        }else{
+            object.findAndCountAll({
+                where: {
+                    '$and': [
+                        params,
+                        {
+                            name: {
+                                '$like': '%' + name + '%'
+                            }
+                        },
+                        {delete_status: 1}
+                    ]
                 },
-                {delete_status: 1}
+                offset: page * pageSize,
+                limit: pageSize,
+                order: [
+                    [sortParam, sortType]
+                ]
+            }).then(function (result) {
+                if (callback) {
+                    callback(result);
+                } else {
+                    resp.send(result);
+                }
+            }).catch(function (err) {
+                if (callback) {
+                    callback({result: "FAILURE", message: err.message});
+                } else {
+                    resp.send({result: "FAILURE", message: err.message});
+                }
+            });
+        }
+    }else{
+        object.findAndCountAll({
+            where: {
+                '$and': [
+                    params,
+                    {
+                        name: {
+                            '$like': '%' + name + '%'
+                        }
+                    },
+                    {delete_status: 1}
+                ]
+            },
+            offset: page * pageSize,
+            limit: pageSize,
+            order: [
+                [sortParam, sortType]
             ]
-        },
-        offset: page * pageSize,
-        limit: pageSize,
-        order: [
-            [sortParam, sortType]
-        ]
-    }).then(function (result) {
-        if (callback) {
-            callback(result);
-        } else {
-            resp.send(result);
-        }
-    }).catch(function (err) {
-        if (callback) {
-            callback({result: "FAILURE", message: err.message});
-        } else {
-            resp.send({result: "FAILURE", message: err.message});
-        }
-    });
+        }).then(function (result) {
+            if (callback) {
+                callback(result);
+            } else {
+                resp.send(result);
+            }
+        }).catch(function (err) {
+            if (callback) {
+                callback({result: "FAILURE", message: err.message});
+            } else {
+                resp.send({result: "FAILURE", message: err.message});
+            }
+        });
+    }
 };
 var _deleteByManagerIds = function (resp, object, managerIds, params, callback) {
     object.update(params, {
@@ -190,7 +269,6 @@ var findCountInManager = function (resp, object, params, callback) {
         for (var user of users) {
             (function (u) {
                 var manager = u.dataValues;
-                var m = {};
                 object.findAndCountAll({
                     where: {
                         '$and': [
@@ -208,8 +286,9 @@ var findCountInManager = function (resp, object, params, callback) {
                     limit: pageSize
                 }).then(function (result) {
                     count++;
-                    m[manager.id] = result.count;
-                    list[manager.id]=result.count;
+                    if(result.count > 0){
+                        list[manager.id]=result.count;
+                    }
                     if (count == users.length) {
                         console.log(list);
                         if (callback) {
