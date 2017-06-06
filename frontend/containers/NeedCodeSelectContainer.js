@@ -499,8 +499,8 @@ class ManagersList extends Component {
                                     <div onClick={self._changeManager.bind(self, key, val.id,val.name)}
                                          style={{width: "85%", paddingLeft: "30px"}}>
                                         <h5><a href="#">{val.name}</a></h5>
-                                        <time className="timeago" dateTime={val.register_date}
-                                              title={val.register_date}>
+                                        <time className="timeago" dateTime={formatDate(val.register_date, "yyyy-mm-dd")}
+                                              title={formatDate(val.register_date, "yyyy-mm-dd")}>
                                             {"报单时间 : " + formatDate(val.register_date, "yyyy-mm-dd")}
                                             - {"待选码人数 : " + (userCountOfManager.data && userCountOfManager.data[val.id] ? userCountOfManager.data[val.id] : 0)}
                                         </time>
