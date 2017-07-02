@@ -46,9 +46,12 @@ export class ListModal extends Component {
         super(props);
         this._doAction = this._doAction.bind(this);
     }
-
     _doAction() {
-        this.props._doAction();
+        if(this.props.sendEmail){
+            this.props._doAction(business_operation_action.SAVE);
+        }else{
+            this.props._doAction();
+        }
         $("#" + (this.props.id ? this.props.id : "confirm_modal")).modal("hide");
     }
 

@@ -284,3 +284,35 @@ function intValue(num) {
     }
     return num;
 }
+
+/*
+ * @author    Zaki
+ * @see       判断两个对象是否相等
+ * @param     fun
+ *            输入后执行的函数
+ * @return
+ * @exception
+ * */
+export function isObjectValueEqual(a, b) {
+    if(typeof a == 'number' && typeof b == 'number'){
+        return a == b
+    }
+    var aProps = Object.getOwnPropertyNames(a);
+    var bProps = Object.getOwnPropertyNames(b);
+
+    if (aProps.length != bProps.length) {
+        return false;
+    }
+    for (var i = 0; i < aProps.length; i++) {
+        var propName = aProps[i];
+        if (Object.prototype.toString.call(a[propName]) == '[object Object]' || Object.prototype.toString.call(b[propName]) == '[object Object]') {
+            var flag = isObjectValueEqual(a[propName],b[propName]);
+            if (!flag) {
+                return flag;
+            }
+        } else if (a[propName] !== b[propName]) {
+            return false;
+        }
+    }
+    return true;
+}

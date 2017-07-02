@@ -163,7 +163,7 @@ export default class NeedDownloadFlowContainer extends Component {
                     params.plan_deal_date = self.props.userDetail.data.rows[0].plan_flow_record_date;
                     params.from_email = self.props.userDetail.data.rows[0].email;
                     params.email_password = self.props.userDetail.data.rows[0].email_password;
-                    params.content = UE.getEditor("content").getContent();
+                    params.content = UE.getEditor("richTextContent").getContent();
                     params.files = this.files;
                     this.props.dispatch(saveObject(params, SEND_EMAIL_START, SEND_EMAIL_END, send_email, function (json) {
                         if (json.result == 'SUCCESS') {
@@ -319,8 +319,17 @@ export default class NeedDownloadFlowContainer extends Component {
         }));
     }
 
+    _showEmailModal(id){
+        this.props.dispatch(getListByMutilpCondition({
+            "page": 0,
+            "pageSize": page_size,
+            "id": id
+        }, USER_DETAIL_START, USER_DETAIL_END, user_list));
+    }
+
     render() {
         const {userManagerList, userListByManager, userDetail, userCountOfManager}=this.props;
+        console.log("userDetail",userDetail);
         var component = "";
         switch (this.optPage) {
             case business_operation_action.DELETE:
@@ -331,9 +340,10 @@ export default class NeedDownloadFlowContainer extends Component {
                                     page={this.page}
                                     _changePage={this._changePage} _prePage={this._prePage}
                                     _nextPage={this._nextPage}/>
-                        <MembershipList userListByManager={userListByManager} userManagerList={userManagerList}
+                        <MembershipList userListByManager={userListByManager} userManagerList={userManagerList} _doAction={this._doAction}
                                         _changeSelectedItems={this._changeSelectedItems} _startRefresh={this._startRefresh}
-                                        _changeImageUploadStatus={this._changeImageUploadStatus} getFilePaths={this.getFilePaths}/>
+                                        _changeImageUploadStatus={this._changeImageUploadStatus} getFilePaths={this.getFilePaths}
+                                        _showEmailModal={this._showEmailModal.bind(this)}/>
                     </div>;
                 break;
             case business_operation_action.ADD:
@@ -386,7 +396,7 @@ export default class NeedDownloadFlowContainer extends Component {
                                     selectedItems={this.selectedItems} _startRefresh={this._startRefresh}
                                     _doAction={this._doAction} addBtnHidden={true} editText="写邮件" deleteText="确认完成"
                                     saveText="发 送" saveIcon="fa-location-arrow" editIcon="fa-envelope-o" deleteIcon="fa-check-square-o"
-                                    modalType="ListModal" doAction="" content={flowRecordDate} tip="发送邮件时间"/>
+                                    modalType="ListModal" content={flowRecordDate} tip="发送邮件时间"/>
                         <div className="row" style={{
                             display: this.optPage == (business_operation_action.LIST || business_operation_action.SEARCH) ? "block" : "none"
                         }}>
@@ -530,10 +540,12 @@ class MembershipList extends Component {
         // $('#email_modal').on('shown', function () {
         //     $('#email_modal').find(".modal-body").css({overflow:"hidden"})
         // })
+        // $("#demo01").animatedModal();
     }
     _showEmailModal(val){
         this.detailData[0] = val;
-        this.props._startRefresh();
+        this.props._showEmailModal(val.id);
+        $("#email_modal").parent(".modal-scrollable").css({overflow:"hidden"});
     }
     render() {
         const {userListByManager,userManagerList, _changeSelectedItems}=this.props;
@@ -542,8 +554,8 @@ class MembershipList extends Component {
         var height = window.screen.height-57-74-110;
         var style = {top:0,marginTop:0};
         var bodyStyle = {overflow:"hidden"};
-        // var content = <SendEmail userManagerList={userManagerList} userDetail={this.detailData}
-        //                          _changeImageUploadStatus={this.props._changeImageUploadStatus} getFilePaths={this.props.getFilePaths}/>;
+        var content = <SendEmail userManagerList={userManagerList} userDetail={this.detailData}
+                                 _changeImageUploadStatus={this.props._changeImageUploadStatus} getFilePaths={this.props.getFilePaths}/>;
         return (
             <section className="panel" style={{marginBottom: "-1px", minHeight: "600px"}}>
                 <div className="panel-body" style={{padding: "1px"}}>
@@ -573,12 +585,11 @@ class MembershipList extends Component {
                                     <td>{val.email_password}</td>
                                     <td>{formatDate(val.bind_card_date, "yyyy-mm-dd")}</td>
                                     <td>
-                                        <button onClick={self._showEmailModal.bind(self,val)} type="button" className="btn btn-theme-inverse btn-sm"
-                                                style={{marginRight: "5px"}} data-toggle="modal"
-                                                data-target="#email_modal"
+                                        <li id="sendEmail" href="#animatedModal" onClick={self._showEmailModal.bind(self,val)} className="btn btn-theme-inverse btn-sm"
+                                                style={{marginRight: "5px"}} data-toggle="modal" data-target="#email_modal"
                                         >
-                                            <i className={"fa fa-envelope-o"}></i> {"写邮件"}
-                                        </button>
+                                            <i className={"fa fa-envelope-o"}/> {"写邮件"}
+                                        </li>
                                     </td>
                                 </tr>
                             });
@@ -586,223 +597,7 @@ class MembershipList extends Component {
                         </tbody>
                     </table>
                 </div>
-               {/* <ListModal id="email_modal" content={content} tip="新邮件" _doAction={""} width={width} height={height} style={style} bodyStyle={bodyStyle}/>*/}
-            </section>
-        )
-    }
-}
-
-class AddUser extends Component {
-    constructor(props) {
-        super(props);
-
-    }
-
-    componentDidMount() {
-        var self = this;
-        /*jQuery DOM*/
-        $("#input-24").fileinput({
-            uploadUrl: node_service + '/file/uploading',
-            theme: "fa",
-            initialPreviewAsData: true,
-            language: 'zh',
-            showUpload: false,
-            showPreview: true,
-            enctype: 'multipart/form-data',
-            overwriteInitial: false,
-            maxFileSize: 100000
-        });
-        $('#input-24').on('fileuploaded', function (event, data, previewId, index) {
-            if (data.response && data.response.result == "SUCCESS") {
-                var filePath = data.response.path;
-                self.props._changeImageUploadStatus(2, filePath);
-            } else {
-                self.props._changeImageUploadStatus(3);
-            }
-        });
-        $(".daterange-two").jeDate({
-            format: "YYYY-MM-DD hh:mm:ss", //日期格式
-            minDate: "1900-01-01 00:00:00", //最小日期
-            maxDate: "2099-12-31 23:59:59", //最大日期
-            isinitVal: false, //是否初始化时间
-            isTime: false, //是否开启时间选择
-            isClear: true, //是否显示清空
-            festival: false, //是否显示节日
-            zIndex: 999,  //弹出层的层级高度
-            marks: null, //给日期做标注
-        });
-        $("#saveForm").validate({
-            errorClass: 'validation-error-label',
-            successClass: 'validation-valid-label',
-            highlight: function (element, errorClass) {
-                $(element).removeClass(errorClass);
-            },
-            unhighlight: function (element, errorClass) {
-                $(element).removeClass(errorClass);
-            },
-            success: function (label) {
-                label.addClass("validation-valid-label").text("正确");
-            },
-            validClass: "validation-valid-label",
-            rules: {
-                name: {
-                    required: true,
-                },
-                idcard: {
-                    required: true,
-                },
-                account: {
-                    required: true,
-                },
-                password: {
-                    required: true,
-                },
-                email: {
-                    required: true,
-                    email: true
-                },
-                email_password: {
-                    required: true,
-                },
-                register_date: {
-                    required: true,
-                },
-            },
-            messages: {
-                name: {
-                    required: "姓名不能为空"
-                },
-                idcard: {
-                    required: "会员ID号不能为空"
-                },
-                account: {
-                    required: "登录账号不能为空"
-                },
-                password: {
-                    required: "登录密码不能为空"
-                },
-                email: {
-                    required: "邮箱不能为空"
-                },
-                email_password: {
-                    required: "邮箱密码不能为空"
-                },
-                register_date: {
-                    required: "请选择报单日期"
-                }
-
-            }
-        });
-        $("#is_manager").on("change", function () {
-            $("#manager_id").css({display: $("#is_manager option:selected").val() == 0 ? "block" : "none"});
-        });
-        $('.selectpicker').selectpicker();
-
-    }
-
-    render() {
-        const {userManagerList}=this.props;
-        return (
-            <section className="panel" style={{minHeight: "600px"}}>
-                <div className="panel-body" style={{padding: "1px"}}>
-                    <div className="row">
-                        <div className="col-md-12" style={{padding: "5px 25px"}}>
-                            <br />
-                            <h3><strong>基本</strong> 信息</h3>
-                            <hr />
-                            <form id="saveForm">
-                                <div className="form-group row">
-                                    <div className="col-md-3">
-                                        <label className="control-label">姓名</label>
-                                        <input type="text" className="form-control" name="name"
-                                               placeholder="报单人员的真实姓名"/>
-                                    </div>
-                                    <div className="col-md-3">
-                                        <label className="control-label">ID</label>
-                                        <input type="text" className="form-control" name="idcard"
-                                               placeholder="报单人员的ID会员号"/>
-                                    </div>
-                                    <div className="col-md-3" id="is_manager">
-                                        <label className="control-label">职位</label>
-                                        <select className="form-control" name="is_manager">
-                                            <option value={0}>普通会员</option>
-                                            <option value={1}>团队负责人</option>
-                                        </select>
-                                    </div>
-                                    <div className="col-md-3" id="manager_id">
-                                        <label className="control-label">所属团队</label>
-                                        <select className="selectpicker form-control" name="manager_id" data-size="10"
-                                                data-live-search="true">
-                                            {renderList(userManagerList, function (rows) {
-                                                return rows.map(function (val, key) {
-                                                    return <option key={key} value={val.id}>{val.name}</option>
-                                                })
-                                            })}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="form-group row">
-                                    <div className="col-md-6">
-                                        <label className="control-label">账号名称</label>
-                                        <input type="text" className="form-control" name="account"
-                                               placeholder="后台登录账号"/>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="control-label">账号密码</label>
-                                        <input type="text" className="form-control" placeholder="后台登录密码"
-                                               name="password"/>
-                                    </div>
-                                </div>
-                                <div className="form-group row">
-                                    <div className="col-md-6">
-                                        <label className="control-label">账号当前状态</label>
-                                        <select className="form-control" name="task_status">
-                                            <option value={0}>后台选码完毕，等待下轮流水提取</option>
-                                            <option value={1}>流水提取完毕，等待后续后台选码</option>
-                                        </select>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="control-label">报单日期</label>
-                                        <input id="bindCard" type="text"
-                                               className="form-control daterange-two" name="register_date"
-                                               placeholder="会员报单的日期"/>
-                                    </div>
-                                </div>
-                                <div className="form-group row">
-                                    <div className="col-md-6">
-                                        <label className="control-label">绑卡日期</label>
-                                        <input id="renewFee" type="text"
-                                               className="form-control daterange-two" name="bind_card_date"
-                                               placeholder="会员绑卡的日期"/>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="control-label">虚拟卡</label>
-                                        <select className="form-control" name="virtual_card">
-                                            <option value={0}>未绑定</option>
-                                            <option value={1}>已绑定</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="form-group row">
-                                    <div className="col-md-6">
-                                        <label className="control-label">邮箱</label>
-                                        <input type="text" className="form-control" name="email"
-                                               placeholder="个人提交的私人邮箱"/>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="control-label">邮箱密码</label>
-                                        <input type="text" className="form-control" placeholder="邮箱密码"
-                                               name="email_password"/>
-                                    </div>
-                                </div>
-                                <div className="form-group ">
-                                    <label className="control-label">银行卡图片</label>
-                                    <input id="input-24" name="inputFile" type="file" className="file-loading"/>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+                <ListModal id="email_modal" content={content} tip="新邮件" _doAction={this.props._doAction} sendEmail={true} width={width} height={height} style={style} bodyStyle={bodyStyle}/>
             </section>
         )
     }
@@ -906,7 +701,6 @@ class SendEmail extends Component {
 
     render() {
         const {userManagerList, userDetail}=this.props;
-        console.log("11111",userManagerList);
         const imgPath = "http://localhost:80/img/ueditor/866647032289431552.JPG";
         var img = "";
         if(imgPath){
@@ -926,19 +720,19 @@ class SendEmail extends Component {
                                         <div className="col-md-3">
                                             <label className="control-label">姓名</label>
                                             <input type="text" className="form-control" name="name"
-                                                   defaultValue={rows[0].name}
+                                                   value={rows[0].name}
                                                    placeholder="报单人员的真实姓名" disabled={true}/>
                                         </div>
                                         <div className="col-md-3">
                                             <label className="control-label">ID</label>
                                             <input type="text" className="form-control" name="idcard"
-                                                   defaultValue={rows[0].idcard}
+                                                   value={rows[0].idcard}
                                                    placeholder="报单人员的ID会员号" disabled={true}/>
                                         </div>
                                         <div className="col-md-3" id="is_manager">
                                             <label className="control-label">职位</label>
                                             <select className="form-control" name="is_manager" disabled={true}
-                                                    defaultValue={rows[0].is_manager}>
+                                                    value={rows[0].is_manager}>
                                                 <option value={0}>普通会员</option>
                                                 <option value={1}>团队负责人</option>
                                             </select>
@@ -946,7 +740,7 @@ class SendEmail extends Component {
                                         <div className="col-md-3" id="manager_id">
                                             <label className="control-label">所属团队</label>
                                             <select className="selectpicker form-control" name="manager_id" disabled={true}
-                                                    defaultValue={rows[0].manager_id}
+                                                    value={rows[0].manager_id}
                                                     data-size="10"
                                                     data-live-search="true">
                                                 {renderList(userManagerList, function (rows) {
@@ -985,23 +779,23 @@ class SendEmail extends Component {
                             <hr />
                             <form id="sendEmailForm" className="form-horizontal">
                                 <div className="form-group row">
-                                    <label className="control-label" style={{width:"58px",paddingRight:"10px",float:"left",lineHeight:"34px",textAlign:"right"}}>收件人</label>
-                                    <div style={{width:"95%",float:"left"}}>
+                                    <label className="col-lg-1 control-label" style={{minWidth:"68px",textAlign: 'right'}}>收件人</label>
+                                    <div className="col-lg-11">
                                         <input id="recipient" type="text" className="form-control" name="recipient"/>
                                     </div>
                                 </div>
-                                <div className="form-group row">
-                                    <label className="control-label" style={{width:"58px",paddingRight:"10px",float:"left",lineHeight:"34px",textAlign:"right"}}>主题</label>
-                                    <div style={{width:"95%",float:"left"}}>
+                                <div className="form-group">
+                                    <label className="col-lg-1 control-label" style={{minWidth:"68px",textAlign: 'right'}}>主题</label>
+                                    <div className="col-lg-11">
                                         <input id="subject" type="text" className="form-control" name="subject"/>
                                     </div>
                                 </div>
-                                <div className="form-group row">
-                                    <label className="control-label"
-                                           style={{width:"58px",paddingRight:"10px",float:"left",lineHeight:"34px",textAlign:"right"}}>{"内容"}</label>
-                                    <div style={{width:"95%",float:"left",position:"relative"}}>
+                                <div className="form-group" >
+                                    <label className="col-lg-1 control-label"
+                                           style={{minWidth:"68px",textAlign: 'right'}}>{"内容"}</label>
+                                    <div className="col-lg-11">
                                         <ul id="upload_file_wrap"></ul>
-                                        <RichText id="content" height="200" value={img} disabled={false} getFilePaths={this.props.getFilePaths}/>
+                                        <RichText id="richTextContent" height="500" value={img} disabled={false} getFilePaths={this.props.getFilePaths}/>
                                     </div>
                                 </div>
                             </form>

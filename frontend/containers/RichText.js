@@ -5,10 +5,12 @@ import React from 'react';
 import {connect} from 'react-redux'
 import {browserHistory} from 'react-router'
 import {bindActionCreators} from 'redux'
+import {isObjectValueEqual} from '../frameworkHelper/FrameWorkUtils'
 export default class RichText extends React.Component {
     constructor(props) {
         super(props);
         this.editor = "";
+        this.result = "";
     }
     componentDidMount(){
         this.editor = UE.getEditor(this.props.id, {
@@ -48,15 +50,17 @@ export default class RichText extends React.Component {
             console.log("value",that.props.value);
             that.editor.setContent(value);
             that.editor.addListener('afterUpfile', function (t, result) {
-                var files = [];
-                console.log("result",result);
-                for(var i in result){
-                    var filename = result[i].title;
-                    files[i] = {path:result[i].url,filename:filename};
-                    var fileHtml = '<li><a href="'+result[i].url+'" target="_blank">'+filename+'</a></li>';
-                    $("#upload_file_wrap").append(fileHtml);
+                if(!isObjectValueEqual(that.result,result)){
+                    var files = []
+                    for(var i in result){
+                        var filename = result[i].title;
+                        files[i] = {path:result[i].url,filename:filename};
+                        var fileHtml = '<li><a href="'+result[i].url+'" target="_blank">'+filename+'</a></li>';
+                        $("#upload_file_wrap").append(fileHtml);
+                    }
+                    that.props.getFilePaths(files);
+                    that.result = result;
                 }
-                that.props.getFilePaths(files);
             });
         });
     }
@@ -69,11 +73,12 @@ export default class RichText extends React.Component {
     }
     componentWillUnmount(){
         this.editor = "";
-        UE.getEditor("content").destroy();
+        this.result = "";
+        UE.getEditor("richTextContent").destroy();
     }
     render (){
         return (
-            <script id={this.props.id} name="content" type="text/plain" />
+            <script id={this.props.id} name="richTextContent" type="text/plain" />
         )
     }
 }
